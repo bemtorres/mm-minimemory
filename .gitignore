@@ -1,0 +1,17 @@
+# Archivos con información sensible
+.env
+
+# Entorno virtual
+venv/
+env/
+.venv/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Editor / sistema
+.DS_Store
+.idea/
+.vscode/
