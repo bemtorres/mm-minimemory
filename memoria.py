@@ -130,8 +130,75 @@ def leer_perfil(nombre):
     return _leer_archivo(nombre, "perfil.txt", PERFIL_INICIAL)
 
 
+# Carpeta raíz donde viven las bases de conocimiento compartidas en disco.
+DIRECTORIO_BASES_CONOCIMIENTO = "bases_conocimiento"
+
+
+def listar_bases_archivos():
+    """Devuelve los nombres de las bases de conocimiento disponibles en disco."""
+    if not os.path.isdir(DIRECTORIO_BASES_CONOCIMIENTO):
+        return []
+    return sorted(
+        os.path.splitext(f)[0]
+        for f in os.listdir(DIRECTORIO_BASES_CONOCIMIENTO)
+        if f.endswith(".txt") and not f.startswith(".")
+    )
+
+
+def leer_base_archivo(nombre_base):
+    """Lee el contenido de una base de conocimiento desde su archivo .txt."""
+    ruta = os.path.join(DIRECTORIO_BASES_CONOCIMIENTO, f"{nombre_base}.txt")
+    if os.path.exists(ruta):
+        try:
+            with open(ruta, "r", encoding="utf-8") as archivo:
+                return archivo.read().strip()
+        except (UnicodeDecodeError, OSError):
+            return ""
+    return ""
+
+
+def escribir_base_archivo(nombre_base, contenido):
+    """Guarda una base de conocimiento independiente en disco."""
+    nombre_base = nombre_base.strip()
+    os.makedirs(DIRECTORIO_BASES_CONOCIMIENTO, exist_ok=True)
+    ruta = os.path.join(DIRECTORIO_BASES_CONOCIMIENTO, f"{nombre_base}.txt")
+    with open(ruta, "w", encoding="utf-8") as archivo:
+        archivo.write(contenido.strip() + "\n")
+
+
+def leer_bases_agente_archivos(nombre_agente):
+    """Devuelve lista de tuplas (nombre_base, contenido) asociadas al agente."""
+    ruta = ruta_agente(nombre_agente, "bases.txt")
+    if not os.path.exists(ruta):
+        return []
+    try:
+        with open(ruta, "r", encoding="utf-8") as archivo:
+            lineas = [l.strip() for l in archivo.readlines() if l.strip()]
+    except (UnicodeDecodeError, OSError):
+        return []
+    resultado = []
+    for base in lineas:
+        contenido = leer_base_archivo(base)
+        if contenido:
+            resultado.append((base, contenido))
+    return resultado
+
+
+def establecer_bases_agente_archivos(nombre_agente, lista_bases):
+    """Guarda los nombres de las bases asociadas en agents/<nombre>/bases.txt."""
+    os.makedirs(os.path.join(DIRECTORIO_AGENTES, nombre_agente), exist_ok=True)
+    ruta = ruta_agente(nombre_agente, "bases.txt")
+    with open(ruta, "w", encoding="utf-8") as archivo:
+        archivo.write("\n".join(lista_bases).strip() + "\n")
+
+
 def leer_conocimiento(nombre):
     """Devuelve el conocimiento previo del agente como texto."""
+    # Primero revisa si tiene bases asociadas en bases.txt
+    bases = leer_bases_agente_archivos(nombre)
+    if bases:
+        partes = [f"[{nombre_base}]\n{contenido}" for nombre_base, contenido in bases]
+        return "\n\n".join(partes)
     return _leer_archivo(nombre, "conocimiento.txt", "")
 
 

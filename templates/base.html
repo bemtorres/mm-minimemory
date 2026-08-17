@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block titulo %}Agentes Personales · DeepSeek{% endblock %}</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+          },
+          colors: {
+            brand: {
+              50: "#f5f3ff", 100: "#ede9fe", 200: "#ddd6fe", 300: "#c4b5fd",
+              400: "#a78bfa", 500: "#8b5cf6", 600: "#7c3aed", 700: "#6d28d9",
+              800: "#5b21b6", 900: "#4c1d95", 950: "#2e1065",
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+</head>
+<body class="min-h-screen bg-[#faf9ff] font-sans text-slate-800 antialiased" {% block body_atributos %}{% endblock %}>
+
+  {% block contenido %}{% endblock %}
+
+  <script>
+    if (window.lucide) lucide.createIcons();
+  </script>
+
+  <!-- Aviso flotante (toast) -->
+  <div id="toast" class="pointer-events-none fixed bottom-6 left-1/2 z-[60] hidden -translate-x-1/2">
+    <div id="toast-contenido" class="flex items-center gap-2.5 rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white shadow-2xl">
+      <i id="toast-icono" data-lucide="triangle-alert" class="h-4 w-4"></i>
+      <span id="texto-toast"></span>
+    </div>
+  </div>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

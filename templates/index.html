@@ -1,0 +1,501 @@
+{% extends "base.html" %}
+
+{% block titulo %}Agentes Personales & Bases de Conocimiento · DeepSeek{% endblock %}
+
+{% block contenido %}
+
+<!-- Barra de navegación -->
+<nav class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/70 backdrop-blur-xl">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+    <div class="flex items-center gap-2.5">
+      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-fuchsia-500 shadow-lg shadow-brand-500/30">
+        <i data-lucide="sparkles" class="h-5 w-5 text-white"></i>
+      </div>
+      <div>
+        <p class="text-sm font-bold leading-tight text-slate-900">Agentes Personales</p>
+        <p class="text-[11px] font-medium text-slate-400">DeepSeek · Arquitectura Desacoplada</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      {% if tiene_api_key %}
+        <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+          <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+          API conectada
+        </span>
+      {% else %}
+        <a href="#" onclick="document.getElementById('modal-aviso-api').classList.remove('hidden'); return false;"
+           class="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700 hover:bg-amber-100">
+          <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+          Falta la API Key
+        </a>
+      {% endif %}
+      <a href="https://platform.deepseek.com/" target="_blank" rel="noopener"
+         class="hidden rounded-full px-3 py-1.5 text-xs font-semibold text-slate-500 transition hover:text-brand-600 sm:inline-flex">
+        DeepSeek
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- Encabezado -->
+<header class="relative overflow-hidden">
+  <div class="pointer-events-none absolute -top-40 left-1/2 h-96 w-[52rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-brand-400/30 via-fuchsia-300/25 to-sky-300/25 blur-3xl"></div>
+  <div class="relative mx-auto max-w-6xl px-4 pb-8 pt-12 text-center sm:px-6 sm:pt-16">
+    <span class="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3.5 py-1 text-xs font-semibold text-brand-700 shadow-sm">
+      <i data-lucide="layers" class="h-3.5 w-3.5"></i>
+      Agentes independientes vinculados a Bases de Conocimiento
+    </span>
+    <h1 class="mt-4 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl">
+      Gestiona tus <span class="gradient-text">Agentes</span> y <span class="gradient-text">Bases de Conocimiento</span>
+    </h1>
+    <p class="mx-auto mt-3 max-w-2xl text-base text-slate-500 sm:text-lg">
+      Crea bases de conocimiento independientes y asócialas a tus agentes.
+      Cada agente mantiene su propia personalidad, identidad y memoria.
+    </p>
+    <div class="mt-6 flex flex-wrap items-center justify-center gap-3">
+      <button onclick="abrirModalCrear()"
+              class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-fuchsia-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/30 transition hover:scale-[1.03] hover:shadow-brand-600/40 active:scale-95">
+        <i data-lucide="bot" class="h-4 w-4"></i>
+        Crear agente
+      </button>
+      <button onclick="abrirModalCrearFuente()"
+              class="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white px-5 py-2.5 text-sm font-semibold text-brand-700 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 active:scale-95">
+        <i data-lucide="book-open" class="h-4 w-4"></i>
+        Nueva base de conocimiento
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+
+  <!-- Aviso si falta la API Key -->
+  {% if not tiene_api_key %}
+  <div class="mb-8 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5 shadow-sm">
+    <div class="flex flex-wrap items-center gap-4">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+        <i data-lucide="key" class="h-5 w-5"></i>
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="text-sm font-bold text-amber-900">Falta configurar la API Key de DeepSeek</p>
+        <p class="mt-0.5 text-sm text-amber-700">
+          Copia <code class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">.env.example</code> a
+          <code class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">.env</code> y agrega tu
+          <code class="rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs">DEEPSEEK_API_KEY</code>.
+        </p>
+      </div>
+      <a href="https://platform.deepseek.com/" target="_blank" rel="noopener"
+         class="rounded-full bg-amber-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-amber-700">
+        Obtener API Key
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Navegación por pestañas de la vista principal -->
+  <div class="mb-8 flex items-center justify-center">
+    <div class="inline-flex rounded-2xl border border-slate-200/80 bg-slate-100/80 p-1 shadow-inner backdrop-blur">
+      <button id="tab-btn-agentes" onclick="cambiarTabPrincipal('agentes')"
+              class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2 text-sm font-bold text-slate-900 shadow-sm transition">
+        <i data-lucide="users" class="h-4 w-4 text-brand-600"></i>
+        <span>Agentes ({{ agentes|length }})</span>
+      </button>
+      <button id="tab-btn-fuentes" onclick="cambiarTabPrincipal('fuentes')"
+              class="inline-flex items-center gap-2 rounded-xl px-5 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900">
+        <i data-lucide="book-open" class="h-4 w-4 text-slate-400"></i>
+        <span>Bases de Conocimiento ({{ fuentes|length }})</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       Sección 1: Agentes
+       ============================================================ -->
+  <section id="seccion-agentes" class="transition duration-200">
+    <div class="mb-6 flex items-end justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Agentes disponibles</h2>
+        <p class="mt-0.5 text-sm text-slate-500">
+          Cada agente tiene personalidad, memoria y sus bases de conocimiento vinculadas.
+        </p>
+      </div>
+      <button onclick="abrirModalCrear()"
+              class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-100">
+        <i data-lucide="plus" class="h-4 w-4"></i>
+        Nuevo Agente
+      </button>
+    </div>
+
+    {% if agentes %}
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {% for agente in agentes %}
+      <a href="/agente/{{ agente.nombre }}"
+         class="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-6 shadow-[0_8px_30px_rgb(124,58,237,0.06)] transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-[0_16px_40px_rgb(124,58,237,0.14)]">
+        <div class="absolute right-0 top-0 h-24 w-24 rounded-bl-full bg-gradient-to-br {{ {
+          'violet': 'from-brand-100 to-transparent',
+          'fuchsia': 'from-fuchsia-100 to-transparent',
+          'indigo': 'from-indigo-100 to-transparent',
+          'sky': 'from-sky-100 to-transparent',
+          'emerald': 'from-emerald-100 to-transparent',
+          'rose': 'from-rose-100 to-transparent',
+        }[agente.color] }} opacity-70"></div>
+
+        <div>
+          <div class="relative flex items-center gap-4">
+            <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br {{ {
+              'violet': 'from-brand-500 to-brand-700',
+              'fuchsia': 'from-fuchsia-500 to-fuchsia-700',
+              'indigo': 'from-indigo-500 to-indigo-700',
+              'sky': 'from-sky-500 to-sky-700',
+              'emerald': 'from-emerald-500 to-emerald-700',
+              'rose': 'from-rose-500 to-rose-700',
+            }[agente.color] }} text-lg font-bold text-white shadow-lg">
+              {{ agente.iniciales }}
+            </div>
+            <div class="min-w-0">
+              <h3 class="truncate text-lg font-bold text-slate-900">{{ agente.nombre }}</h3>
+              <p class="truncate text-sm text-slate-500">{{ agente.persona }}</p>
+            </div>
+          </div>
+
+          <div class="relative mt-4 flex flex-wrap items-center gap-1.5">
+            <span class="inline-flex items-center gap-1 rounded-full bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700">
+              <i data-lucide="brain" class="h-3 w-3"></i>
+              {{ agente.identidad.nombre }}
+            </span>
+            {% if agente.memoria %}
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+              <i data-lucide="database" class="h-3 w-3"></i>
+              Memoria
+            </span>
+            {% endif %}
+          </div>
+
+          <!-- Bases de conocimiento asociadas -->
+          <div class="mt-3.5 border-t border-slate-100 pt-3">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Bases de conocimiento:</p>
+            <div class="mt-1.5 flex flex-wrap gap-1">
+              {% for fuente in agente.fuentes %}
+              <span class="inline-flex items-center gap-1 rounded-lg bg-violet-50 px-2 py-0.5 text-[11px] font-medium text-violet-700">
+                <i data-lucide="book-open" class="h-3 w-3 text-violet-500"></i>
+                {{ fuente.nombre }}
+              </span>
+              {% else %}
+              <span class="text-[11px] italic text-slate-400">(Sin bases asociadas)</span>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <div class="relative mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-600 transition group-hover:gap-2.5">
+          Conversar
+          <i data-lucide="arrow-right" class="h-4 w-4"></i>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center rounded-3xl border-2 border-dashed border-slate-200 bg-white/60 px-6 py-16 text-center">
+      <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
+        <i data-lucide="bot" class="h-8 w-8"></i>
+      </div>
+      <h3 class="mt-4 text-lg font-bold text-slate-900">Todavía no hay agentes</h3>
+      <p class="mt-1 max-w-sm text-sm text-slate-500">
+        Crea tu primer agente: dale personalidad, selecciona sus bases de conocimiento e identidad.
+      </p>
+      <button onclick="abrirModalCrear()"
+              class="mt-5 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-fuchsia-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:scale-105">
+        <i data-lucide="plus" class="h-4 w-4"></i>
+        Crear mi primer agente
+      </button>
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- ============================================================
+       Sección 2: Bases de Conocimiento Independientes
+       ============================================================ -->
+  <section id="seccion-fuentes" class="hidden transition duration-200">
+    <div class="mb-6 flex items-end justify-between">
+      <div>
+        <h2 class="text-xl font-bold text-slate-900">Bases de Conocimiento</h2>
+        <p class="mt-0.5 text-sm text-slate-500">
+          Repositorios independientes de conocimiento que puedes asociar y compartir entre varios agentes.
+        </p>
+      </div>
+      <button onclick="abrirModalCrearFuente()"
+              class="inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-100">
+        <i data-lucide="plus" class="h-4 w-4"></i>
+        Nueva Base
+      </button>
+    </div>
+
+    {% if fuentes %}
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {% for fuente in fuentes %}
+      <div class="group relative flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-lg">
+        <div>
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex items-center gap-3">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white shadow-md">
+                <i data-lucide="book-open" class="h-5 w-5"></i>
+              </div>
+              <div class="min-w-0">
+                <h3 class="truncate text-base font-bold text-slate-900">{{ fuente.nombre }}</h3>
+                <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-brand-600">
+                  <i data-lucide="users" class="h-3 w-3"></i>
+                  {{ fuente.total_agentes }} agente{% if fuente.total_agentes != 1 %}s{% endif %} asociado{% if fuente.total_agentes != 1 %}s{% endif %}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="abrirModalEditarFuente({{ fuente.id }})"
+                      title="Editar base de conocimiento"
+                      class="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700">
+                <i data-lucide="pencil" class="h-4 w-4"></i>
+              </button>
+              <button onclick="confirmarEliminarFuente({{ fuente.id }}, '{{ fuente.nombre }}')"
+                      title="Eliminar base de conocimiento"
+                      class="rounded-lg p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600">
+                <i data-lucide="trash-2" class="h-4 w-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Contenido:</p>
+            <div class="mt-1 max-h-32 overflow-hidden text-ellipsis rounded-xl bg-slate-50 p-3 text-xs leading-relaxed text-slate-600">
+              <pre class="whitespace-pre-wrap font-sans">{{ fuente.contenido if fuente.contenido else '(Sin contenido cargado)' }}</pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3 text-[11px] text-slate-400">
+          <span>Creada: {{ fuente.creado_en[:10] if fuente.creado_en else 'Reciente' }}</span>
+          <button onclick="abrirModalEditarFuente({{ fuente.id }})"
+                  class="font-semibold text-brand-600 transition hover:text-brand-700">
+            Ver / Editar detalle
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="flex flex-col items-center rounded-3xl border-2 border-dashed border-slate-200 bg-white/60 px-6 py-16 text-center">
+      <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
+        <i data-lucide="book-open" class="h-8 w-8"></i>
+      </div>
+      <h3 class="mt-4 text-lg font-bold text-slate-900">No hay bases de conocimiento aún</h3>
+      <p class="mt-1 max-w-sm text-sm text-slate-500">
+        Crea bases de conocimiento temáticas (documentos, temas, manuales) y luego asócialas a cualquier agente.
+      </p>
+      <button onclick="abrirModalCrearFuente()"
+              class="mt-5 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-fuchsia-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:scale-105">
+        <i data-lucide="plus" class="h-4 w-4"></i>
+        Crear primera base de conocimiento
+      </button>
+    </div>
+    {% endif %}
+  </section>
+
+</main>
+
+<!-- ============================================================
+     Modal: Crear Agente
+     ============================================================ -->
+<div id="modal-crear" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="cerrarModalCrear()"></div>
+  <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-brand-600">
+          <i data-lucide="bot" class="h-4 w-4"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900">Crear agente</h3>
+      </div>
+      <button onclick="cerrarModalCrear()" class="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+
+    <form id="form-crear" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
+      <div>
+        <label for="campo-nombre" class="mb-1.5 block text-sm font-semibold text-slate-700">Nombre del agente</label>
+        <input id="campo-nombre" name="nombre" type="text" required maxlength="40" autocomplete="off"
+               placeholder="ej. tutor_python"
+               class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100">
+      </div>
+
+      <div>
+        <label for="campo-perfil" class="mb-1.5 block text-sm font-semibold text-slate-700">Información y personalidad</label>
+        <textarea id="campo-perfil" name="perfil" rows="4" placeholder="NOMBRE:&#10;Ana García&#10;&#10;PROFESIÓN:&#10;Docente e investigadora&#10;&#10;PERSONALIDAD:&#10;Empática, estructurada y clara"
+                  class="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100"></textarea>
+        <p class="mt-1 text-xs text-slate-400">Quién es la persona representada. Si lo dejas vacío se usa una plantilla predeterminada.</p>
+      </div>
+
+      <!-- Selector de Bases de Conocimiento a asociar -->
+      <div>
+        <div class="mb-1.5 flex items-center justify-between">
+          <label class="block text-sm font-semibold text-slate-700">Bases de conocimiento asociadas</label>
+          <button type="button" onclick="abrirModalCrearFuente()" class="inline-flex items-center gap-1 text-xs font-semibold text-brand-600 hover:text-brand-700">
+            <i data-lucide="plus" class="h-3 w-3"></i>
+            Nueva base
+          </button>
+        </div>
+        <p class="mb-2 text-xs text-slate-400">Selecciona las bases de conocimiento independientes que este agente consultará:</p>
+        
+        <div id="lista-fuentes-crear" class="max-h-40 space-y-1.5 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-2.5">
+          {% for fuente in fuentes %}
+          <label class="flex cursor-pointer items-start gap-2.5 rounded-lg bg-white p-2.5 shadow-sm transition hover:bg-violet-50/50">
+            <input type="checkbox" name="fuentes_seleccionadas" value="{{ fuente.id }}" class="mt-0.5 h-4 w-4 shrink-0 rounded accent-brand-600">
+            <div class="min-w-0 flex-1">
+              <p class="text-xs font-bold text-slate-800">{{ fuente.nombre }}</p>
+              <p class="truncate text-[11px] text-slate-400">{{ fuente.contenido if fuente.contenido else '(Sin contenido)' }}</p>
+            </div>
+          </label>
+          {% else %}
+          <p class="py-2 text-center text-xs text-slate-400">No hay bases de conocimiento creadas aún.</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div>
+        <label for="campo-identidad" class="mb-1.5 block text-sm font-semibold text-slate-700">Identidad (rol)</label>
+        <select id="campo-identidad" name="identidad"
+                class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100">
+          <option value="">Por defecto (Básico)</option>
+          {% for clave, datos in identidades.items() %}
+          <option value="{{ clave }}">{{ datos.name }} — {{ datos.description }}</option>
+          {% endfor %}
+          <option value="personalizada">Escribir identidad personalizada…</option>
+        </select>
+      </div>
+
+      <div id="bloque-personalizada" class="hidden">
+        <label for="campo-identidad-custom" class="mb-1.5 block text-sm font-semibold text-slate-700">Prompt de identidad</label>
+        <textarea id="campo-identidad-custom" rows="3" placeholder="Eres un profesor llamado [____]…"
+                  class="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100"></textarea>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" onclick="cerrarModalCrear()"
+                class="rounded-full px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100">
+          Cancelar
+        </button>
+        <button type="submit" id="boton-crear"
+                class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-fuchsia-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-600/25 transition hover:scale-[1.03] active:scale-95 disabled:opacity-60">
+          <i data-lucide="sparkles" class="h-4 w-4"></i>
+          Crear agente
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     Modal: Crear / Editar Base de Conocimiento
+     ============================================================ -->
+<div id="modal-fuente" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="cerrarModalFuente()"></div>
+  <div class="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl">
+    <div class="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+      <div class="flex items-center gap-2">
+        <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100 text-violet-600">
+          <i data-lucide="book-open" class="h-4 w-4"></i>
+        </div>
+        <h3 id="titulo-modal-fuente" class="text-lg font-bold text-slate-900">Nueva Base de Conocimiento</h3>
+      </div>
+      <button onclick="cerrarModalFuente()" class="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600">
+        <i data-lucide="x" class="h-5 w-5"></i>
+      </button>
+    </div>
+
+    <form id="form-fuente" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
+      <input type="hidden" id="campo-fuente-id" value="">
+      <div>
+        <label for="campo-fuente-nombre" class="mb-1.5 block text-sm font-semibold text-slate-700">Nombre de la Base</label>
+        <input id="campo-fuente-nombre" name="nombre" type="text" required maxlength="80" autocomplete="off"
+               placeholder="ej. Python y Frameworks Web, Historia de la Física, etc."
+               class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100">
+        <p class="mt-1 text-xs text-slate-400">Un nombre temático para identificar esta base de conocimiento.</p>
+      </div>
+
+      <div>
+        <label for="campo-fuente-contenido" class="mb-1.5 block text-sm font-semibold text-slate-700">Contenido / Documentos</label>
+        <textarea id="campo-fuente-contenido" name="contenido" rows="7" placeholder="Escribe o pega aquí la información, conceptos, documentación o hechos en los que se basarán las respuestas de los agentes…"
+                  class="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-400 focus:bg-white focus:ring-4 focus:ring-brand-100"></textarea>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" onclick="cerrarModalFuente()"
+                class="rounded-full px-5 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100">
+          Cancelar
+        </button>
+        <button type="submit" id="boton-guardar-fuente"
+                class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-violet-600 to-fuchsia-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-violet-600/25 transition hover:scale-[1.03] active:scale-95 disabled:opacity-60">
+          <i data-lucide="save" class="h-4 w-4"></i>
+          Guardar base de conocimiento
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============================================================
+     Modal: Eliminar Base de Conocimiento
+     ============================================================ -->
+<div id="modal-eliminar-fuente" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="cerrarModalEliminarFuente()"></div>
+  <div class="relative w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-100 text-rose-600">
+      <i data-lucide="trash-2" class="h-7 w-7"></i>
+    </div>
+    <h3 class="mt-4 text-lg font-bold text-slate-900">¿Eliminar base de conocimiento?</h3>
+    <p class="mt-2 text-sm text-slate-500">
+      Se eliminará la base <strong id="nombre-eliminar-fuente" class="text-slate-800"></strong> y se desasociará de todos los agentes que la utilicen.
+    </p>
+    <div class="mt-5 flex justify-center gap-3">
+      <button onclick="cerrarModalEliminarFuente()"
+              class="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+        Cancelar
+      </button>
+      <button id="boton-confirmar-eliminar-fuente"
+              class="inline-flex items-center gap-2 rounded-full bg-rose-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-rose-600/25 transition hover:bg-rose-700">
+        <i data-lucide="trash-2" class="h-4 w-4"></i>
+        Sí, eliminar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: aviso API Key -->
+<div id="modal-aviso-api" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+  <div class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm" onclick="document.getElementById('modal-aviso-api').classList.add('hidden')"></div>
+  <div class="relative w-full max-w-md rounded-3xl bg-white p-6 text-center shadow-2xl">
+    <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
+      <i data-lucide="key" class="h-7 w-7"></i>
+    </div>
+    <h3 class="mt-4 text-lg font-bold text-slate-900">Falta tu API Key de DeepSeek</h3>
+    <p class="mt-2 text-sm text-slate-500">
+      Para conversar con los agentes necesitas una API Key válida. Créala en
+      DeepSeek y luego guarda el valor en el archivo
+      <code class="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs">.env</code>.
+    </p>
+    <div class="mt-5 flex justify-center gap-3">
+      <button onclick="document.getElementById('modal-aviso-api').classList.add('hidden')"
+              class="rounded-full border border-slate-200 px-5 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50">
+        Entendido
+      </button>
+      <a href="https://platform.deepseek.com/" target="_blank" rel="noopener"
+         class="rounded-full bg-amber-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700">
+        Ir a DeepSeek
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}

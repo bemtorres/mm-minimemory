@@ -11,6 +11,9 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 
+# Base de datos SQLite de la versión web (se genera con seed.py / app.py)
+agentes.db
+
 # Editor / sistema
 .DS_Store
 .idea/

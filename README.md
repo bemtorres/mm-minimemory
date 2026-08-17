@@ -6,6 +6,18 @@ Proyecto educativo en **Python** que implementa agentes conversacionales basados
 API de **DeepSeek**. El programa soporta **varios agentes a la vez**: al iniciar te
 pregunta con quién quieres conversar y cada agente tiene sus propios datos.
 
+Tiene **dos versiones** que comparten los mismos datos (`agents/`):
+
+| Versión | Cómo ejecutarla | Descripción |
+| ------- | --------------- | ----------- |
+| **Consola** | `python main.py` | La versión original, con interfaz de terminal y datos en `agents/`. |
+| **Web** | `python seed.py` y luego `python app.py` | Interfaz web en Flask con Tailwind CSS, estética HeroUI y base de datos SQLite. |
+
+La versión web se abre en <http://127.0.0.1:5000/> y permite crear agentes
+(con información, personalidad e identidad), conversar con ellos, ver y editar
+su perfil/conocimiento/memoria/identidad, cambiar la identidad o limpiar la
+memoria desde el navegador. Todos los datos se guardan en **SQLite**.
+
 Un agente representa a una persona específica. Sus respuestas se basan en:
 
 - **Identidad** — el rol y estilo de respuesta del agente (`identidad.txt`).
@@ -83,6 +95,40 @@ para que un estudiante de programación lo entienda y modifique fácilmente.
    (que está excluido de Git mediante `.gitignore`).
 
 ## Ejecución
+
+### Versión web (Flask + SQLite)
+
+```bash
+python seed.py        # opcional: llena agentes.db con datos de ejemplo
+python app.py
+```
+
+Luego abre <http://127.0.0.1:5000/> en el navegador. Verás los agentes
+disponibles como tarjetas; haz clic en uno para conversar o usa **Crear agente**
+para crear uno nuevo con su información, personalidad e identidad. La interfaz
+usa Tailwind CSS con el estilo visual de HeroUI y carga los estilos desde un
+CDN (se necesita internet).
+
+#### Base de datos (SQLite)
+
+La versión web guarda todo en el archivo `agentes.db` (se crea solo):
+
+- Tabla `agentes`: nombre, perfil (información y personalidad), conocimiento,
+  memoria e identidad de cada agente.
+- Tabla `conversaciones`: el historial completo de los chats.
+
+El **seeder** (`python seed.py`) llena la base de datos:
+
+1. Importa los agentes de la carpeta `agents/` (los de la versión de consola),
+   incluyendo su historial.
+2. Si no hay carpetas, crea tres agentes de ejemplo (`benjamin`, `elon_musk`
+   y `albert_einstein`).
+3. Agrega una conversación de ejemplo a cada agente que no tenga historial.
+
+Con `python seed.py --force` se vacía la base de datos y se vuelve a sembrar
+desde cero.
+
+### Versión de consola
 
 ```bash
 python main.py
@@ -242,10 +288,37 @@ Flujo paso a paso:
 | Archivo           | Responsabilidad                                          |
 | ----------------- | -------------------------------------------------------- |
 | `main.py`         | Interfaz de consola, selección de agente y comandos.     |
+| `app.py`          | Interfaz web (Flask): páginas y API JSON.                |
+| `basededatos.py`  | Base de datos SQLite de la versión web + clase `AgenteDB`. |
+| `seed.py`         | Seeder: llena `agentes.db` con agentes y conversaciones. |
 | `agente.py`       | Clase `Agente`: llama a DeepSeek y coordina los datos.   |
 | `memoria.py`      | Carpetas `agents/`, lectura/escritura de archivos.       |
 | `identidades.py`  | Diccionario `IDENTIDADES` con los roles disponibles.     |
 | `prompt.py`       | Construcción del System Prompt y análisis de memoria.    |
+
+### Estructura de la versión web
+
+```text
+app.py                  -> aplicación Flask (páginas + API JSON)
+basededatos.py          -> acceso a datos con SQLite (agentes.db)
+seed.py                 -> seeder: siembra agentes y conversaciones
+templates/
+├── base.html           -> diseño base (Tailwind CSS + estética HeroUI)
+├── index.html          -> lista de agentes y creación de uno nuevo
+└── chat.html           -> conversación y panel del agente
+static/
+├── css/app.css         -> estilos personalizados
+└── js/
+    ├── index.js        -> lógica de creación de agentes
+    └── chat.js         -> lógica del chat (mensajes, pestañas, acciones)
+agentes.db              -> base de datos SQLite (se genera automáticamente)
+```
+
+La versión web reutiliza `agente.py`, `memoria.py`, `identidades.py` y
+`prompt.py` de la versión de consola. `AgenteDB` (en `basededatos.py`) hereda
+de `Agente` y solo cambia la forma de guardar los datos: en vez de archivos
+en `agents/`, usa la base de datos. La versión de consola sigue intacta y usa
+sus archivos.
 
 ### Comandos
 
