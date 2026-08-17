@@ -37,11 +37,8 @@ para que un estudiante de programación lo entienda y modifique fácilmente.
 
 ## Instalación
 
-1. Clona o descarga el proyecto y entra a la carpeta:
+1. Clona o descarga el proyecto:
 
-   ```bash
-   cd agente_deepseek
-   ```
 
 2. Crea un entorno virtual:
 
