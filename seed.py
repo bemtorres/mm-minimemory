@@ -270,8 +270,8 @@ def main():
         else:
             print("Los agentes de agents/ ya estaban en la base de datos.")
     else:
-        crear_agentes_ejemplo()
-        print("No hay carpetas en agents/; se crearon agentes de ejemplo:")
+        crear_bases_y_agentes_ejemplo()
+        print("No hay carpetas en agents/; se crearon agentes y bases de ejemplo:")
         for nombre in bd.listar_agentes():
             print(f"  - {nombre}")
 

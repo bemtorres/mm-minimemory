@@ -17,10 +17,14 @@ try:
     from memoria import (
         borrar_memoria,
         crear_agente,
+        escribir_base_archivo,
         escribir_conocimiento,
         escribir_identidad,
         escribir_identidad_custom,
+        establecer_bases_agente_archivos,
+        leer_bases_agente_archivos,
         listar_agentes,
+        listar_bases_archivos,
     )
 except ModuleNotFoundError:
     print("Faltan dependencias. Ejecuta: pip install -r requirements.txt")
@@ -39,6 +43,7 @@ Comandos disponibles:
 /memoria
 /perfil
 /conocimiento
+/bases
 /identidad
 /cambiar_identidad
 /crear_identidad
@@ -244,6 +249,65 @@ def confirmar_borrado(agente):
         print("Operación cancelada.")
 
 
+def gestionar_bases_conocimiento(agente):
+    """Muestra y permite asociar bases de conocimiento al agente."""
+    bases_disponibles = listar_bases_archivos()
+    bases_actuales = [nom for nom, _ in leer_bases_agente_archivos(agente.nombre)]
+
+    print("\nBASES DE CONOCIMIENTO DISPONIBLES:")
+    print("-----------------------------------")
+    if bases_disponibles:
+        for idx, base in enumerate(bases_disponibles, 1):
+            marca = "[x]" if base in bases_actuales else "[ ]"
+            print(f"  {idx}. {marca} {base}")
+    else:
+        print("  (No hay bases creadas en bases_conocimiento/)")
+
+    print("\nOpciones:")
+    print("  - Escribe los números separados por coma para asociar (ej: 1, 3)")
+    print("  - Escribe 'nueva' para crear una base nueva")
+    print("  - Enter para dejar como está")
+
+    entrada = input("\nElige una opción: ").strip()
+    if not entrada:
+        return
+
+    if entrada.lower() == "nueva":
+        nom = input("Nombre de la nueva base: ").strip()
+        if not nom:
+            print("Operación cancelada.")
+            return
+        print("Contenido de la base (FIN para terminar):")
+        lineas = []
+        while True:
+            l = input("  > ")
+            if l.strip().upper() == "FIN":
+                break
+            lineas.append(l)
+        escribir_base_archivo(nom, "\n".join(lineas))
+        print(f"Base '{nom}' creada.")
+        asociar = input(f"¿Asociar '{nom}' a {agente.nombre}? (s/n): ").strip().lower()
+        if asociar in ("s", "si", "sí", "y", "yes"):
+            bases_actuales.append(nom)
+            establecer_bases_agente_archivos(agente.nombre, bases_actuales)
+            agente.cargar_conocimiento()
+            print("Base asociada al agente.")
+        return
+
+    partes = [p.strip() for p in entrada.split(",") if p.strip().isdigit()]
+    if partes:
+        nuevas_bases = []
+        for p in partes:
+            idx = int(p) - 1
+            if 0 <= idx < len(bases_disponibles):
+                nuevas_bases.append(bases_disponibles[idx])
+        establecer_bases_agente_archivos(agente.nombre, nuevas_bases)
+        agente.cargar_conocimiento()
+        print(f"Bases asociadas actualizadas: {', '.join(nuevas_bases) if nuevas_bases else '(ninguna)'}")
+    else:
+        print("Opción no válida.")
+
+
 def procesar_comando(comando, agente):
     """Ejecuta un comando y devuelve la acción a realizar.
 
@@ -259,6 +323,8 @@ def procesar_comando(comando, agente):
         mostrar_perfil(agente)
     elif comando == "/conocimiento":
         mostrar_conocimiento(agente)
+    elif comando == "/bases":
+        gestionar_bases_conocimiento(agente)
     elif comando == "/identidad":
         mostrar_identidad(agente)
     elif comando == "/cambiar_identidad":
@@ -273,7 +339,7 @@ def procesar_comando(comando, agente):
     else:
         print(f"Comando desconocido: {comando}")
         print(
-            "Usa /memoria, /perfil, /conocimiento, /identidad, "
+            "Usa /memoria, /perfil, /conocimiento, /bases, /identidad, "
             "/cambiar_identidad, /crear_identidad, /historial, /limpiar, "
             "/cambiar o /salir."
         )
