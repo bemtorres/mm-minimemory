@@ -16,11 +16,11 @@
   <!-- Barra de Navegación Google Material -->
   <header class="sticky top-0 z-40 border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#131314]/80 backdrop-blur-xl transition-colors duration-200">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
-      
+
       <!-- Marca THEYTHINK AI / Logo -->
       <div class="flex items-center gap-3">
         <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
-             class="h-9 w-9 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10 shrink-0">
+          class="h-9 w-9 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10 shrink-0">
         <div>
           <div class="flex items-center gap-2">
             <span class="text-sm font-bold tracking-tight text-[#202124] dark:text-white">THEYTHINK AI</span>
@@ -32,16 +32,15 @@
               <span class="h-1.5 w-1.5 rounded-full bg-[#34A853]"></span>
             </div>
           </div>
-          <p class="text-[11px] font-medium text-[#5f6368] dark:text-[#c4c7c5]">Impulsado por DeepSeek AI</p>
         </div>
       </div>
 
       <!-- Acciones de Navegación -->
       <div class="flex items-center gap-2.5 sm:gap-3">
-        
+
         <!-- Botón Selector Modo Claro / Oscuro -->
         <button onclick="alternarTema()" title="Cambiar modo claro / oscuro"
-                class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-[#202124] dark:hover:text-white">
+          class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="sun" class="icono-sol h-4 w-4 hidden"></i>
           <i data-lucide="moon" class="icono-luna h-4 w-4"></i>
         </button>
@@ -49,7 +48,7 @@
         {% if tiene_api_key %}
         <span class="heroui-chip heroui-chip-success hidden sm:inline-flex">
           <span class="h-1.5 w-1.5 rounded-full bg-[#34A853]"></span>
-          DeepSeek Conectado
+          Conectado
         </span>
         {% else %}
         <span class="heroui-chip heroui-chip-warning">
@@ -60,17 +59,17 @@
 
         {% if usuario_actual %}
         <a href="/dashboard"
-           class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#1a73e8]/25 transition active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4 py-2 text-xs font-bold text-white shadow-lg shadow-[#1a73e8]/25 transition active:scale-95">
           <i data-lucide="layout-dashboard" class="h-3.5 w-3.5"></i>
           <span>Dashboard</span>
         </a>
         <a href="/logout" title="Cerrar sesión"
-           class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
+          class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
           <i data-lucide="log-out" class="h-4 w-4"></i>
         </a>
         {% else %}
         <a href="/login"
-           class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4.5 py-2 text-xs font-bold text-white shadow-md shadow-[#1a73e8]/25 transition active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4.5 py-2 text-xs font-bold text-white shadow-md shadow-[#1a73e8]/25 transition active:scale-95">
           <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
           <span>Iniciar Sesión</span>
         </a>
@@ -87,16 +86,17 @@
          Hero Section con Paleta Google
          ============================================================ -->
     <div class="mx-auto max-w-3xl text-center">
-      
+
       <!-- Logo Central THEYTHINK AI con Resplandor -->
       <div class="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
         <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] opacity-35 blur-xl"></div>
         <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
-             class="relative h-24 w-24 rounded-3xl object-cover shadow-2xl border-2 border-white/20 dark:border-white/10 transition-transform duration-300 hover:scale-105">
+          class="relative h-24 w-24 rounded-3xl object-cover shadow-2xl border-2 border-white/20 dark:border-white/10 transition-transform duration-300 hover:scale-105">
       </div>
 
       <!-- Badge con los 4 colores de Google -->
-      <div class="inline-flex items-center gap-2.5 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-4 py-1.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm">
+      <div
+        class="inline-flex items-center gap-2.5 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-4 py-1.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm">
         <div class="flex items-center gap-1">
           <span class="h-2 w-2 rounded-full bg-[#4285F4]"></span>
           <span class="h-2 w-2 rounded-full bg-[#EA4335]"></span>
@@ -119,23 +119,23 @@
       <div class="mt-8 flex flex-wrap items-center justify-center gap-3.5">
         {% if usuario_actual %}
         <a href="/dashboard"
-           class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-6 py-3 text-sm font-bold text-white shadow-xl shadow-[#1a73e8]/30 transition hover:scale-105 active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-6 py-3 text-sm font-bold text-white shadow-xl shadow-[#1a73e8]/30 transition hover:scale-105 active:scale-95">
           <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
           Ir al Panel Administrativo
         </a>
         <a href="#catalogo-agentes"
-           class="inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-6 py-3 text-sm font-semibold text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/5 dark:hover:bg-[#28292a]">
+          class="inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-6 py-3 text-sm font-semibold text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/5 dark:hover:bg-[#28292a]">
           <i data-lucide="message-square" class="h-4 w-4 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
           Ver Agentes Disponibles
         </a>
         {% else %}
         <a href="/login"
-           class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-[#1a73e8]/30 transition hover:scale-105 active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-[#1a73e8]/30 transition hover:scale-105 active:scale-95">
           <i data-lucide="log-in" class="h-4 w-4"></i>
           Iniciar Sesión para Chatear
         </a>
         <a href="#capacidades"
-           class="inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-6 py-3.5 text-sm font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-[#28292a]">
+          class="inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-6 py-3.5 text-sm font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-[#28292a]">
           <span>Explorar Capacidades</span>
           <i data-lucide="arrow-down" class="h-4 w-4 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
         </a>
@@ -157,11 +157,12 @@
       </div>
 
       <div class="mt-12 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        
+
         <!-- Feature 1: Memoria Viva (Google Blue) -->
         <div class="heroui-card p-6 flex flex-col justify-between group">
           <div>
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8] group-hover:scale-110 transition border border-[#1a73e8]/20 dark:border-[#4285F4]/20">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8] group-hover:scale-110 transition border border-[#1a73e8]/20 dark:border-[#4285F4]/20">
               <i data-lucide="sparkles" class="h-5 w-5"></i>
             </div>
             <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Memoria Viva y Aprendizaje</h3>
@@ -178,7 +179,8 @@
         <!-- Feature 2: Bases de Conocimiento (Google Green) -->
         <div class="heroui-card p-6 flex flex-col justify-between group">
           <div>
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e8e3e]/10 dark:bg-[#34A853]/15 text-[#1e8e3e] dark:text-[#81c995] group-hover:scale-110 transition border border-[#1e8e3e]/20 dark:border-[#34A853]/20">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1e8e3e]/10 dark:bg-[#34A853]/15 text-[#1e8e3e] dark:text-[#81c995] group-hover:scale-110 transition border border-[#1e8e3e]/20 dark:border-[#34A853]/20">
               <i data-lucide="book-open" class="h-5 w-5"></i>
             </div>
             <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Bases de Conocimiento Temáticas</h3>
@@ -195,7 +197,8 @@
         <!-- Feature 3: Roles Dinámicos (Google Yellow) -->
         <div class="heroui-card p-6 flex flex-col justify-between group">
           <div>
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f9ab00]/10 dark:bg-[#FBBC04]/15 text-[#b06000] dark:text-[#fdd663] group-hover:scale-110 transition border border-[#f9ab00]/20 dark:border-[#FBBC04]/20">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f9ab00]/10 dark:bg-[#FBBC04]/15 text-[#b06000] dark:text-[#fdd663] group-hover:scale-110 transition border border-[#f9ab00]/20 dark:border-[#FBBC04]/20">
               <i data-lucide="brain" class="h-5 w-5"></i>
             </div>
             <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Roles e Identidades en Tiempo Real</h3>
@@ -212,7 +215,8 @@
         <!-- Feature 4: Multi-Conversación (Google Purple / Gemini) -->
         <div class="heroui-card p-6 flex flex-col justify-between group">
           <div>
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#9334e6]/10 dark:bg-[#a142f4]/15 text-[#9334e6] dark:text-[#d7aefb] group-hover:scale-110 transition border border-[#9334e6]/20 dark:border-[#a142f4]/20">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#9334e6]/10 dark:bg-[#a142f4]/15 text-[#9334e6] dark:text-[#d7aefb] group-hover:scale-110 transition border border-[#9334e6]/20 dark:border-[#a142f4]/20">
               <i data-lucide="messages-square" class="h-5 w-5"></i>
             </div>
             <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Hilos de Conversación Aislados</h3>
@@ -226,13 +230,14 @@
           </div>
         </div>
 
-        <!-- Feature 5: Motor DeepSeek (Google Red) -->
+        <!-- Feature 5: -->
         <div class="heroui-card p-6 flex flex-col justify-between group">
           <div>
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d93025]/10 dark:bg-[#EA4335]/15 text-[#d93025] dark:text-[#f28b82] group-hover:scale-110 transition border border-[#d93025]/20 dark:border-[#EA4335]/20">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#d93025]/10 dark:bg-[#EA4335]/15 text-[#d93025] dark:text-[#f28b82] group-hover:scale-110 transition border border-[#d93025]/20 dark:border-[#EA4335]/20">
               <i data-lucide="cpu" class="h-5 w-5"></i>
             </div>
-            <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Motor DeepSeek AI</h3>
+            <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Motor AI</h3>
             <p class="mt-2 text-xs leading-relaxed text-[#5f6368] dark:text-[#c4c7c5]">
               Respuestas rápidas, análisis estructurados en Markdown enriquecido, bloques de código legibles y alta capacidad de síntesis.
             </p>
@@ -246,7 +251,8 @@
         <!-- Feature 6: Administración & Usuarios (Google Blue) -->
         <div class="heroui-card p-6 flex flex-col justify-between group">
           <div>
-            <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8] group-hover:scale-110 transition border border-[#1a73e8]/20 dark:border-[#4285F4]/20">
+            <div
+              class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8] group-hover:scale-110 transition border border-[#1a73e8]/20 dark:border-[#4285F4]/20">
               <i data-lucide="shield-check" class="h-5 w-5"></i>
             </div>
             <h3 class="mt-4 text-base font-bold text-[#202124] dark:text-white">Administración & Usuarios</h3>
@@ -274,7 +280,8 @@
 
       <div class="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
         <div class="text-center p-4">
-          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8] font-bold text-base mb-3 border border-[#1a73e8]/25 dark:border-[#4285F4]/30">
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8] font-bold text-base mb-3 border border-[#1a73e8]/25 dark:border-[#4285F4]/30">
             1
           </div>
           <h4 class="font-bold text-sm text-[#202124] dark:text-white">Elige o Crea un Agente</h4>
@@ -282,7 +289,8 @@
         </div>
 
         <div class="text-center p-4">
-          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1e8e3e]/10 dark:bg-[#34A853]/15 text-[#1e8e3e] dark:text-[#81c995] font-bold text-base mb-3 border border-[#1e8e3e]/25 dark:border-[#34A853]/30">
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1e8e3e]/10 dark:bg-[#34A853]/15 text-[#1e8e3e] dark:text-[#81c995] font-bold text-base mb-3 border border-[#1e8e3e]/25 dark:border-[#34A853]/30">
             2
           </div>
           <h4 class="font-bold text-sm text-[#202124] dark:text-white">Asocia Conocimiento</h4>
@@ -290,7 +298,8 @@
         </div>
 
         <div class="text-center p-4">
-          <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f9ab00]/10 dark:bg-[#FBBC04]/15 text-[#b06000] dark:text-[#fdd663] font-bold text-base mb-3 border border-[#f9ab00]/25 dark:border-[#FBBC04]/30">
+          <div
+            class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#f9ab00]/10 dark:bg-[#FBBC04]/15 text-[#b06000] dark:text-[#fdd663] font-bold text-base mb-3 border border-[#f9ab00]/25 dark:border-[#FBBC04]/30">
             3
           </div>
           <h4 class="font-bold text-sm text-[#202124] dark:text-white">Inicia la Conversación</h4>
@@ -302,7 +311,7 @@
     <!-- ============================================================
          Sección: Agentes Disponibles (Presentación Limpia y Elegante)
          ============================================================ -->
-    <section id="catalogo-agentes" class="mt-24 border-t border-black/10 dark:border-white/10 pt-16">
+    <section id="catalogo-agentes" class="hidden mt-24 border-t border-black/10 dark:border-white/10 pt-16">
       <div class="flex flex-wrap items-end justify-between gap-4 pb-4">
         <div>
           <h2 class="text-xs font-bold uppercase tracking-widest text-[#1a73e8] dark:text-[#8ab4f8]">Catálogo Activo</h2>
@@ -323,8 +332,7 @@
           <div>
             <div class="flex items-center gap-3.5">
               {% if ag.avatar_url %}
-              <img src="{{ ag.avatar_url }}" alt="{{ ag.nombre }}"
-                   class="h-11 w-11 shrink-0 rounded-2xl object-cover shadow-md border border-black/10 dark:border-white/10">
+              <img src="{{ ag.avatar_url }}" alt="{{ ag.nombre }}" class="h-11 w-11 shrink-0 rounded-2xl object-cover shadow-md border border-black/10 dark:border-white/10">
               {% else %}
               <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-sm font-bold text-white shadow-md">
                 {{ ag.iniciales }}
@@ -347,13 +355,13 @@
           <div class="mt-5 pt-3 border-t border-black/5 dark:border-white/5">
             {% if usuario_actual %}
             <a href="/agente/{{ ag.nombre }}"
-               class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] py-2 text-xs font-bold text-white shadow transition active:scale-95">
+              class="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] py-2 text-xs font-bold text-white shadow transition active:scale-95">
               <i data-lucide="message-square" class="h-3.5 w-3.5"></i>
               <span>Chatear con {{ ag.nombre }}</span>
             </a>
             {% else %}
             <a href="/login?next=/agente/{{ ag.nombre }}"
-               class="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-[#1e1f20] hover:bg-black/10 dark:hover:bg-[#28292a] py-2 text-xs font-semibold text-[#202124] dark:text-[#e3e3e3] transition active:scale-95">
+              class="flex w-full items-center justify-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-[#1e1f20] hover:bg-black/10 dark:hover:bg-[#28292a] py-2 text-xs font-semibold text-[#202124] dark:text-[#e3e3e3] transition active:scale-95">
               <i data-lucide="lock" class="h-3.5 w-3.5 text-[#b06000] dark:text-[#fdd663]"></i>
               <span>Iniciar sesión para chatear</span>
             </a>
@@ -383,11 +391,8 @@
         <span>Plataforma de Agentes Autónomos</span>
       </div>
       <p class="text-[#5f6368] dark:text-[#c4c7c5] text-[11px] flex items-center justify-center gap-1.5 flex-wrap">
-        <span>Desarrollado por <a href="https://github.com/bemtorres" target="_blank" rel="noopener noreferrer" class="font-semibold text-[#1a73e8] dark:text-[#8ab4f8] hover:underline inline-flex items-center gap-1"><i data-lucide="github" class="h-3 w-3 inline"></i>Bemtorres</a></span>
-        <span>·</span>
-        <span>Respaldado en SQLite</span>
-        <span>·</span>
-        <span>Impulsado por DeepSeek AI</span>
+        <span>Desarrollado por <a href="https://github.com/bemtorres" target="_blank" rel="noopener noreferrer"
+            class="font-semibold text-[#1a73e8] dark:text-[#8ab4f8] hover:underline inline-flex items-center gap-1"><i data-lucide="github" class="h-3 w-3 inline"></i>Bemtorres</a></span>
       </p>
       <div>
         {% if usuario_actual %}

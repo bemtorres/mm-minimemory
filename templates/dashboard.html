@@ -15,11 +15,11 @@
   <!-- Barra de Navegación Google Material -->
   <header class="sticky top-0 z-40 border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#131314]/80 backdrop-blur-xl transition-colors duration-200">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
-      
+
       <!-- Marca Google / Dashboard -->
       <div class="flex items-center gap-3">
         <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
-             class="h-9 w-9 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10 shrink-0">
+          class="h-9 w-9 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10 shrink-0">
         <div>
           <div class="flex items-center gap-2">
             <span class="text-sm font-bold tracking-tight text-[#202124] dark:text-white">THEYTHINK AI Dashboard</span>
@@ -38,10 +38,10 @@
 
       <!-- Acciones de Usuario -->
       <div class="flex items-center gap-2.5 sm:gap-3">
-        
+
         <!-- Botón Selector Modo Claro / Oscuro -->
         <button onclick="alternarTema()" title="Cambiar modo claro / oscuro"
-                class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-[#202124] dark:hover:text-white">
+          class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="sun" class="icono-sol h-4 w-4 hidden"></i>
           <i data-lucide="moon" class="icono-luna h-4 w-4"></i>
         </button>
@@ -53,15 +53,14 @@
 
         <!-- Chip de Perfil de Usuario con acceso a Show / Edit Propio -->
         <button onclick="abrirModalMiPerfil()" title="Configurar mi cuenta"
-                class="flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3.5 py-1 text-xs transition hover:bg-black/5 dark:hover:bg-[#28292a]">
+          class="flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3.5 py-1 text-xs transition hover:bg-black/5 dark:hover:bg-[#28292a]">
           <span class="h-2 w-2 rounded-full bg-[#1e8e3e] dark:bg-[#34A853]"></span>
           <span class="font-bold text-[#202124] dark:text-[#e3e3e3]">{{ usuario_actual }}</span>
           <span class="heroui-chip heroui-chip-primary text-[10px] py-0 px-1.5 uppercase font-bold">ADMIN</span>
           <i data-lucide="settings" class="h-3 w-3 text-[#5f6368] dark:text-[#c4c7c5]"></i>
         </button>
 
-        <a href="/logout" title="Cerrar sesión"
-           class="rounded-xl border border-[#EA4335]/25 bg-[#EA4335]/10 p-2 text-[#d93025] dark:text-[#f28b82] transition hover:bg-[#EA4335]/20">
+        <a href="/logout" title="Cerrar sesión" class="rounded-xl border border-[#EA4335]/25 bg-[#EA4335]/10 p-2 text-[#d93025] dark:text-[#f28b82] transition hover:bg-[#EA4335]/20">
           <i data-lucide="log-out" class="h-4 w-4"></i>
         </a>
       </div>
@@ -74,7 +73,7 @@
 
     <!-- Tarjetas de Métricas KPI en Paleta de 4 Colores Google -->
     <div class="grid grid-cols-2 gap-3.5 sm:grid-cols-5">
-      
+
       <!-- KPI 1: Agentes (Google Blue) -->
       <div class="heroui-card p-4 border-l-4 border-l-[#1a73e8] dark:border-l-[#4285F4]">
         <div class="flex items-center justify-between">
@@ -140,27 +139,27 @@
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-black/10 dark:border-white/10 pb-4">
       <div class="flex flex-wrap gap-1.5 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-[#1e1f20] p-1.5">
         <button id="btn-tab-dash-agentes" onclick="cambiarTabDashboard('agentes')"
-                class="inline-flex items-center gap-2 rounded-xl bg-black/10 dark:bg-white/15 px-3.5 py-1.5 text-xs font-bold text-[#202124] dark:text-white shadow-sm transition">
+          class="inline-flex items-center gap-2 rounded-xl bg-black/10 dark:bg-white/15 px-3.5 py-1.5 text-xs font-bold text-[#202124] dark:text-white shadow-sm transition">
           <i data-lucide="bot" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
           <span>Agentes ({{ stats.agentes|length }})</span>
         </button>
         <button id="btn-tab-dash-fuentes" onclick="cambiarTabDashboard('fuentes')"
-                class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
+          class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="book-open" class="h-3.5 w-3.5 text-[#1e8e3e] dark:text-[#81c995]"></i>
           <span>Bases ({{ fuentes|length }})</span>
         </button>
         <button id="btn-tab-dash-roles" onclick="cambiarTabDashboard('roles')"
-                class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
+          class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="brain" class="h-3.5 w-3.5 text-[#b06000] dark:text-[#fdd663]"></i>
           <span>Roles ({{ roles|length }})</span>
         </button>
         <button id="btn-tab-dash-usuarios" onclick="cambiarTabDashboard('usuarios')"
-                class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
+          class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="users" class="h-3.5 w-3.5 text-[#d93025] dark:text-[#f28b82]"></i>
           <span>Usuarios ({{ usuarios|length }})</span>
         </button>
         <button id="btn-tab-dash-historial" onclick="cambiarTabDashboard('historial')"
-                class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
+          class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="messages-square" class="h-3.5 w-3.5 text-[#9334e6] dark:text-[#d7aefb]"></i>
           <span>Historiales</span>
         </button>
@@ -168,7 +167,7 @@
 
       <div>
         <button id="btn-accion-crear" onclick="abrirModalCrearAgenteDash()"
-                class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4.5 py-2 text-xs font-bold text-white shadow-lg shadow-[#1a73e8]/25 transition hover:scale-105 active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4.5 py-2 text-xs font-bold text-white shadow-lg shadow-[#1a73e8]/25 transition hover:scale-105 active:scale-95">
           <i data-lucide="plus" class="h-4 w-4"></i>
           <span>Nuevo Agente</span>
         </button>
@@ -198,8 +197,7 @@
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
                     {% if ag.avatar_url %}
-                    <img src="{{ ag.avatar_url }}" alt="{{ ag.nombre }}"
-                         class="h-10 w-10 shrink-0 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10">
+                    <img src="{{ ag.avatar_url }}" alt="{{ ag.nombre }}" class="h-10 w-10 shrink-0 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10">
                     {% else %}
                     <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] font-bold text-white shadow-md">
                       {{ ag.nombre[:2].upper() }}
@@ -231,19 +229,19 @@
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end gap-1.5">
                     <a href="/agente/{{ ag.nombre }}" title="Abrir Chat"
-                       class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
                       <i data-lucide="message-square" class="h-4 w-4 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
                     </a>
                     <button onclick="verConversacionesAgente('{{ ag.nombre }}')" title="Ver Historiales en Mantenedor"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
                       <i data-lucide="history" class="h-4 w-4 text-[#9334e6] dark:text-[#d7aefb]"></i>
                     </button>
                     <button onclick="abrirModalEditarAgenteDash('{{ ag.nombre }}')" title="Editar Agente"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
                       <i data-lucide="pencil" class="h-4 w-4 text-[#b06000] dark:text-[#fdd663]"></i>
                     </button>
                     <button onclick="confirmarEliminarAgenteDash('{{ ag.nombre }}')" title="Eliminar Agente"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
                       <i data-lucide="trash-2" class="h-4 w-4"></i>
                     </button>
                   </div>
@@ -304,11 +302,11 @@
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end gap-1.5">
                     <button onclick="abrirModalEditarFuenteDash({{ f.id }})" title="Editar Base"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
                       <i data-lucide="pencil" class="h-4 w-4 text-[#b06000] dark:text-[#fdd663]"></i>
                     </button>
                     <button onclick="confirmarEliminarFuenteDash({{ f.id }}, '{{ f.nombre }}')" title="Eliminar Base"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
                       <i data-lucide="trash-2" class="h-4 w-4"></i>
                     </button>
                   </div>
@@ -380,12 +378,12 @@
                 <td class="px-6 py-4 text-right">
                   <div class="flex items-center justify-end gap-1.5">
                     <button onclick="abrirModalEditarRolDash({{ r.id }})" title="Editar Rol y Prompt"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
                       <i data-lucide="pencil" class="h-4 w-4 text-[#b06000] dark:text-[#fdd663]"></i>
                     </button>
                     {% if not r.es_sistema %}
                     <button onclick="confirmarEliminarRolDash({{ r.id }}, '{{ r.nombre }}')" title="Eliminar Rol"
-                            class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
+                      class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
                       <i data-lucide="trash-2" class="h-4 w-4"></i>
                     </button>
                     {% endif %}
@@ -446,7 +444,8 @@
                   {{ u.creado_en[:16] if u.creado_en else 'Reciente' }}
                 </td>
                 <td class="px-6 py-4">
-                  <span class="inline-flex items-center gap-1.5 rounded-full bg-[#1e8e3e]/10 dark:bg-[#34A853]/10 px-2 py-0.5 text-[10px] font-semibold text-[#1e8e3e] dark:text-[#81c995] border border-[#1e8e3e]/25 dark:border-[#34A853]/25">
+                  <span
+                    class="inline-flex items-center gap-1.5 rounded-full bg-[#1e8e3e]/10 dark:bg-[#34A853]/10 px-2 py-0.5 text-[10px] font-semibold text-[#1e8e3e] dark:text-[#81c995] border border-[#1e8e3e]/25 dark:border-[#34A853]/25">
                     <span class="h-1.5 w-1.5 rounded-full bg-[#1e8e3e] dark:bg-[#34A853]"></span>
                     Activo
                   </span>
@@ -455,19 +454,19 @@
                   <div class="flex items-center justify-end gap-1.5">
                     <!-- Botón Show: Ver Ficha Detallada -->
                     <button onclick="verDetalleUsuario({{ u.id }})" title="Ver Detalle (Show)"
-                            class="inline-flex items-center gap-1 rounded-xl bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/5">
+                      class="inline-flex items-center gap-1 rounded-xl bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/5">
                       <i data-lucide="eye" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
                       <span class="hidden sm:inline">Ver</span>
                     </button>
                     <!-- Botón Edit: Editar y Actualizar -->
                     <button onclick="abrirModalEditarUsuarioDash({{ u.id }})" title="Editar Usuario (Edit / Update)"
-                            class="inline-flex items-center gap-1 rounded-xl bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/5">
+                      class="inline-flex items-center gap-1 rounded-xl bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10 border border-black/5 dark:border-white/5">
                       <i data-lucide="pencil" class="h-3.5 w-3.5 text-[#b06000] dark:text-[#fdd663]"></i>
                       <span class="hidden sm:inline">Editar</span>
                     </button>
                     <!-- Botón Delete: Eliminar Usuario -->
                     <button onclick="confirmarEliminarUsuarioDash({{ u.id }}, '{{ u.usuario }}')" title="Eliminar Usuario"
-                            class="rounded-xl p-1.5 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
+                      class="rounded-xl p-1.5 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]">
                       <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
                     </button>
                   </div>
@@ -484,14 +483,14 @@
          Sección 5: Mantenedor de Conversaciones
          ============================================================ -->
     <section id="dash-seccion-historial" class="mt-6 hidden">
-      
+
       <!-- Barra de Filtro de Agente -->
       <div class="heroui-card p-4 flex flex-wrap items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <i data-lucide="filter" class="h-4 w-4 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
           <span class="text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Filtrar por Agente:</span>
           <select id="filtro-agente-conversaciones" onchange="filtrarConversacionesPorAgente(this.value)"
-                  class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+            class="rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
             <option value="">Todos los agentes</option>
             {% for ag in stats.agentes %}
             <option value="{{ ag.nombre }}">{{ ag.nombre }}</option>
@@ -508,7 +507,7 @@
 
       <!-- Panel Dividido: Lista de Sesiones y Visor de Transcripción -->
       <div class="mt-5 grid grid-cols-1 gap-6 lg:grid-cols-12">
-        
+
         <!-- Columna Izquierda: Lista de Hilos (5 cols) -->
         <div class="lg:col-span-5 heroui-card p-5 flex flex-col h-[600px]">
           <div class="flex items-center justify-between pb-3 border-b border-black/10 dark:border-white/10">
@@ -518,9 +517,8 @@
 
           <div id="dash-lista-hilos" class="mt-3 flex-1 space-y-2 overflow-y-auto pr-1">
             {% for ses in stats.todas_las_sesiones %}
-            <button onclick="cargarTranscripcionSesion({{ ses.id }}, '{{ ses.agente_nombre }}', '{{ ses.titulo }}')"
-                    data-sesion-card="{{ ses.id }}" data-sesion-agente="{{ ses.agente_nombre }}"
-                    class="w-full text-left rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4 transition hover:border-[#1a73e8]/40 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] focus:border-[#1a73e8] focus:bg-black/[0.04] dark:focus:bg-white/[0.06]">
+            <button onclick="cargarTranscripcionSesion({{ ses.id }}, '{{ ses.agente_nombre }}', '{{ ses.titulo }}')" data-sesion-card="{{ ses.id }}" data-sesion-agente="{{ ses.agente_nombre }}"
+              class="w-full text-left rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4 transition hover:border-[#1a73e8]/40 hover:bg-black/[0.04] dark:hover:bg-white/[0.06] focus:border-[#1a73e8] focus:bg-black/[0.04] dark:focus:bg-white/[0.06]">
               <div class="flex items-center justify-between">
                 <span class="heroui-chip heroui-chip-primary text-[10px] py-0.5 px-2 font-bold">{{ ses.agente_nombre }}</span>
                 <span class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">{{ ses.actualizado_en[:16] if ses.actualizado_en else '' }}</span>
@@ -548,14 +546,14 @@
               </div>
               <p id="visor-agente-sesion" class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-0.5">Explorador de mensajes de la sesión</p>
             </div>
-            
+
             <div class="flex items-center gap-2">
               <a id="btn-abrir-chat-visor" href="#" target="_blank" class="hidden heroui-btn-flat text-xs px-3 py-1.5 inline-flex items-center gap-1">
                 <i data-lucide="external-link" class="h-3 w-3 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
                 <span>Abrir Chat</span>
               </a>
               <button id="btn-eliminar-sesion-visor" onclick="eliminarSesionDesdeVisor()"
-                      class="hidden rounded-xl border border-[#EA4335]/30 bg-[#EA4335]/10 px-3 py-1.5 text-xs font-semibold text-[#d93025] dark:text-[#f28b82] hover:bg-[#EA4335]/20">
+                class="hidden rounded-xl border border-[#EA4335]/30 bg-[#EA4335]/10 px-3 py-1.5 text-xs font-semibold text-[#d93025] dark:text-[#f28b82] hover:bg-[#EA4335]/20">
                 <i data-lucide="trash-2" class="h-3 w-3 inline mr-1"></i>
                 Eliminar
               </button>
@@ -632,7 +630,7 @@
         Cerrar
       </button>
       <button id="btn-show-ir-editar" onclick="procederEditarDesdeShow()"
-              class="inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4 py-2 text-xs font-bold text-white shadow">
+        class="inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4 py-2 text-xs font-bold text-white shadow">
         <i data-lucide="pencil" class="h-3.5 w-3.5"></i>
         <span>Editar este Usuario</span>
       </button>
@@ -658,13 +656,13 @@
       <div>
         <label for="dash-usuario-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Nombre de Usuario</label>
         <input id="dash-usuario-nombre" type="text" required maxlength="40" placeholder="ej. benjamin"
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
       <div>
         <label for="dash-usuario-rol" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Rol</label>
         <select id="dash-usuario-rol"
-                class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
           <option value="admin">Administrador (Acceso Total)</option>
           <option value="usuario">Usuario Estándar</option>
         </select>
@@ -675,7 +673,7 @@
           Contraseña <span id="dash-usuario-pwd-ayuda" class="font-normal text-[#1a73e8] dark:text-[#8ab4f8] lowercase">(dejar en blanco para no cambiar)</span>
         </label>
         <input id="dash-usuario-password" type="password" placeholder="••••••••"
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-2">
@@ -683,7 +681,7 @@
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-usuario-dash"
-                class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
           <i data-lucide="save" class="h-3.5 w-3.5"></i>
           <span>Guardar Usuario</span>
         </button>
@@ -712,7 +710,7 @@
       <div>
         <label for="perfil-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Usuario Activo</label>
         <input id="perfil-nombre" type="text" required value="{{ usuario_actual }}"
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
       <div>
@@ -720,15 +718,14 @@
           Nueva Contraseña <span class="font-normal text-[#1a73e8] dark:text-[#8ab4f8] lowercase">(dejar en blanco para mantener la actual)</span>
         </label>
         <input id="perfil-password" type="password" placeholder="Nueva contraseña…"
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-2">
         <button type="button" onclick="cerrarModalMiPerfil()" class="heroui-btn-flat px-4 py-2 text-xs">
           Cancelar
         </button>
-        <button type="submit" id="btn-guardar-mi-perfil"
-                class="heroui-btn-primary px-6 py-2.5 text-xs inline-flex items-center gap-2">
+        <button type="submit" id="btn-guardar-mi-perfil" class="heroui-btn-primary px-6 py-2.5 text-xs inline-flex items-center gap-2">
           <i data-lucide="save" class="h-3.5 w-3.5"></i>
           <span>Actualizar Perfil</span>
         </button>
@@ -750,18 +747,19 @@
 
     <form id="form-agente-dash" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
       <input type="hidden" id="dash-agente-modo" value="crear">
-      
+
       <div>
         <label for="dash-campo-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Nombre único</label>
         <input id="dash-campo-nombre" type="text" required maxlength="40" placeholder="ej. profesor_fisica"
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
       <!-- Imagen / Avatar del Agente -->
       <div>
         <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Imagen / Avatar del Agente</label>
         <div class="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3">
-          <div id="dash-avatar-preview-wrapper" class="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-sm shadow-md">
+          <div id="dash-avatar-preview-wrapper"
+            class="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-sm shadow-md">
             <span id="dash-avatar-preview-initials">AG</span>
             <img id="dash-avatar-preview-img" src="" alt="Avatar" class="hidden h-full w-full object-cover">
           </div>
@@ -773,12 +771,13 @@
                 <span>Subir Imagen</span>
                 <input type="file" id="dash-input-avatar-file" accept="image/*" class="hidden" onchange="subirAvatarArchivo(this, 'dash')">
               </label>
-              <button type="button" onclick="limpiarAvatarSeleccionado('dash')" class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#d93025] dark:hover:text-[#f28b82] transition">
+              <button type="button" onclick="limpiarAvatarSeleccionado('dash')"
+                class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#d93025] dark:hover:text-[#f28b82] transition">
                 Quitar
               </button>
             </div>
             <input id="dash-campo-avatar-url-input" type="url" placeholder="O escribe una URL de imagen (https://…)" oninput="actualizarAvatarUrlInput(this.value, 'dash')"
-                   class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
           </div>
         </div>
       </div>
@@ -786,14 +785,15 @@
       <div>
         <label for="dash-campo-perfil" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Información y Personalidad</label>
         <textarea id="dash-campo-perfil" rows="4" placeholder="NOMBRE:&#10;Albert Einstein&#10;&#10;PROFESIÓN:&#10;Físico teórico..."
-                  class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
+          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
       </div>
 
       <div>
         <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Bases de Conocimiento Asociadas</label>
         <div id="dash-lista-fuentes" class="max-h-36 space-y-1.5 overflow-y-auto rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2.5">
           {% for f in fuentes %}
-          <label class="flex cursor-pointer items-start gap-2.5 rounded-lg bg-black/5 dark:bg-white/5 p-2 text-xs text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10">
+          <label
+            class="flex cursor-pointer items-start gap-2.5 rounded-lg bg-black/5 dark:bg-white/5 p-2 text-xs text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10">
             <input type="checkbox" name="dash_fuentes" value="{{ f.id }}" class="mt-0.5 h-4 w-4 shrink-0 rounded accent-[#1a73e8]">
             <div class="min-w-0 flex-1">
               <p class="font-bold text-[#202124] dark:text-white">{{ f.nombre }}</p>
@@ -807,7 +807,7 @@
       <div>
         <label for="dash-select-identidad" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Identidad / Rol</label>
         <select id="dash-select-identidad"
-                class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
           <option value="">Por defecto (Básico)</option>
           {% for r in roles %}
           <option value="{{ r.clave }}">{{ r.nombre }} — {{ r.descripcion }}</option>
@@ -819,15 +819,14 @@
       <div id="dash-bloque-personalizada" class="hidden">
         <label for="dash-identidad-custom" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Prompt Personalizado</label>
         <textarea id="dash-identidad-custom" rows="3" placeholder="Eres un mentor llamado [____]..."
-                  class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
+          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-2">
         <button type="button" onclick="cerrarModalAgenteDash()" class="heroui-btn-flat px-4 py-2 text-xs">
           Cancelar
         </button>
-        <button type="submit" id="btn-guardar-agente-dash"
-                class="heroui-btn-primary px-6 py-2.5 text-xs inline-flex items-center gap-2">
+        <button type="submit" id="btn-guardar-agente-dash" class="heroui-btn-primary px-6 py-2.5 text-xs inline-flex items-center gap-2">
           <i data-lucide="save" class="h-3.5 w-3.5"></i>
           <span>Guardar Agente</span>
         </button>
@@ -849,17 +848,17 @@
 
     <form id="form-fuente-dash" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
       <input type="hidden" id="dash-fuente-id" value="">
-      
+
       <div>
         <label for="dash-fuente-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Nombre de la Base</label>
         <input id="dash-fuente-nombre" type="text" required maxlength="80" placeholder="ej. Documentación Python"
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
       <div>
         <label for="dash-fuente-contenido" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Contenido / Documentos</label>
         <textarea id="dash-fuente-contenido" rows="7" placeholder="Pega aquí la información temática..."
-                  class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
+          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-2">
@@ -867,7 +866,7 @@
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-fuente-dash"
-                class="inline-flex items-center gap-2 rounded-xl bg-[#1e8e3e] dark:bg-[#34a853] hover:bg-[#1b7e37] dark:hover:bg-[#2d8e47] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1e8e3e] dark:bg-[#34a853] hover:bg-[#1b7e37] dark:hover:bg-[#2d8e47] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
           <i data-lucide="save" class="h-3.5 w-3.5"></i>
           <span>Guardar Base</span>
         </button>
@@ -889,33 +888,33 @@
 
     <form id="form-rol-dash" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
       <input type="hidden" id="dash-rol-id" value="">
-      
+
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label for="dash-rol-clave" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Clave única</label>
           <input id="dash-rol-clave" type="text" required maxlength="40" placeholder="ej. consultor_legal"
-                 class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm font-mono text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]">
+            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm font-mono text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]">
         </div>
         <div>
           <label for="dash-rol-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Nombre del Rol</label>
           <input id="dash-rol-nombre" type="text" required maxlength="80" placeholder="ej. Consultor Legal"
-                 class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]">
+            class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]">
         </div>
       </div>
 
       <div>
         <label for="dash-rol-descripcion" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Descripción breve</label>
         <input id="dash-rol-descripcion" type="text" maxlength="200" placeholder="ej. Respuestas formales con análisis..."
-               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]">
+          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]">
       </div>
 
       <div>
         <div class="flex items-center justify-between mb-1.5">
-          <label for="dash-rol-prompt" class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">System Prompt para DeepSeek</label>
+          <label for="dash-rol-prompt" class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">System Prompt AI</label>
           <span class="text-[11px] text-[#b06000] dark:text-[#fdd663]">Marcadores: [____] y [información del documento]</span>
         </div>
         <textarea id="dash-rol-prompt" rows="8" required placeholder="Role:&#10;Eres un experto en [información del documento]..."
-                  class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 font-mono text-xs text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]"></textarea>
+          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 font-mono text-xs text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-2">
@@ -923,7 +922,7 @@
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-rol-dash"
-                class="inline-flex items-center gap-2 rounded-xl bg-[#f9ab00] dark:bg-[#FBBC04] hover:bg-[#e37400] dark:hover:bg-[#f9ab00] px-6 py-2.5 text-xs font-bold text-black shadow-lg transition active:scale-95">
+          class="inline-flex items-center gap-2 rounded-xl bg-[#f9ab00] dark:bg-[#FBBC04] hover:bg-[#e37400] dark:hover:bg-[#f9ab00] px-6 py-2.5 text-xs font-bold text-black shadow-lg transition active:scale-95">
           <i data-lucide="save" class="h-3.5 w-3.5"></i>
           <span>Guardar Rol</span>
         </button>
@@ -945,7 +944,8 @@
       <button onclick="cerrarModalEliminarDash()" class="heroui-btn-flat px-4 py-2 text-xs">
         Cancelar
       </button>
-      <button id="btn-confirmar-eliminar-dash" class="inline-flex items-center gap-1.5 rounded-xl bg-[#d93025] dark:bg-[#EA4335] hover:bg-[#b3261e] dark:hover:bg-[#d93025] px-5 py-2 text-xs font-bold text-white shadow-lg shadow-[#EA4335]/30">
+      <button id="btn-confirmar-eliminar-dash"
+        class="inline-flex items-center gap-1.5 rounded-xl bg-[#d93025] dark:bg-[#EA4335] hover:bg-[#b3261e] dark:hover:bg-[#d93025] px-5 py-2 text-xs font-bold text-white shadow-lg shadow-[#EA4335]/30">
         <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
         <span>Sí, eliminar</span>
       </button>
