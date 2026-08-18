@@ -424,16 +424,41 @@
   };
 
   // ------------------------------------------------------------------
-  // Modal de Gestión Integral del Agente
+  // Drawer de Gestión Integral del Agente (Slide-Over Panel)
   // ------------------------------------------------------------------
   window.abrirModalGestionAgente = function () {
+    if (!modalGestionAgente) return;
     modalGestionAgente.classList.remove("hidden");
-    modalGestionAgente.classList.add("flex");
+    var backdrop = document.getElementById("drawer-agente-backdrop");
+    var panel = document.getElementById("drawer-agente-panel");
+    requestAnimationFrame(function () {
+      if (backdrop) {
+        backdrop.classList.remove("opacity-0");
+        backdrop.classList.add("opacity-100");
+      }
+      if (panel) {
+        panel.classList.remove("translate-x-full");
+        panel.classList.add("translate-x-0");
+      }
+    });
+    if (window.lucide) lucide.createIcons();
   };
 
   window.cerrarModalGestionAgente = function () {
-    modalGestionAgente.classList.add("hidden");
-    modalGestionAgente.classList.remove("flex");
+    if (!modalGestionAgente) return;
+    var backdrop = document.getElementById("drawer-agente-backdrop");
+    var panel = document.getElementById("drawer-agente-panel");
+    if (backdrop) {
+      backdrop.classList.remove("opacity-100");
+      backdrop.classList.add("opacity-0");
+    }
+    if (panel) {
+      panel.classList.remove("translate-x-0");
+      panel.classList.add("translate-x-full");
+    }
+    setTimeout(function () {
+      modalGestionAgente.classList.add("hidden");
+    }, 300);
   };
 
   window.cambiarTabModalGestion = function (tab) {
@@ -444,12 +469,13 @@
       if (seccion) seccion.classList.toggle("hidden", t !== tab);
       if (btn) {
         if (t === tab) {
-          btn.className = "px-3 py-1.5 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white";
+          btn.className = "px-4 py-2 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white transition shrink-0";
         } else {
-          btn.className = "px-3 py-1.5 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white";
+          btn.className = "px-4 py-2 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white transition shrink-0";
         }
       }
     });
+    if (window.lucide) lucide.createIcons();
   };
 
   selectIdentidad.addEventListener("change", function () {

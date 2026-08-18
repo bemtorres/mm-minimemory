@@ -415,8 +415,20 @@
     });
 
     modalAgente.classList.remove("hidden");
-    modalAgente.classList.add("flex");
-    setTimeout(function () { campoAgenteNombre.focus(); }, 50);
+    var backdrop = document.getElementById("drawer-agente-dash-backdrop");
+    var panel = document.getElementById("drawer-agente-dash-panel");
+    requestAnimationFrame(function () {
+      if (backdrop) {
+        backdrop.classList.remove("opacity-0");
+        backdrop.classList.add("opacity-100");
+      }
+      if (panel) {
+        panel.classList.remove("translate-x-full");
+        panel.classList.add("translate-x-0");
+      }
+    });
+    if (window.lucide) lucide.createIcons();
+    setTimeout(function () { campoAgenteNombre.focus(); }, 100);
   };
 
   window.abrirModalEditarAgenteDash = function (nombre) {
@@ -453,7 +465,19 @@
         }
 
         modalAgente.classList.remove("hidden");
-        modalAgente.classList.add("flex");
+        var backdrop = document.getElementById("drawer-agente-dash-backdrop");
+        var panel = document.getElementById("drawer-agente-dash-panel");
+        requestAnimationFrame(function () {
+          if (backdrop) {
+            backdrop.classList.remove("opacity-0");
+            backdrop.classList.add("opacity-100");
+          }
+          if (panel) {
+            panel.classList.remove("translate-x-full");
+            panel.classList.add("translate-x-0");
+          }
+        });
+        if (window.lucide) lucide.createIcons();
       })
       .catch(function () {
         mostrarToast("No se pudo cargar la información del agente.");
@@ -461,8 +485,19 @@
   };
 
   window.cerrarModalAgenteDash = function () {
-    modalAgente.classList.add("hidden");
-    modalAgente.classList.remove("flex");
+    var backdrop = document.getElementById("drawer-agente-dash-backdrop");
+    var panel = document.getElementById("drawer-agente-dash-panel");
+    if (backdrop) {
+      backdrop.classList.remove("opacity-100");
+      backdrop.classList.add("opacity-0");
+    }
+    if (panel) {
+      panel.classList.remove("translate-x-0");
+      panel.classList.add("translate-x-full");
+    }
+    setTimeout(function () {
+      modalAgente.classList.add("hidden");
+    }, 300);
   };
 
   selectAgenteIdentidad.addEventListener("change", function () {

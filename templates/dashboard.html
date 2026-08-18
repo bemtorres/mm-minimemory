@@ -585,53 +585,56 @@
 <!-- Modal: Show (Ver Detalle de Usuario) -->
 <div id="modal-show-usuario" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalShowUsuario()"></div>
-  <div class="relative w-full max-w-md overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl p-6">
+  <div class="relative w-full max-w-xl overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl p-6 sm:p-8">
     <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
-      <div class="flex items-center gap-2.5">
-        <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
-          <i data-lucide="user-check" class="h-4 w-4"></i>
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
+          <i data-lucide="user-check" class="h-5 w-5"></i>
         </div>
-        <h3 class="text-sm font-bold text-[#202124] dark:text-white">Ficha de Usuario (Show)</h3>
+        <div>
+          <h3 class="text-base font-bold text-[#202124] dark:text-white">Ficha de Usuario</h3>
+          <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Detalles del perfil y permisos de acceso</p>
+        </div>
       </div>
-      <button onclick="cerrarModalShowUsuario()" class="rounded-xl p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
+      <button onclick="cerrarModalShowUsuario()" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+        <i data-lucide="x" class="h-5 w-5"></i>
       </button>
     </div>
 
-    <div class="mt-5 space-y-3.5 text-xs">
+    <div class="mt-6 space-y-4 text-xs">
       <div class="flex items-center gap-4 rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4">
-        <div id="show-usuario-avatar" class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#34a853] text-base font-bold text-white">
+        <div id="show-usuario-avatar" class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#34a853] text-lg font-bold text-white shadow-md">
           US
         </div>
         <div>
-          <h4 id="show-usuario-nombre" class="text-base font-bold text-[#202124] dark:text-white">usuario</h4>
-          <p id="show-usuario-id" class="font-mono text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">ID: 1</p>
+          <h4 id="show-usuario-nombre" class="text-lg font-bold text-[#202124] dark:text-white">usuario</h4>
+          <p id="show-usuario-id" class="font-mono text-xs text-[#5f6368] dark:text-[#c4c7c5]">ID: 1</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3">
-        <div class="rounded-xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-3">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Rol</span>
-          <p id="show-usuario-rol" class="mt-1 font-bold text-[#202124] dark:text-white">Administrador</p>
+      <div class="grid grid-cols-2 gap-3.5">
+        <div class="rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Rol</span>
+          <p id="show-usuario-rol" class="mt-1 text-sm font-bold text-[#202124] dark:text-white">Administrador</p>
         </div>
-        <div class="rounded-xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-3">
-          <span class="text-[10px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Fecha Alta</span>
-          <p id="show-usuario-fecha" class="mt-1 text-[#202124] dark:text-[#e3e3e3]">2026-08-18</p>
+        <div class="rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Fecha Alta</span>
+          <p id="show-usuario-fecha" class="mt-1 text-sm font-mono text-[#202124] dark:text-[#e3e3e3]">2026-08-18</p>
         </div>
       </div>
 
-      <div class="rounded-xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-3 text-[#5f6368] dark:text-[#c4c7c5] text-[11px]">
-        <p><strong class="text-[#202124] dark:text-white">Permisos:</strong> Acceso total a agentes, bases, roles, usuarios y transcripciones.</p>
+      <div class="rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4 text-[#5f6368] dark:text-[#c4c7c5] text-xs leading-relaxed">
+        <p><strong class="text-[#202124] dark:text-white">Permisos de Sistema:</strong> Acceso completo para crear, editar y eliminar agentes, bases temáticas de conocimiento, roles con system prompts dinámicos, usuarios y auditoría de conversaciones.</p>
       </div>
     </div>
 
-    <div class="mt-6 flex justify-end gap-2 border-t border-black/10 dark:border-white/10 pt-4">
-      <button onclick="cerrarModalShowUsuario()" class="heroui-btn-flat px-4 py-2 text-xs">
+    <div class="mt-6 flex justify-end gap-3 border-t border-black/10 dark:border-white/10 pt-4">
+      <button onclick="cerrarModalShowUsuario()" class="heroui-btn-flat px-5 py-2.5 text-xs">
         Cerrar
       </button>
       <button id="btn-show-ir-editar" onclick="procederEditarDesdeShow()"
-        class="inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4 py-2 text-xs font-bold text-white shadow">
-        <i data-lucide="pencil" class="h-3.5 w-3.5"></i>
+        class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-5 py-2.5 text-xs font-bold text-white shadow transition active:scale-95">
+        <i data-lucide="pencil" class="h-4 w-4"></i>
         <span>Editar este Usuario</span>
       </button>
     </div>
@@ -641,15 +644,23 @@
 <!-- Modal: Edit / Create Usuario (Edit & Update) -->
 <div id="modal-usuario-dash" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalUsuarioDash()"></div>
-  <div class="relative w-full max-w-md overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl p-6">
+  <div class="relative w-full max-w-lg overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl p-6 sm:p-8">
     <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
-      <h3 id="titulo-modal-usuario-dash" class="text-base font-bold text-[#202124] dark:text-white">Configurar Usuario</h3>
-      <button onclick="cerrarModalUsuarioDash()" class="rounded-xl p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
+          <i data-lucide="user-plus" class="h-5 w-5"></i>
+        </div>
+        <div>
+          <h3 id="titulo-modal-usuario-dash" class="text-base font-bold text-[#202124] dark:text-white">Configurar Usuario</h3>
+          <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Crea o actualiza las credenciales del usuario</p>
+        </div>
+      </div>
+      <button onclick="cerrarModalUsuarioDash()" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+        <i data-lucide="x" class="h-5 w-5"></i>
       </button>
     </div>
 
-    <form id="form-usuario-dash" class="mt-4 space-y-4">
+    <form id="form-usuario-dash" class="mt-5 space-y-4">
       <input type="hidden" id="dash-usuario-id" value="">
       <input type="hidden" id="dash-usuario-modo" value="crear">
 
@@ -676,13 +687,13 @@
           class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onclick="cerrarModalUsuarioDash()" class="heroui-btn-flat px-4 py-2 text-xs">
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/10 dark:border-white/10">
+        <button type="button" onclick="cerrarModalUsuarioDash()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-usuario-dash"
           class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
-          <i data-lucide="save" class="h-3.5 w-3.5"></i>
+          <i data-lucide="save" class="h-4 w-4"></i>
           <span>Guardar Usuario</span>
         </button>
       </div>
@@ -693,20 +704,23 @@
 <!-- Modal: Mi Perfil (Configuración del Usuario en Sesión) -->
 <div id="modal-mi-perfil" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalMiPerfil()"></div>
-  <div class="relative w-full max-w-md overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl p-6">
+  <div class="relative w-full max-w-lg overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl p-6 sm:p-8">
     <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 pb-4">
-      <div class="flex items-center gap-2">
-        <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
-          <i data-lucide="user" class="h-4 w-4"></i>
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
+          <i data-lucide="user" class="h-5 w-5"></i>
         </div>
-        <h3 class="text-sm font-bold text-[#202124] dark:text-white">Mi Cuenta / Perfil</h3>
+        <div>
+          <h3 class="text-base font-bold text-[#202124] dark:text-white">Mi Cuenta / Perfil</h3>
+          <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Actualiza tu nombre de usuario o clave de acceso</p>
+        </div>
       </div>
-      <button onclick="cerrarModalMiPerfil()" class="rounded-xl p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
+      <button onclick="cerrarModalMiPerfil()" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+        <i data-lucide="x" class="h-5 w-5"></i>
       </button>
     </div>
 
-    <form id="form-mi-perfil" class="mt-4 space-y-4">
+    <form id="form-mi-perfil" class="mt-5 space-y-4">
       <div>
         <label for="perfil-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Usuario Activo</label>
         <input id="perfil-nombre" type="text" required value="{{ usuario_actual }}"
@@ -721,12 +735,12 @@
           class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onclick="cerrarModalMiPerfil()" class="heroui-btn-flat px-4 py-2 text-xs">
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/10 dark:border-white/10">
+        <button type="button" onclick="cerrarModalMiPerfil()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-mi-perfil" class="heroui-btn-primary px-6 py-2.5 text-xs inline-flex items-center gap-2">
-          <i data-lucide="save" class="h-3.5 w-3.5"></i>
+          <i data-lucide="save" class="h-4 w-4"></i>
           <span>Actualizar Perfil</span>
         </button>
       </div>
@@ -734,119 +748,141 @@
   </div>
 </div>
 
-<!-- Modal: Crear / Editar Agente -->
-<div id="modal-agente-dash" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalAgenteDash()"></div>
-  <div class="relative w-full max-w-lg overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl">
-    <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4">
-      <h3 id="titulo-modal-agente-dash" class="text-base font-bold text-[#202124] dark:text-white">Crear Agente</h3>
-      <button onclick="cerrarModalAgenteDash()" class="rounded-xl p-1.5 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
-      </button>
-    </div>
-
-    <form id="form-agente-dash" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
-      <input type="hidden" id="dash-agente-modo" value="crear">
-
-      <div>
-        <label for="dash-campo-nombre" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Nombre único</label>
-        <input id="dash-campo-nombre" type="text" required maxlength="40" placeholder="ej. profesor_fisica"
-          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
-      </div>
-
-      <!-- Imagen / Avatar del Agente -->
-      <div>
-        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Imagen / Avatar del Agente</label>
-        <div class="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3">
-          <div id="dash-avatar-preview-wrapper"
-            class="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-sm shadow-md">
-            <span id="dash-avatar-preview-initials">AG</span>
-            <img id="dash-avatar-preview-img" src="" alt="Avatar" class="hidden h-full w-full object-cover">
+<!-- Drawer / Panel Lateral: Crear / Editar Agente -->
+<div id="modal-agente-dash" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+  <div id="drawer-agente-dash-backdrop" class="fixed inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-sm transition-opacity duration-300 opacity-0" onclick="cerrarModalAgenteDash()"></div>
+  <div class="fixed inset-y-0 right-0 z-50 flex max-w-full pl-6 sm:pl-12 pointer-events-none">
+    <div id="drawer-agente-dash-panel"
+         class="pointer-events-auto w-screen max-w-2xl lg:max-w-3xl h-full bg-white dark:bg-[#1e1f20] border-l border-black/10 dark:border-white/10 shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out">
+      
+      <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4.5 bg-white/95 dark:bg-[#1e1f20]/95 backdrop-blur shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
+            <i data-lucide="bot" class="h-5 w-5"></i>
           </div>
-          <div class="flex-1 space-y-2">
-            <input type="hidden" id="dash-campo-avatar-url" value="">
-            <div class="flex items-center gap-2">
-              <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-3 py-1.5 text-xs font-bold text-white shadow-sm transition active:scale-95">
-                <i data-lucide="upload" class="h-3.5 w-3.5"></i>
-                <span>Subir Imagen</span>
-                <input type="file" id="dash-input-avatar-file" accept="image/*" class="hidden" onchange="subirAvatarArchivo(this, 'dash')">
-              </label>
-              <button type="button" onclick="limpiarAvatarSeleccionado('dash')"
-                class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#d93025] dark:hover:text-[#f28b82] transition">
-                Quitar
-              </button>
-            </div>
-            <input id="dash-campo-avatar-url-input" type="url" placeholder="O escribe una URL de imagen (https://…)" oninput="actualizarAvatarUrlInput(this.value, 'dash')"
-              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          <div>
+            <h3 id="titulo-modal-agente-dash" class="text-base font-bold text-[#202124] dark:text-white">Crear Agente</h3>
+            <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Configuración de personalidad, bases de conocimiento y rol</p>
           </div>
         </div>
+        <button onclick="cerrarModalAgenteDash()" title="Cerrar panel (Esc)" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
       </div>
 
-      <div>
-        <label for="dash-campo-perfil" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Información y Personalidad</label>
-        <textarea id="dash-campo-perfil" rows="4" placeholder="NOMBRE:&#10;Albert Einstein&#10;&#10;PROFESIÓN:&#10;Físico teórico..."
-          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
-      </div>
+      <form id="form-agente-dash" class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
+        <input type="hidden" id="dash-agente-modo" value="crear">
 
-      <div>
-        <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Bases de Conocimiento Asociadas</label>
-        <div id="dash-lista-fuentes" class="max-h-36 space-y-1.5 overflow-y-auto rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2.5">
-          {% for f in fuentes %}
-          <label
-            class="flex cursor-pointer items-start gap-2.5 rounded-lg bg-black/5 dark:bg-white/5 p-2 text-xs text-[#202124] dark:text-[#e3e3e3] transition hover:bg-black/10 dark:hover:bg-white/10">
-            <input type="checkbox" name="dash_fuentes" value="{{ f.id }}" class="mt-0.5 h-4 w-4 shrink-0 rounded accent-[#1a73e8]">
-            <div class="min-w-0 flex-1">
-              <p class="font-bold text-[#202124] dark:text-white">{{ f.nombre }}</p>
-              <p class="truncate text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">{{ f.contenido }}</p>
-            </div>
-          </label>
-          {% endfor %}
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label for="dash-campo-nombre" class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Nombre único del Agente</label>
+            <input id="dash-campo-nombre" type="text" required maxlength="40" placeholder="ej. albert_einstein"
+              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+          </div>
+
+          <div>
+            <label for="dash-select-identidad" class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Identidad / Rol</label>
+            <select id="dash-select-identidad"
+              class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+              <option value="">Por defecto (Básico)</option>
+              {% for r in roles %}
+              <option value="{{ r.clave }}">{{ r.nombre }} — {{ r.descripcion }}</option>
+              {% endfor %}
+              <option value="personalizada">Escribir identidad personalizada…</option>
+            </select>
+          </div>
         </div>
-      </div>
 
-      <div>
-        <label for="dash-select-identidad" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Identidad / Rol</label>
-        <select id="dash-select-identidad"
-          class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
-          <option value="">Por defecto (Básico)</option>
-          {% for r in roles %}
-          <option value="{{ r.clave }}">{{ r.nombre }} — {{ r.descripcion }}</option>
-          {% endfor %}
-          <option value="personalizada">Escribir identidad personalizada…</option>
-        </select>
-      </div>
+        <!-- Imagen / Avatar del Agente -->
+        <div>
+          <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Imagen / Avatar del Agente</label>
+          <div class="flex items-center gap-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+            <div id="dash-avatar-preview-wrapper"
+              class="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-base shadow-md">
+              <span id="dash-avatar-preview-initials">AG</span>
+              <img id="dash-avatar-preview-img" src="" alt="Avatar" class="hidden h-full w-full object-cover">
+            </div>
+            <div class="flex-1 space-y-2.5">
+              <input type="hidden" id="dash-campo-avatar-url" value="">
+              <div class="flex items-center gap-2">
+                <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-3.5 py-2 text-xs font-bold text-white shadow-sm transition active:scale-95">
+                  <i data-lucide="upload" class="h-3.5 w-3.5"></i>
+                  <span>Subir Imagen</span>
+                  <input type="file" id="dash-input-avatar-file" accept="image/*" class="hidden" onchange="subirAvatarArchivo(this, 'dash')">
+                </label>
+                <button type="button" onclick="limpiarAvatarSeleccionado('dash')"
+                  class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-2 text-xs text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#d93025] dark:hover:text-[#f28b82] transition">
+                  Quitar
+                </button>
+              </div>
+              <input id="dash-campo-avatar-url-input" type="url" placeholder="O escribe una URL de imagen (https://…)" oninput="actualizarAvatarUrlInput(this.value, 'dash')"
+                class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3.5 py-2 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+            </div>
+          </div>
+        </div>
 
-      <div id="dash-bloque-personalizada" class="hidden">
-        <label for="dash-identidad-custom" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Prompt Personalizado</label>
-        <textarea id="dash-identidad-custom" rows="3" placeholder="Eres un mentor llamado [____]..."
-          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
-      </div>
+        <div>
+          <label for="dash-campo-perfil" class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Información y Personalidad</label>
+          <textarea id="dash-campo-perfil" rows="8" placeholder="NOMBRE:&#10;Albert Einstein&#10;&#10;PROFESIÓN:&#10;Físico teórico..."
+            class="w-full resize-y rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4 text-xs sm:text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8] leading-relaxed"></textarea>
+        </div>
 
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onclick="cerrarModalAgenteDash()" class="heroui-btn-flat px-4 py-2 text-xs">
+        <div>
+          <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Bases de Conocimiento Asociadas</label>
+          <div id="dash-lista-fuentes" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-60 overflow-y-auto rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+            {% for f in fuentes %}
+            <label
+              class="flex cursor-pointer items-start gap-3 rounded-xl bg-white dark:bg-[#28292a] p-3 text-xs text-[#202124] dark:text-[#e3e3e3] hover:bg-black/5 dark:hover:bg-[#343536] border border-black/5 dark:border-white/5 transition">
+              <input type="checkbox" name="dash_fuentes" value="{{ f.id }}" class="mt-0.5 h-4 w-4 shrink-0 rounded accent-[#1a73e8]">
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-[#202124] dark:text-white text-xs">{{ f.nombre }}</p>
+                <p class="mt-1 line-clamp-2 text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">{{ f.contenido }}</p>
+              </div>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div id="dash-bloque-personalizada" class="hidden space-y-2">
+          <label for="dash-identidad-custom" class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Prompt Personalizado</label>
+          <textarea id="dash-identidad-custom" rows="8" placeholder="Eres un mentor llamado [____]..."
+            class="w-full resize-y rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4 font-mono text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8] leading-relaxed"></textarea>
+        </div>
+      </form>
+
+      <div class="border-t border-black/10 dark:border-white/10 p-5 bg-white/95 dark:bg-[#1e1f20]/95 backdrop-blur flex items-center justify-between shrink-0">
+        <button type="button" onclick="cerrarModalAgenteDash()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
-        <button type="submit" id="btn-guardar-agente-dash" class="heroui-btn-primary px-6 py-2.5 text-xs inline-flex items-center gap-2">
-          <i data-lucide="save" class="h-3.5 w-3.5"></i>
+        <button type="button" onclick="document.getElementById('form-agente-dash').requestSubmit()" id="btn-guardar-agente-dash" class="heroui-btn-primary px-7 py-2.5 text-xs font-bold inline-flex items-center gap-2">
+          <i data-lucide="save" class="h-4 w-4"></i>
           <span>Guardar Agente</span>
         </button>
       </div>
-    </form>
+    </div>
   </div>
 </div>
 
 <!-- Modal: Crear / Editar Base de Conocimiento -->
 <div id="modal-fuente-dash" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalFuenteDash()"></div>
-  <div class="relative w-full max-w-lg overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl">
-    <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4">
-      <h3 id="titulo-modal-fuente-dash" class="text-base font-bold text-[#202124] dark:text-white">Nueva Base de Conocimiento</h3>
-      <button onclick="cerrarModalFuenteDash()" class="rounded-xl p-1.5 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
+  <div class="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl">
+    <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4.5">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1e8e3e]/10 dark:bg-[#34A853]/15 text-[#1e8e3e] dark:text-[#81c995]">
+          <i data-lucide="book-open" class="h-5 w-5"></i>
+        </div>
+        <div>
+          <h3 id="titulo-modal-fuente-dash" class="text-base font-bold text-[#202124] dark:text-white">Nueva Base de Conocimiento</h3>
+          <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Información y manuales temáticos para consulta de los agentes</p>
+        </div>
+      </div>
+      <button onclick="cerrarModalFuenteDash()" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+        <i data-lucide="x" class="h-5 w-5"></i>
       </button>
     </div>
 
-    <form id="form-fuente-dash" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
+    <form id="form-fuente-dash" class="max-h-[80vh] space-y-5 overflow-y-auto p-6 sm:p-8">
       <input type="hidden" id="dash-fuente-id" value="">
 
       <div>
@@ -857,17 +893,17 @@
 
       <div>
         <label for="dash-fuente-contenido" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Contenido / Documentos</label>
-        <textarea id="dash-fuente-contenido" rows="7" placeholder="Pega aquí la información temática..."
-          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]"></textarea>
+        <textarea id="dash-fuente-contenido" rows="10" placeholder="Pega aquí la información temática..."
+          class="w-full resize-y rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4 text-xs sm:text-sm font-mono text-[#202124] dark:text-white outline-none focus:border-[#1a73e8] leading-relaxed"></textarea>
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onclick="cerrarModalFuenteDash()" class="heroui-btn-flat px-4 py-2 text-xs">
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/10 dark:border-white/10">
+        <button type="button" onclick="cerrarModalFuenteDash()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-fuente-dash"
-          class="inline-flex items-center gap-2 rounded-xl bg-[#1e8e3e] dark:bg-[#34a853] hover:bg-[#1b7e37] dark:hover:bg-[#2d8e47] px-6 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
-          <i data-lucide="save" class="h-3.5 w-3.5"></i>
+          class="inline-flex items-center gap-2 rounded-xl bg-[#1e8e3e] dark:bg-[#34a853] hover:bg-[#1b7e37] dark:hover:bg-[#2d8e47] px-7 py-2.5 text-xs font-bold text-white shadow-lg transition active:scale-95">
+          <i data-lucide="save" class="h-4 w-4"></i>
           <span>Guardar Base</span>
         </button>
       </div>
@@ -878,15 +914,23 @@
 <!-- Modal: Crear / Editar Rol e Identidad -->
 <div id="modal-rol-dash" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
   <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalRolDash()"></div>
-  <div class="relative w-full max-w-xl overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl">
-    <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4">
-      <h3 id="titulo-modal-rol-dash" class="text-base font-bold text-[#202124] dark:text-white">Nuevo Rol</h3>
-      <button onclick="cerrarModalRolDash()" class="rounded-xl p-1.5 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
+  <div class="relative w-full max-w-3xl overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl">
+    <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4.5">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#f9ab00]/10 dark:bg-[#FBBC04]/15 text-[#b06000] dark:text-[#fdd663]">
+          <i data-lucide="brain" class="h-5 w-5"></i>
+        </div>
+        <div>
+          <h3 id="titulo-modal-rol-dash" class="text-base font-bold text-[#202124] dark:text-white">Nuevo Rol</h3>
+          <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Directivas de rol y System Prompt base</p>
+        </div>
+      </div>
+      <button onclick="cerrarModalRolDash()" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+        <i data-lucide="x" class="h-5 w-5"></i>
       </button>
     </div>
 
-    <form id="form-rol-dash" class="max-h-[75vh] space-y-4 overflow-y-auto px-6 py-5">
+    <form id="form-rol-dash" class="max-h-[80vh] space-y-5 overflow-y-auto p-6 sm:p-8">
       <input type="hidden" id="dash-rol-id" value="">
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -913,17 +957,17 @@
           <label for="dash-rol-prompt" class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">System Prompt AI</label>
           <span class="text-[11px] text-[#b06000] dark:text-[#fdd663]">Marcadores: [____] y [información del documento]</span>
         </div>
-        <textarea id="dash-rol-prompt" rows="8" required placeholder="Role:&#10;Eres un experto en [información del documento]..."
-          class="w-full resize-y rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-4 py-2.5 font-mono text-xs text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04]"></textarea>
+        <textarea id="dash-rol-prompt" rows="10" required placeholder="Role:&#10;Eres un experto en [información del documento]..."
+          class="w-full resize-y rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4 font-mono text-xs text-[#202124] dark:text-white outline-none focus:border-[#f9ab00] dark:focus:border-[#FBBC04] leading-relaxed"></textarea>
       </div>
 
-      <div class="flex items-center justify-end gap-3 pt-2">
-        <button type="button" onclick="cerrarModalRolDash()" class="heroui-btn-flat px-4 py-2 text-xs">
+      <div class="flex items-center justify-end gap-3 pt-3 border-t border-black/10 dark:border-white/10">
+        <button type="button" onclick="cerrarModalRolDash()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
         <button type="submit" id="btn-guardar-rol-dash"
-          class="inline-flex items-center gap-2 rounded-xl bg-[#f9ab00] dark:bg-[#FBBC04] hover:bg-[#e37400] dark:hover:bg-[#f9ab00] px-6 py-2.5 text-xs font-bold text-black shadow-lg transition active:scale-95">
-          <i data-lucide="save" class="h-3.5 w-3.5"></i>
+          class="inline-flex items-center gap-2 rounded-xl bg-[#f9ab00] dark:bg-[#FBBC04] hover:bg-[#e37400] dark:hover:bg-[#f9ab00] px-7 py-2.5 text-xs font-bold text-black shadow-lg transition active:scale-95">
+          <i data-lucide="save" class="h-4 w-4"></i>
           <span>Guardar Rol</span>
         </button>
       </div>

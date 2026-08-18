@@ -204,146 +204,165 @@
 </div>
 
 <!-- ============================================================
-     Modal / Panel de Gestión Integral del Agente
+     Drawer / Panel Lateral de Gestión Integral del Agente
      ============================================================ -->
-<div id="modal-gestion-agente" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-  <div class="absolute inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-md" onclick="cerrarModalGestionAgente()"></div>
-  <div class="relative w-full max-w-xl overflow-hidden rounded-3xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] shadow-2xl transition-colors duration-200">
-    
-    <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4">
-      <div class="flex items-center gap-2.5">
-        <div class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
-          <i data-lucide="sliders" class="h-4 w-4"></i>
-        </div>
-        <div>
-          <h3 class="text-sm font-bold text-[#202124] dark:text-white">Ajustes del Agente: {{ agente.nombre }}</h3>
-          <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">Personalidad, Bases de Conocimiento, Rol y Memoria</p>
-        </div>
-      </div>
-      <button onclick="cerrarModalGestionAgente()" class="rounded-xl p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white">
-        <i data-lucide="x" class="h-4 w-4"></i>
-      </button>
-    </div>
-
-    <!-- Pestañas internas del modal de gestión -->
-    <div class="flex border-b border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] px-6 py-2 gap-2 text-xs">
-      <button onclick="cambiarTabModalGestion('perfil')" id="btn-tab-modal-perfil"
-              class="px-3 py-1.5 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white">
-        Personalidad
-      </button>
-      <button onclick="cambiarTabModalGestion('fuentes')" id="btn-tab-modal-fuentes"
-              class="px-3 py-1.5 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white">
-        Bases ({{ agente.fuentes|length }})
-      </button>
-      <button onclick="cambiarTabModalGestion('rol')" id="btn-tab-modal-rol"
-              class="px-3 py-1.5 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white">
-        Rol & Prompt
-      </button>
-      <button onclick="cambiarTabModalGestion('memoria')" id="btn-tab-modal-memoria"
-              class="px-3 py-1.5 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white">
-        Memoria
-      </button>
-    </div>
-
-    <form id="form-gestion-agente" class="p-6 space-y-4 max-h-[65vh] overflow-y-auto">
+<div id="modal-gestion-agente" class="fixed inset-0 z-50 hidden transition-opacity duration-300">
+  <!-- Backdrop con efecto Blur -->
+  <div id="drawer-agente-backdrop" class="fixed inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-sm transition-opacity duration-300 opacity-0" onclick="cerrarModalGestionAgente()"></div>
+  
+  <!-- Contenedor del Drawer (Slide-Over desde la derecha) -->
+  <div class="fixed inset-y-0 right-0 z-50 flex max-w-full pl-6 sm:pl-12 pointer-events-none">
+    <div id="drawer-agente-panel"
+         class="pointer-events-auto w-screen max-w-2xl lg:max-w-3xl h-full bg-white dark:bg-[#1e1f20] border-l border-black/10 dark:border-white/10 shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out">
       
-      <!-- Pestaña 1: Personalidad y Avatar -->
-      <div id="tab-gestion-perfil" class="space-y-4">
-        <!-- Foto / Avatar del Agente -->
-        <div>
-          <label class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Foto / Avatar del Agente</label>
-          <div class="flex items-center gap-3 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3">
-            <div id="chat-avatar-preview-wrapper" class="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-sm shadow-md">
-              <span id="chat-avatar-preview-initials" class="{{ 'hidden' if agente.avatar_url else '' }}">{{ agente.nombre[:2].upper() }}</span>
-              <img id="chat-avatar-preview-img" src="{{ agente.avatar_url or '' }}" alt="Avatar" class="{{ '' if agente.avatar_url else 'hidden' }} h-full w-full object-cover">
-            </div>
-            <div class="flex-1 space-y-2">
-              <input type="hidden" id="chat-campo-avatar-url" value="{{ agente.avatar_url or '' }}">
-              <div class="flex items-center gap-2">
-                <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-3 py-1.5 text-xs font-bold text-white shadow-sm transition active:scale-95">
-                  <i data-lucide="upload" class="h-3.5 w-3.5"></i>
-                  <span>Subir Foto</span>
-                  <input type="file" id="chat-input-avatar-file" accept="image/*" class="hidden" onchange="subirAvatarArchivo(this, 'chat')">
-                </label>
-                <button type="button" onclick="limpiarAvatarSeleccionado('chat')" class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-2.5 py-1.5 text-xs text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#d93025] dark:hover:text-[#f28b82] transition">
-                  Quitar
-                </button>
+      <!-- Encabezado del Drawer -->
+      <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4.5 bg-white/95 dark:bg-[#1e1f20]/95 backdrop-blur shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
+            <i data-lucide="sliders" class="h-5 w-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-[#202124] dark:text-white">Ajustes del Agente: {{ agente.nombre }}</h3>
+            <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Personalidad, Bases de Conocimiento, Rol y Memoria</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalGestionAgente()" title="Cerrar panel (Esc)" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+          <i data-lucide="x" class="h-5 w-5"></i>
+        </button>
+      </div>
+
+      <!-- Pestañas del Drawer -->
+      <div class="flex border-b border-black/10 dark:border-white/10 bg-black/[0.02] dark:bg-white/[0.02] px-6 py-2.5 gap-2 text-xs overflow-x-auto shrink-0">
+        <button onclick="cambiarTabModalGestion('perfil')" id="btn-tab-modal-perfil"
+                class="px-4 py-2 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white transition shrink-0">
+          Personalidad
+        </button>
+        <button onclick="cambiarTabModalGestion('fuentes')" id="btn-tab-modal-fuentes"
+                class="px-4 py-2 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white transition shrink-0">
+          Bases ({{ agente.fuentes|length }})
+        </button>
+        <button onclick="cambiarTabModalGestion('rol')" id="btn-tab-modal-rol"
+                class="px-4 py-2 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white transition shrink-0">
+          Rol & Prompt
+        </button>
+        <button onclick="cambiarTabModalGestion('memoria')" id="btn-tab-modal-memoria"
+                class="px-4 py-2 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white transition shrink-0">
+          Memoria
+        </button>
+      </div>
+
+      <!-- Cuerpo del Formulario con scroll independiente -->
+      <form id="form-gestion-agente" class="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
+        
+        <!-- Pestaña 1: Personalidad y Avatar -->
+        <div id="tab-gestion-perfil" class="space-y-6">
+          <!-- Foto / Avatar del Agente -->
+          <div>
+            <label class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Foto / Avatar del Agente</label>
+            <div class="flex items-center gap-4 rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+              <div id="chat-avatar-preview-wrapper" class="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-base shadow-md">
+                <span id="chat-avatar-preview-initials" class="{{ 'hidden' if agente.avatar_url else '' }}">{{ agente.nombre[:2].upper() }}</span>
+                <img id="chat-avatar-preview-img" src="{{ agente.avatar_url or '' }}" alt="Avatar" class="{{ '' if agente.avatar_url else 'hidden' }} h-full w-full object-cover">
               </div>
-              <input id="chat-campo-avatar-url-input" type="url" value="{{ agente.avatar_url or '' }}" placeholder="O pega una URL de imagen (https://…)" oninput="actualizarAvatarUrlInput(this.value, 'chat')"
-                     class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+              <div class="flex-1 space-y-2.5">
+                <input type="hidden" id="chat-campo-avatar-url" value="{{ agente.avatar_url or '' }}">
+                <div class="flex items-center gap-2">
+                  <label class="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-3.5 py-2 text-xs font-bold text-white shadow-sm transition active:scale-95">
+                    <i data-lucide="upload" class="h-3.5 w-3.5"></i>
+                    <span>Subir Foto</span>
+                    <input type="file" id="chat-input-avatar-file" accept="image/*" class="hidden" onchange="subirAvatarArchivo(this, 'chat')">
+                  </label>
+                  <button type="button" onclick="limpiarAvatarSeleccionado('chat')" class="rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-3 py-2 text-xs text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#d93025] dark:hover:text-[#f28b82] transition">
+                    Quitar
+                  </button>
+                </div>
+                <input id="chat-campo-avatar-url-input" type="url" value="{{ agente.avatar_url or '' }}" placeholder="O pega una URL de imagen (https://…)" oninput="actualizarAvatarUrlInput(this.value, 'chat')"
+                       class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3.5 py-2 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+              </div>
             </div>
+          </div>
+
+          <div>
+            <label for="editar-perfil" class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Información y Personalidad</label>
+            <textarea id="editar-perfil" rows="10" placeholder="NOMBRE: Albert Einstein&#10;PROFESIÓN: Físico teórico..."
+                      class="w-full resize-y rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4 text-xs sm:text-sm text-[#202124] dark:text-white outline-none focus:border-[#1a73e8] leading-relaxed">{{ agente.perfil }}</textarea>
           </div>
         </div>
 
-        <div>
-          <label for="editar-perfil" class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Información y Personalidad</label>
-          <textarea id="editar-perfil" rows="4" placeholder="NOMBRE: Albert Einstein&#10;PROFESIÓN: Físico..."
-                    class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">{{ agente.perfil }}</textarea>
-        </div>
-      </div>
-
-      <!-- Pestaña 2: Bases de Conocimiento -->
-      <div id="tab-gestion-fuentes" class="hidden space-y-3">
-        <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Selecciona las Bases de Conocimiento Vinculadas</label>
-        <div class="space-y-2 max-h-52 overflow-y-auto rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3">
-          {% for f in todas_las_fuentes %}
-          <label class="flex cursor-pointer items-start gap-2.5 rounded-lg bg-white dark:bg-[#28292a] p-2.5 text-xs text-[#202124] dark:text-[#e3e3e3] hover:bg-black/5 dark:hover:bg-[#343536] border border-black/5 dark:border-white/5">
-            <input type="checkbox" name="editar_fuentes" value="{{ f.id }}"
-                   {{ 'checked' if f.id in agente_fuentes_ids }}
-                   class="mt-0.5 h-4 w-4 rounded accent-[#1a73e8]">
-            <div class="min-w-0 flex-1">
-              <p class="font-bold text-[#202124] dark:text-white">{{ f.nombre }}</p>
-              <p class="truncate text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">{{ f.contenido }}</p>
-            </div>
-          </label>
-          {% endfor %}
-        </div>
-      </div>
-
-      <!-- Pestaña 3: Rol & System Prompt -->
-      <div id="tab-gestion-rol" class="hidden space-y-3">
-        <div>
-          <label for="editar-identidad" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Rol del Agente</label>
-          <select id="editar-identidad"
-                  class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
-            <option value="">Por defecto (Básico)</option>
-            {% for r in roles %}
-            <option value="{{ r.clave }}" {{ 'selected' if agente.identidad_clave == r.clave }}>{{ r.nombre }} — {{ r.descripcion }}</option>
+        <!-- Pestaña 2: Bases de Conocimiento -->
+        <div id="tab-gestion-fuentes" class="hidden space-y-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Bases de Conocimiento Asociadas</label>
+            <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-0.5">Marca o desmarca los manuales temáticos que este agente puede consultar durante el diálogo.</p>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[55vh] overflow-y-auto rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4">
+            {% for f in todas_las_fuentes %}
+            <label class="flex cursor-pointer items-start gap-3 rounded-xl bg-white dark:bg-[#28292a] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] hover:bg-black/5 dark:hover:bg-[#343536] border border-black/5 dark:border-white/5 transition shadow-xs">
+              <input type="checkbox" name="editar_fuentes" value="{{ f.id }}"
+                     {{ 'checked' if f.id in agente_fuentes_ids }}
+                     class="mt-0.5 h-4 w-4 shrink-0 rounded accent-[#1a73e8]">
+              <div class="min-w-0 flex-1">
+                <p class="font-bold text-[#202124] dark:text-white text-xs">{{ f.nombre }}</p>
+                <p class="mt-1 line-clamp-3 text-[11px] text-[#5f6368] dark:text-[#c4c7c5] leading-relaxed">{{ f.contenido }}</p>
+              </div>
+            </label>
             {% endfor %}
-            <option value="personalizada" {{ 'selected' if agente.identidad.personalizada }}>Personalizada…</option>
-          </select>
+          </div>
         </div>
 
-        <div id="bloque-identidad-custom" class="{{ '' if agente.identidad.personalizada else 'hidden' }}">
-          <label for="editar-identidad-custom" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">System Prompt Personalizado</label>
-          <textarea id="editar-identidad-custom" rows="4"
-                    class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3 text-xs font-mono text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">{{ agente.identidad.prompt if agente.identidad.personalizada else '' }}</textarea>
-        </div>
-      </div>
+        <!-- Pestaña 3: Rol & System Prompt -->
+        <div id="tab-gestion-rol" class="hidden space-y-5">
+          <div>
+            <label for="editar-identidad" class="mb-2 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Rol del Agente</label>
+            <select id="editar-identidad"
+                    class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#28292a] px-4 py-2.5 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8]">
+              <option value="">Por defecto (Básico)</option>
+              {% for r in roles %}
+              <option value="{{ r.clave }}" {{ 'selected' if agente.identidad_clave == r.clave }}>{{ r.nombre }} — {{ r.descripcion }}</option>
+              {% endfor %}
+              <option value="personalizada" {{ 'selected' if agente.identidad.personalizada }}>Personalizada…</option>
+            </select>
+          </div>
 
-      <!-- Pestaña 4: Memoria Viva -->
-      <div id="tab-gestion-memoria" class="hidden space-y-3">
-        <div class="flex items-center justify-between">
-          <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Hechos Aprendidos en Memoria</label>
-          <button type="button" onclick="ejecutarLimpiarMemoria()" class="text-xs font-semibold text-[#d93025] dark:text-[#f28b82] hover:underline inline-flex items-center gap-1">
-            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-            <span>Limpiar Memoria</span>
-          </button>
+          <div id="bloque-identidad-custom" class="{{ '' if agente.identidad.personalizada else 'hidden' }} space-y-2">
+            <div class="flex items-center justify-between">
+              <label for="editar-identidad-custom" class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">System Prompt Personalizado</label>
+              <span class="text-[11px] text-[#b06000] dark:text-[#fdd663]">Variables: [____] y [información del documento]</span>
+            </div>
+            <textarea id="editar-identidad-custom" rows="12"
+                      class="w-full resize-y rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-4 text-xs font-mono text-[#202124] dark:text-white outline-none focus:border-[#1a73e8] leading-relaxed">{{ agente.identidad.prompt if agente.identidad.personalizada else '' }}</textarea>
+          </div>
         </div>
-        <pre class="whitespace-pre-wrap break-words rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-3.5 font-mono text-xs text-[#1e8e3e] dark:text-[#81c995] max-h-48 overflow-y-auto">{{ agente.memoria or '(La memoria está vacía)' }}</pre>
-      </div>
 
-      <!-- Botones del Modal -->
-      <div class="flex justify-end gap-3 pt-3 border-t border-black/10 dark:border-white/10">
-        <button type="button" onclick="cerrarModalGestionAgente()" class="heroui-btn-flat px-4 py-2 text-xs">
+        <!-- Pestaña 4: Memoria Viva -->
+        <div id="tab-gestion-memoria" class="hidden space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <label class="block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Hechos Aprendidos en Memoria (SQLite)</label>
+              <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-0.5">Recuerdos y preferencias extraídos automáticamente de las conversaciones.</p>
+            </div>
+            <button type="button" onclick="ejecutarLimpiarMemoria()" class="text-xs font-semibold text-[#d93025] dark:text-[#f28b82] hover:underline inline-flex items-center gap-1">
+              <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+              <span>Limpiar Memoria</span>
+            </button>
+          </div>
+          <pre class="whitespace-pre-wrap break-words rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-5 font-mono text-xs sm:text-sm text-[#1e8e3e] dark:text-[#81c995] max-h-[55vh] overflow-y-auto leading-relaxed shadow-inner">{{ agente.memoria or '(La memoria está vacía actualmente. El agente aprenderá nuevos hechos automáticamente a medida que conversen).' }}</pre>
+        </div>
+
+      </form>
+
+      <!-- Pie Fijo del Drawer -->
+      <div class="border-t border-black/10 dark:border-white/10 p-5 bg-white/95 dark:bg-[#1e1f20]/95 backdrop-blur flex items-center justify-between shrink-0">
+        <button type="button" onclick="cerrarModalGestionAgente()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
-        <button type="submit" class="heroui-btn-primary px-6 py-2 text-xs">
-          Guardar Cambios
+        <button type="button" onclick="document.getElementById('form-gestion-agente').requestSubmit()" class="heroui-btn-primary px-7 py-2.5 text-xs font-bold inline-flex items-center gap-2">
+          <i data-lucide="save" class="h-4 w-4"></i>
+          <span>Guardar Cambios</span>
         </button>
       </div>
-    </form>
 
+    </div>
   </div>
 </div>
 
