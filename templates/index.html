@@ -17,11 +17,10 @@
   <header class="sticky top-0 z-40 border-b border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#131314]/80 backdrop-blur-xl transition-colors duration-200">
     <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
       
-      <!-- Marca Google / Agentes -->
+      <!-- Marca THEYTHINK AI / Logo -->
       <div class="flex items-center gap-3">
-        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] text-white shadow-lg shadow-[#1a73e8]/20">
-          <i data-lucide="sparkles" class="h-5 w-5"></i>
-        </div>
+        <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
+             class="h-9 w-9 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10 shrink-0">
         <div>
           <div class="flex items-center gap-2">
             <span class="text-sm font-bold tracking-tight text-[#202124] dark:text-white">THEYTHINK AI</span>
@@ -89,6 +88,13 @@
          ============================================================ -->
     <div class="mx-auto max-w-3xl text-center">
       
+      <!-- Logo Central THEYTHINK AI con Resplandor -->
+      <div class="relative mx-auto mb-6 flex h-24 w-24 items-center justify-center">
+        <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] opacity-35 blur-xl"></div>
+        <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
+             class="relative h-24 w-24 rounded-3xl object-cover shadow-2xl border-2 border-white/20 dark:border-white/10 transition-transform duration-300 hover:scale-105">
+      </div>
+
       <!-- Badge con los 4 colores de Google -->
       <div class="inline-flex items-center gap-2.5 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-4 py-1.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm">
         <div class="flex items-center gap-1">

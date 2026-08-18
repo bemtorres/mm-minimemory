@@ -109,9 +109,10 @@
           // Welcome Screen con sugerencias de inicio rápido estilo Google Gemini
           contenedorMensajes.innerHTML =
             '<div class="mx-auto max-w-2xl py-10 text-center animate-fade-in">' +
-            '  <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] text-white shadow-xl shadow-[#1a73e8]/25 mb-4">' +
-            '    <i data-lucide="sparkles" class="h-8 w-8"></i>' +
-            '  </div>' +
+            '<div class="relative mx-auto flex h-16 w-16 items-center justify-center mb-4">' +
+            '  <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] opacity-30 blur-md"></div>' +
+            '  <img src="/static/img/theythinkai_logo.jpg" alt="THEYTHINK AI" class="relative h-16 w-16 rounded-2xl object-cover shadow-xl border border-black/10 dark:border-white/10">' +
+            '</div>' +
             '  <h3 class="text-xl font-bold text-[#202124] dark:text-white">¡Hola! Soy ' + nombreAgente + '</h3>' +
             '  <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-1 max-w-md mx-auto">Pregúntame cualquier duda sobre mis bases de conocimiento o pídemelo en tu estilo preferido.</p>' +
             '  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left max-w-xl mx-auto">' +
