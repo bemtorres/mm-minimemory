@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>Autonomous, Modular, Multi-Persona Conversational Platform powered by DeepSeek AI</strong><br>
-  <em>Persistent Active Memory · Decoupled Knowledge Bases · Dynamic Role Engine · Ergonomic Multi-Thread Chat · Light & Dark Themes</em>
+  <em>Persistent Active Memory · Decoupled Knowledge Bases · Dynamic Role Engine · Ergonomic Multi-Thread Chat</em>
 </p>
 
 <p align="center">
@@ -11,7 +11,6 @@
   <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite" />
   <img src="https://img.shields.io/badge/LLM-DeepSeek_Chat-4D6BFE?style=flat" alt="DeepSeek AI" />
   <img src="https://img.shields.io/badge/Design-Google_Material_%2F_HeroUI-4285F4?style=flat" alt="Design" />
-  <a href="https://github.com/bemtorres"><img src="https://img.shields.io/badge/Author-Bemtorres-181717?style=flat&logo=github&logoColor=white" alt="Author Bemtorres" /></a>
 </p>
 
 ---
@@ -195,13 +194,7 @@ Navigate to:
 | `POST` | `/api/fuentes` | Create a knowledge base. |
 | `POST` | `/api/upload/avatar` | Upload agent profile picture. |
 | `GET` | `/api/roles` | List available system and custom roles. |
----
-
-## 👨‍💻 Author & Credits
-
-- **Developer:** [Bemtorres](https://github.com/bemtorres)
-- **GitHub:** [https://github.com/bemtorres](https://github.com/bemtorres)
-- **Engine:** Backed by SQLite · Powered by DeepSeek AI
+| `POST` | `/api/roles` | Register a new role / system prompt. |
 
 ---
 ---
@@ -278,11 +271,3 @@ Abre en tu navegador: **[http://localhost:5000](http://localhost:5000)**
 
 - **Usuario:** `admin`
 - **Contraseña:** `admin123`
-
----
-
-## 👨‍💻 Autor y Créditos
-
-- **Desarrollador:** [Bemtorres](https://github.com/bemtorres)
-- **GitHub:** [https://github.com/bemtorres](https://github.com/bemtorres)
-- **Motor:** Respaldado en SQLite · Impulsado por DeepSeek AI
