@@ -1,384 +1,288 @@
-# Agentes Personales con DeepSeek
+# THEYTHINK — Intelligent Multi-Agent AI Platform
 
-## Descripción
+<p align="center">
+  <strong>Autonomous, Modular, Multi-Persona Conversational Platform powered by DeepSeek AI</strong><br>
+  <em>Persistent Active Memory · Decoupled Knowledge Bases · Dynamic Role Engine · Ergonomic Multi-Thread Chat · Light & Dark Themes</em>
+</p>
 
-Proyecto educativo en **Python** que implementa agentes conversacionales basados en la
-API de **DeepSeek**. El programa soporta **varios agentes a la vez**: al iniciar te
-pregunta con quién quieres conversar y cada agente tiene sus propios datos.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white" alt="Python Version" />
+  <img src="https://img.shields.io/badge/Framework-Flask-000000?style=flat&logo=flask&logoColor=white" alt="Flask" />
+  <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/LLM-DeepSeek_Chat-4D6BFE?style=flat" alt="DeepSeek AI" />
+  <img src="https://img.shields.io/badge/Design-Google_Material_%2F_HeroUI-4285F4?style=flat" alt="Design" />
+  <a href="https://github.com/bemtorres"><img src="https://img.shields.io/badge/Author-Bemtorres-181717?style=flat&logo=github&logoColor=white" alt="Author Bemtorres" /></a>
+</p>
 
-Tiene **dos versiones** que comparten los mismos datos (`agents/`):
+---
 
-| Versión | Cómo ejecutarla | Descripción |
-| ------- | --------------- | ----------- |
-| **Consola** | `python main.py` | La versión original, con interfaz de terminal y datos en `agents/`. |
-| **Web** | `python seed.py` y luego `python app.py` | Interfaz web en Flask con Tailwind CSS, estética HeroUI y base de datos SQLite. |
+## 🌐 Language Navigation
+- [English Documentation](#-english-documentation)
+- [Documentación en Español](#-documentación-en-español)
 
-La versión web se abre en <http://127.0.0.1:5000/> y permite crear agentes
-(con información, personalidad e identidad), conversar con ellos, ver y editar
-su perfil/conocimiento/memoria/identidad, cambiar la identidad o limpiar la
-memoria desde el navegador. Todos los datos se guardan en **SQLite**.
+---
 
-Un agente representa a una persona específica. Sus respuestas se basan en:
+# 🇺🇸 English Documentation
 
-- **Identidad** — el rol y estilo de respuesta del agente (`identidad.txt`).
-- **Perfil** — datos de la persona representada.
-- **Conocimiento previo** — conocimientos `conocimiento.txt` en los que se apoyan las respuestas.
-- **Memoria** — información aprendida en conversaciones (sobrevive al cerrar el programa).
-- **Historial** — las conversaciones anteriores.
+## 🌟 Overview
 
-La información se almacena en archivos de texto locales, sin base de datos:
+**THEYTHINK** is a state-of-the-art web platform engineered in Python (Flask) with an embedded SQLite persistence engine, designed to create, orchestrate, customize, and converse with autonomous AI agents powered by the **DeepSeek API**.
+
+Featuring **live persistent memory**, **decoupled multi-source knowledge bases**, **dynamic system prompt and role engineering**, **avatar/image asset uploads**, and an ergonomic **Material You / HeroUI** design with seamless **Dark / Light theme toggling**.
+
+---
+
+## ✨ Key Features
+
+### 1. 💬 Ergonomic Multi-Thread Chat Interface
+- **Multiple Chat Threads per Agent**: Spawn parallel conversations without cluttering or overflowing the LLM context.
+- **Collapsible Sidebar with Live Search**: Filter, rename, and delete conversation threads in real time.
+- **Quick Agent Switcher**: Seamlessly toggle between characters directly in the chat header.
+- **Contextual One-Click Suggestions**: Start engaging immediately with tailored prompt cards.
+- **Instant Response Copy**: One-click markdown copy to clipboard with visual feedback.
+- **Hot-Settings Modal**: Inspect and modify persona traits, linked knowledge bases, and memory facts without leaving the chat room.
+
+### 2. 📊 Comprehensive Administrative Dashboard
+- **Real-Time KPI Metrics**: Live counters for total agents, knowledge bases, custom roles, registered users, and messages.
+- **Agent Manager**: Create and refine agents with full profile customization, avatar preview, and $N:M$ knowledge base assignment.
+- **Decoupled Knowledge Bases**: Independent topic sources reusable across multiple agents.
+- **Role & System Prompt Engineering**: In-browser CRUD to polish identity prompts and personality directives.
+- **User Administration (Show $\rightarrow$ Edit $\rightarrow$ Update)**: Detailed user profile cards, role hierarchy, and secure credential resets.
+- **Conversation Audit Explorer**: Global timeline view of all chats and messages across the platform.
+
+### 3. 🌓 Universal Light & Dark Mode
+- Global ☀️ / 🌙 theme switch persisted in `localStorage`.
+- Zero-flicker inline script ensuring smooth initial renders.
+- Tailored color palette inspired by Google Gemini & Material Design (`#1a73e8`, `#ea4335`, `#fbbc04`, `#34a853`).
+
+### 4. 🖼️ Avatar & Image Management
+- Secure local image uploads (`PNG`, `JPG`, `WEBP`, `GIF`, `SVG`) via `/api/upload/avatar`.
+- Remote image URL support with real-time preview in modals, catalog cards, and chat headers.
+
+### 5. 🧠 Persistent Active Memory
+- Evaluates dialogue turn-by-turn and extracts key facts and user preferences into SQLite, automatically de-duplicating memories.
+- Review and clear memory at any time through the agent configuration modal.
+
+### 6. 🎭 Preconfigured Personas & Canonical Figures
+Out of the box, **THEYTHINK** includes rich, authentic characters with verified knowledge sources:
+- **🌟 The Little Prince (`el_principito`)**: Philosophical, pure, and poetic voice from Asteroid B-612.
+- **🔍 Sherlock Holmes (`sherlock_holmes`)**: Razor-sharp Victorian deduction master from 221B Baker Street.
+- **⚔️ Don Quixote (`don_quijote`)**: Chivalrous Golden Age defender of justice and noble ideals.
+- **🏛️ Socrates (`socrates`)**: Socratic dialogue master and moral inquisitor of the Athenian Agora.
+- **⚡ Nikola Tesla (`nikola_tesla`)**: Visionary of alternating current, electromagnetism, and wireless energy.
+- **⚽ Colo-Colo Fan (`hincha_colocolo`)**: Passionate Chilean football fan, 1991 Copa Libertadores and club history expert.
+- **🦉 Universidad de Chile Fan (`hincha_udechile`)**: Unconditional *Romántico Viajero* fan, Ballet Azul and 2011 Copa Sudamericana expert.
+- **🧢 Chilean Urban Character (`el_flaite_chileno`)**: Authentic Chilean street slang (*coa*), urban culture, and neighborhood wisdom.
+- **👨‍🏫 Benjamin (`benjamin`)**, **🚀 Elon Musk (`elon_musk`)**, and **⚛️ Albert Einstein (`albert_einstein`)**.
+
+---
+
+## 🏗️ Project Architecture
 
 ```
-agents/<nombre_del_agente>/
-├── identidad.txt        -> clave del rol (solo si es predefinida).
-├── identidad_custom.txt -> prompt de rol personalizado (solo si es personalizada).
-├── perfil.txt           -> datos de la persona.
-├── conocimiento.txt     -> conocimientos previos del agente.
-├── memoria.txt          -> lo aprendido en conversaciones.
-└── conversacion.csv     -> historial completo.
+agente_deepseek/
+├── app.py                  -> Main Flask web server, REST API, auth decorators & routes.
+├── basededatos.py          -> SQLite layer (agentes.db), AgenteDB engine, schema migrations & seeders.
+├── identidades.py          -> System prompt templates, identity processors & role catalog.
+├── prompt.py               -> Dynamic prompt compiler & memory extraction builder.
+├── seed.py                 -> Standalone database seeder with personas & starter dialogues.
+├── requirements.txt        -> Python package requirements.
+├── .env.example            -> Environment variables template.
+├── templates/              -> Jinja2 HTML templates:
+│   ├── base.html           -> Root layout (themes, toast alerts, modals, Lucide icons).
+│   ├── index.html          -> Public landing page & visual agent showcase.
+│   ├── dashboard.html      -> Admin control suite (Agents, Bases, Roles, Users, History).
+│   ├── chat.html           -> Workspace chat room with sidebar, thread manager & live settings.
+│   └── login.html          -> Authentication portal.
+├── static/
+│   ├── css/
+│   │   └── app.css         -> Design system tokens, light/dark themes & micro-animations.
+│   ├── js/
+│   │   ├── dashboard.js    -> Dashboard state management, avatar uploads & CRUD handlers.
+│   │   └── chat.js         -> Real-time chat client, streaming UI, markdown & clipboard.
+│   └── uploads/
+│       └── avatars/        -> Directory for uploaded agent profile pictures.
+└── __old__/                -> Archived legacy CLI scripts (main.py, memoria.py, agents/).
 ```
 
-No utiliza base de datos, framework web ni Docker. Es un prototipo sencillo pensado
-para que un estudiante de programación lo entienda y modifique fácilmente.
+---
 
-## Requisitos
+## 🚀 Quickstart Guide
 
-- Python 3.11 o superior.
-- Una cuenta y una API Key de [DeepSeek](https://platform.deepseek.com/).
-- Conexión a internet para consultar la API.
-
-## Instalación
-
-1. Clona o descarga el proyecto:
-
-
-2. Crea un entorno virtual:
-
-   ```bash
-   python -m venv venv
-   ```
-
-   Actívalo en Windows:
-
-   ```bash
-   venv\Scripts\activate
-   ```
-
-   Actívalo en Linux/macOS:
-
-   ```bash
-   source venv/bin/activate
-   ```
-
-3. Instala las dependencias:
-
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-## Configuración
-
-1. Copia el archivo de ejemplo:
-
-   ```bash
-   copy .env.example .env     # Windows
-   cp .env.example .env       # Linux/macOS
-   ```
-
-2. Edita `.env` y agrega tu API Key de DeepSeek:
-
-   ```env
-   DEEPSEEK_API_KEY=tu_api_key_real
-   ```
-
-   La API Key nunca se escribe en el código: se lee desde el archivo `.env`
-   (que está excluido de Git mediante `.gitignore`).
-
-## Ejecución
-
-### Versión web (Flask + SQLite)
-
+### 1. Clone Repository
 ```bash
-python seed.py        # opcional: llena agentes.db con datos de ejemplo
+git clone <repository-url>
+cd agente_deepseek
+```
+
+### 2. Set Up Virtual Environment
+
+**Windows (PowerShell):**
+```powershell
+python -m venv venv
+.\venv\Scripts\activate
+```
+
+**Linux / macOS:**
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+### 3. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+Copy `.env.example` to `.env`:
+```bash
+# Windows
+copy .env.example .env
+
+# Linux / macOS
+cp .env.example .env
+```
+
+Set your DeepSeek API key:
+```env
+DEEPSEEK_API_KEY=your_deepseek_api_key_here
+FLASK_SECRET_KEY=custom_session_secret_key_here
+```
+
+### 5. Seed the Database (Optional)
+Populate sample agents, knowledge bases, and dialogue history:
+```bash
+python seed.py
+```
+*(Use `python seed.py --force` to reset the database at any time).*
+
+### 6. Launch the Server
+```bash
 python app.py
 ```
 
-Luego abre <http://127.0.0.1:5000/> en el navegador. Verás los agentes
-disponibles como tarjetas; haz clic en uno para conversar o usa **Crear agente**
-para crear uno nuevo con su información, personalidad e identidad. La interfaz
-usa Tailwind CSS con el estilo visual de HeroUI y carga los estilos desde un
-CDN (se necesita internet).
+Navigate to:
+👉 **[http://localhost:5000](http://localhost:5000)**
 
-#### Base de datos (SQLite)
+---
 
-La versión web guarda todo en el archivo `agentes.db` (se crea solo):
+## 🔑 Default Credentials
 
-- Tabla `agentes`: nombre, perfil (información y personalidad), conocimiento,
-  memoria e identidad de cada agente.
-- Tabla `conversaciones`: el historial completo de los chats.
+- **Username:** `admin`
+- **Password:** `admin123`
 
-El **seeder** (`python seed.py`) llena la base de datos:
+*(Can be updated anytime from the Admin Dashboard $\rightarrow$ My Account).*
 
-1. Importa los agentes de la carpeta `agents/` (los de la versión de consola),
-   incluyendo su historial.
-2. Si no hay carpetas, crea tres agentes de ejemplo (`benjamin`, `elon_musk`
-   y `albert_einstein`).
-3. Agrega una conversación de ejemplo a cada agente que no tenga historial.
+---
 
-Con `python seed.py --force` se vacía la base de datos y se vuelve a sembrar
-desde cero.
+## 📡 REST API Reference
 
-### Versión de consola
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/login` | User session authentication. |
+| `GET` | `/logout` | Terminate session. |
+| `GET` | `/api/agentes` | List all registered agents. |
+| `POST` | `/api/agentes` | Create a new agent. |
+| `GET` | `/api/agente/<nombre>` | Retrieve agent details, profile, role, and linked bases. |
+| `POST` | `/api/agente/<nombre>/editar` | Update agent configuration, profile, avatar, or sources. |
+| `DELETE` | `/api/agente/<nombre>` | Delete agent and associated history. |
+| `POST` | `/api/agente/<nombre>/chat` | Send message to DeepSeek and trigger active memory. |
+| `POST` | `/api/agente/<nombre>/sesiones` | Spawn a new conversation thread. |
+| `PUT` | `/api/sesion/<id>` | Rename conversation thread title. |
+| `DELETE` | `/api/sesion/<id>` | Delete conversation thread. |
+| `GET` | `/api/fuentes` | List decoupled knowledge bases. |
+| `POST` | `/api/fuentes` | Create a knowledge base. |
+| `POST` | `/api/upload/avatar` | Upload agent profile picture. |
+| `GET` | `/api/roles` | List available system and custom roles. |
+---
+
+## 👨‍💻 Author & Credits
+
+- **Developer:** [Bemtorres](https://github.com/bemtorres)
+- **GitHub:** [https://github.com/bemtorres](https://github.com/bemtorres)
+- **Engine:** Backed by SQLite · Powered by DeepSeek AI
+
+---
+---
+
+# 🇪🇸 Documentación en Español
+
+## 🌟 Descripción General
+
+**THEYTHINK** es una plataforma web desarrollada en **Python (Flask)** con base de datos **SQLite**, diseñada para crear, personalizar y conversar con agentes inteligentes respaldados por el modelo **DeepSeek**, con **memoria viva persistente**, **bases de conocimiento desacopladas**, **roles dinámicos**, **avatares personalizados** y una interfaz moderna con **Modo Claro / Modo Oscuro** inspirada en **Google Gemini** y **HeroUI**.
+
+---
+
+## ✨ Funcionalidades Destacadas
+
+### 1. 💬 Sala de Chat Multihilo y Ergonómica
+- **Múltiples hilos de chat** por agente para organizar conversaciones por tema.
+- **Barra lateral colapsable** con buscador en tiempo real y gestión de hilos.
+- **Selector rápido** de agente en la cabecera sin salir del chat.
+- **Preguntas sugeridas** de un clic para iniciar de forma ágil.
+- **Botón de copiado** con feedback visual instantáneo.
+- **Modal de ajustes en caliente** para calibrar perfil, rol, bases y memoria en vivo.
+
+### 2. 📊 Dashboard Administrativo Completo
+- **Tarjetas KPI** con métricas en tiempo real de agentes, bases, roles, usuarios y mensajes.
+- **Gestión de Agentes**: Creación y edición con previsualización de avatar y asociación $N:M$ de bases de conocimiento.
+- **Bases de Conocimiento Desacopladas**: Fuentes reutilizables entre múltiples agentes.
+- **Mantenedor de Roles**: Creación y edición de System Prompts personalizados directamente desde la web.
+- **Administración de Usuarios (Show $\rightarrow$ Edit $\rightarrow$ Update)**: Fichas de detalle y actualización de credenciales.
+- **Explorador de Historiales**: Auditoría global de conversaciones y mensajes.
+
+### 3. 🌓 Modo Claro y Modo Oscuro
+- Conmutador universal Sol ☀️ / Luna 🌙 con persistencia en `localStorage`.
+- Script anti-parpadeo inline para carga instantánea sin saltos de color.
+- Paleta Google Material You (`#1a73e8`, `#ea4335`, `#fbbc04`, `#34a853`).
+
+### 4. 🖼️ Soporte de Imágenes y Avatares
+- Carga de imágenes locales (`PNG`, `JPG`, `WEBP`, `GIF`, `SVG`) mediante `/api/upload/avatar`.
+- URLs externas con previsualización inmediata.
+
+### 5. 🧠 Memoria Viva Inteligente
+- Extracción y consolidación automática de hechos aprendidos durante las conversaciones, evitando duplicados.
+
+### 6. 🎭 Catálogo de Personajes
+- **El Principito (`el_principito`)**, **Sherlock Holmes (`sherlock_holmes`)**, **Don Quijote (`don_quijote`)**, **Sócrates (`socrates`)**, **Nikola Tesla (`nikola_tesla`)**, **Hincha de Colo-Colo (`hincha_colocolo`)**, **Hincha de la U (`hincha_udechile`)**, **Flaite Chileno (`el_flaite_chileno`)**, **Benjamin (`benjamin`)**, **Elon Musk (`elon_musk`)** y **Albert Einstein (`albert_einstein`)**.
+
+---
+
+## 🚀 Instalación y Uso Rápido
 
 ```bash
-python main.py
+# 1. Crear y activar entorno virtual
+python -m venv venv
+.\venv\Scripts\activate      # Windows
+source venv/bin/activate    # Linux / macOS
+
+# 2. Instalar dependencias
+pip install -r requirements.txt
+
+# 3. Configurar variables de entorno
+cp .env.example .env        # Configura tu DEEPSEEK_API_KEY
+
+# 4. Poblar datos iniciales (opcional)
+python seed.py
+
+# 5. Iniciar la plataforma
+python app.py
 ```
 
-Al iniciar, el programa muestra los agentes disponibles y te pregunta con quién
-quieres conversar:
+Abre en tu navegador: **[http://localhost:5000](http://localhost:5000)**
 
-```text
-Agentes disponibles:
-  1. benjamin
+---
 
-¿Con quién vas a hablar? (número o nombre):
-```
+## 🔑 Credenciales por Defecto
 
-Escribe el número de un agente existente o un nombre nuevo: si el nombre no
-existe, se crea un agente nuevo con su propia carpeta.
+- **Usuario:** `admin`
+- **Contraseña:** `admin123`
 
-```text
-========================================
-    AGENTES PERSONALES - DEEPSEEK
-========================================
+---
 
-Tú: ¿Qué es Django?
+## 👨‍💻 Autor y Créditos
 
-Agente:
-Django es un framework web de Python que sigue el patrón
-Modelo-Template-Vista e incluye un ORM...
-```
-
-## Cómo crear un agente nuevo
-
-Hay dos formas:
-
-1. **Desde la terminal**: al elegir agente, escribe un nombre que no exista.
-   El programa crea la carpeta, te pide los conocimientos previos (línea por
-   línea, termina con `FIN`) y luego la **identidad** (rol) del agente.
-2. **Directamente en los archivos**: crea una carpeta dentro de `agents/` con
-   los archivos (`identidad.txt`, `perfil.txt`, `conocimiento.txt`,
-   `memoria.txt`, `conversacion.csv`), o copia la carpeta de un agente
-   existente y edítala.
-
-Cada agente es independiente: tiene su propia identidad, conversación, memoria
-y conocimiento.
-
-## Identidades
-
-Cada agente tiene una **identidad** que define cómo responde. Las identidades
-predefinidas se definen en `identidades.py` (diccionario `IDENTIDADES`). Las
-disponibles son:
-
-| Clave           | Nombre                   | Estilo                                   |
-| --------------- | ------------------------ | ---------------------------------------- |
-| `basic`         | Básico                   | Respuestas claras, lógicas y directas.   |
-| `advanced`      | Avanzado                 | Instrucciones estructuradas.             |
-| `wikipedia`     | Wikipedia                | Responde en primera persona.             |
-| `storyteller`   | Narrador de historias    | Convierte la información en relatos.     |
-| `teacher`       | Profesor                 | Explica paso a paso con ejemplos.        |
-| `coach`         | Coach motivacional       | Inspira y orienta.                       |
-| `analyst`       | Analista                 | Conclusiones objetivas y razonadas.      |
-| `journalist`    | Periodista               | Relatos precisos e imparciales.          |
-| `scientist`     | Científico               | Rigor y evidencia.                       |
-| `philosopher`   | Filósofo                 | Reflexión y preguntas que invitan a pensar. |
-| `child_friendly`| Amigable para niños      | Simple, divertida y visual.              |
-| `historian`     | Historiador              | Contexto y precisión cronológica.        |
-| `detective`     | Detective                | Deducciones lógicas e intrigantes.       |
-| `futurist`      | Futurista                | Visión innovadora del futuro.            |
-| `poet`          | Poeta                    | Belleza, emoción y ritmo.                |
-
-### Identidades personalizadas
-
-El agente usa **uno de dos archivos** para su identidad (nunca los dos a la vez):
-
-| Archivo                | Cuándo existe                                  |
-| ---------------------- | ---------------------------------------------- |
-| `identidad.txt`        | Cuando se usa una identidad predefinida.       |
-| `identidad_custom.txt` | Cuando se usa una identidad personalizada.     |
-
-Son **mutuamente excluyentes**:
-
-- Al escribir una identidad **personalizada** se elimina `identidad.txt`
-  (la personalizada reemplaza a la predefinida).
-- Al elegir una identidad **predefinida** se elimina `identidad_custom.txt`.
-
-Si no existe ninguno de los dos, el agente usa la identidad `basic`.
-
-Para escribir una identidad personalizada tienes tres opciones:
-
-- Al **crear** un agente, elige la opción `0. Escribir identidad personalizada`.
-- Con el comando `/crear_identidad`, que pide el prompt línea por línea
-  (termina con `FIN`).
-- Editando `agents/<nombre>/identidad_custom.txt` directamente con cualquier
-  editor (y eliminando `identidad.txt` si existiera).
-
-Los prompts personalizados pueden usar los mismos marcadores:
-
-- `[____]` → se reemplaza por el nombre de la persona representada.
-- `[información del documento]` → se reemplaza por la referencia a la base de
-  conocimiento.
-
-El System Prompt final es el **prompt de rol de la identidad** más las
-secciones `PERFIL`, `BASE DE CONOCIMIENTO` y `MEMORIA`. Puedes cambiar la
-identidad en cualquier momento con `/cambiar_identidad` (una identidad
-predefinida borra la personalizada, y la opción `0` escribe una nueva
-personalizada).
-
-## Agentes de ejemplo
-
-La carpeta `agents/` incluye tres agentes de ejemplo:
-
-| Agente            | Identidad                  | Descripción                              |
-| ----------------- | -------------------------- | ---------------------------------------- |
-| `benjamin`        | `teacher` (predefinida)    | Profesor que explica paso a paso.        |
-| `elon_musk`       | Personalizada              | Responde como Elon Musk en 1.ª persona.  |
-| `albert_einstein` | Personalizada              | Responde como Albert Einstein en 1.ª persona. |
-
-Cada uno tiene su propio `perfil.txt`, `conocimiento.txt`, `memoria.txt` y
-`conversacion.csv`.
-
-## Arquitectura
-
-```text
-agents/<nombre>/
-├── identidad.txt     (rol/estilo de respuesta)
-├── perfil.txt        (quién es la persona)
-├── conocimiento.txt  (en qué se basan las respuestas)
-├── memoria.txt       (qué aprendió el agente)
-└── conversacion.csv  (historial completo)
-         │
-         ↓
-System Prompt (identidad + perfil + conocimiento + memoria)
-         ↓
-DeepSeek (deepseek-chat)
-         ↓
-respuesta
-         ↓
-memoria (segunda llamada: decide qué recordar)
-```
-
-Flujo paso a paso:
-
-1. `main.py` pregunta con qué agente conversar y crea la instancia `Agente`.
-2. `Agente` carga `identidad.txt`, `perfil.txt`, `conocimiento.txt` y
-   `memoria.txt` del agente.
-3. El usuario escribe un mensaje.
-4. `Agente` construye el System Prompt con la identidad (marcadores
-   reemplazados), perfil, conocimiento y memoria, y agrega las últimas 10
-   interacciones del CSV como contexto.
-5. Envía todo a DeepSeek (`deepseek-chat`) y obtiene la respuesta.
-6. Guarda el mensaje y la respuesta en `conversacion.csv` del agente.
-7. Hace una segunda llamada a DeepSeek para decidir si hay información nueva que
-   valga la pena recordar. Si la hay, la agrega a `memoria.txt` del agente
-   (evitando duplicados) para que sobreviva a futuras ejecuciones.
-
-### Módulos
-
-| Archivo           | Responsabilidad                                          |
-| ----------------- | -------------------------------------------------------- |
-| `main.py`         | Interfaz de consola, selección de agente y comandos.     |
-| `app.py`          | Interfaz web (Flask): páginas y API JSON.                |
-| `basededatos.py`  | Base de datos SQLite de la versión web + clase `AgenteDB`. |
-| `seed.py`         | Seeder: llena `agentes.db` con agentes y conversaciones. |
-| `agente.py`       | Clase `Agente`: llama a DeepSeek y coordina los datos.   |
-| `memoria.py`      | Carpetas `agents/`, lectura/escritura de archivos.       |
-| `identidades.py`  | Diccionario `IDENTIDADES` con los roles disponibles.     |
-| `prompt.py`       | Construcción del System Prompt y análisis de memoria.    |
-
-### Estructura de la versión web
-
-```text
-app.py                  -> aplicación Flask (páginas + API JSON)
-basededatos.py          -> acceso a datos con SQLite (agentes.db)
-seed.py                 -> seeder: siembra agentes y conversaciones
-templates/
-├── base.html           -> diseño base (Tailwind CSS + estética HeroUI)
-├── index.html          -> lista de agentes y creación de uno nuevo
-└── chat.html           -> conversación y panel del agente
-static/
-├── css/app.css         -> estilos personalizados
-└── js/
-    ├── index.js        -> lógica de creación de agentes
-    └── chat.js         -> lógica del chat (mensajes, pestañas, acciones)
-agentes.db              -> base de datos SQLite (se genera automáticamente)
-```
-
-La versión web reutiliza `agente.py`, `memoria.py`, `identidades.py` y
-`prompt.py` de la versión de consola. `AgenteDB` (en `basededatos.py`) hereda
-de `Agente` y solo cambia la forma de guardar los datos: en vez de archivos
-en `agents/`, usa la base de datos. La versión de consola sigue intacta y usa
-sus archivos.
-
-### Comandos
-
-| Comando          | Acción                                                     |
-| ---------------- | ---------------------------------------------------------- |
-| `/memoria`       | Muestra la memoria almacenada del agente.                  |
-| `/perfil`        | Muestra el perfil de la persona.                           |
-| `/conocimiento`  | Muestra los conocimientos previos del agente.              |
-| `/identidad`     | Muestra la identidad actual y su prompt de rol.            |
-| `/cambiar_identidad` | Cambia la identidad (predefinida o personalizada).    |
-| `/crear_identidad`   | Escribe una identidad personalizada en identidad.txt.  |
-| `/historial`     | Muestra las últimas conversaciones.                        |
-| `/limpiar`       | Pide confirmación y borra la memoria (no el perfil).       |
-| `/cambiar`       | Cambia de agente dentro de la misma sesión.                |
-| `/salir`         | Cierra el programa.                                        |
-
-## Ejemplo de conversación
-
-```text
-Tú: ¿Qué tecnologías utilizas?
-
-Agente:
-Tengo experiencia con Python, Django, Laravel,
-Angular, MySQL y otras tecnologías...
-
-Tú: Estoy desarrollando un agente con DeepSeek.
-
-Agente:
-Es una buena alternativa para este tipo de proyecto...
-
-[El sistema analiza si debe guardar esta información]
-
-Tú: /memoria
-
-MEMORIA DEL AGENTE
-------------------
-El usuario está desarrollando un agente digital
-utilizando Python y DeepSeek.
-```
-
-## Cómo funciona la memoria automática
-
-Después de cada intercambio, el agente hace una segunda llamada a DeepSeek con
-la conversación reciente y la memoria actual. DeepSeek responde:
-
-- `NO_MEMORIA` si no hay nada nuevo que valga la pena recordar, o
-- las frases que deberían guardarse.
-
-`memoria.py` limpia la respuesta, descarta los duplicados mediante una
-comparación básica de texto y agrega lo nuevo a `memoria.txt`. De esta forma
-el agente no guarda todo lo que se dice, sino solo lo relevante.
-
-## Manejo de errores
-
-El programa muestra mensajes claros (sin trazas técnicas) cuando:
-
-- falta o es inválida la API Key en `.env`,
-- no hay conexión a internet,
-- DeepSeek devuelve un error o una respuesta vacía,
-- se supera el límite de solicitudes,
-- el usuario interrumpe con `Ctrl + C`.
-
-Si los archivos de un agente no existen, el programa los crea automáticamente.
+- **Desarrollador:** [Bemtorres](https://github.com/bemtorres)
+- **GitHub:** [https://github.com/bemtorres](https://github.com/bemtorres)
+- **Motor:** Respaldado en SQLite · Impulsado por DeepSeek AI

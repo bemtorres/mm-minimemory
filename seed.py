@@ -24,16 +24,25 @@ import os
 import sys
 
 import basededatos as bd
-from memoria import (
-    PERFIL_INICIAL,
-    leer_conocimiento,
-    leer_identidad,
-    leer_identidad_custom,
-    leer_memoria,
-    leer_perfil,
-    listar_agentes as listar_agentes_archivos,
-    ruta_agente,
-)
+
+
+PERFIL_INICIAL = """NOMBRE:
+Benjamin
+
+PROFESION:
+Desarrollador de software e investigador de IA.
+
+EXPERIENCIA:
+Desarrollo web, modelos de lenguaje y automatizacion.
+
+PERSONALIDAD:
+Didactico, paciente y directo.
+
+FORMA DE COMUNICARSE:
+Clara, estructurada y con ejemplos practicos.
+
+INTERESES:
+Inteligencia artificial, arquitectura de software, filosofia."""
 
 # ----------------------------------------------------------------------
 # Agentes de ejemplo (se usan si no hay carpetas en agents/).
@@ -142,56 +151,6 @@ CONVERSACIONES_EJEMPLO = [
 
 
 # ----------------------------------------------------------------------
-# Importación desde agents/
-# ----------------------------------------------------------------------
-
-
-def importar_desde_archivos():
-    """Importa los agentes de `agents/` a la base de datos.
-
-    Devuelve la lista de nombres recién importados.
-    """
-    importados = []
-    for nombre in listar_agentes_archivos():
-        if bd.existe_agente(nombre):
-            continue
-        bd.crear_agente(
-            nombre=nombre,
-            perfil=leer_perfil(nombre),
-            conocimiento=leer_conocimiento(nombre),
-            memoria=leer_memoria(nombre),
-            identidad_clave=leer_identidad(nombre),
-            identidad_custom=leer_identidad_custom(nombre),
-        )
-        _importar_conversaciones(nombre)
-        importados.append(nombre)
-    return importados
-
-
-def _importar_conversaciones(nombre):
-    """Copia el historial de conversacion.csv del agente a la base."""
-    ruta = ruta_agente(nombre, "conversacion.csv")
-    if not os.path.exists(ruta):
-        return
-    try:
-        with open(ruta, "r", encoding="utf-8", newline="") as archivo:
-            filas = list(csv.DictReader(archivo))
-    except (UnicodeDecodeError, csv.Error, OSError):
-        return
-    for fila in filas:
-        mensaje = fila.get("mensaje", "")
-        if not mensaje:
-            continue
-        bd.guardar_mensaje(
-            nombre,
-            fila.get("rol", ""),
-            mensaje,
-            fecha=fila.get("fecha", ""),
-            hora=fila.get("hora", ""),
-        )
-
-
-# ----------------------------------------------------------------------
 # Creación de ejemplos y conversaciones
 # ----------------------------------------------------------------------
 
@@ -224,6 +183,66 @@ def crear_bases_y_agentes_ejemplo():
             )
 
 
+CONVERSACIONES_PERSONAJES = {
+    "el_principito": [
+        ("user", "¡Hola Principito! ¿De dónde vienes y qué es lo más importante en la vida?"),
+        (
+            "assistant",
+            "¡Hola! Vengo de mi pequeño asteroide B-612, donde tengo tres volcanes y una rosa única en el mundo. Las personas mayores a menudo se confunden con números y cosas extrañas, pero mi amigo el Zorro me enseñó el verdadero secreto: solo con el corazón se puede ver bien; lo esencial es invisible para los ojos. ¿Has mirado hoy las estrellas?",
+        ),
+    ],
+    "sherlock_holmes": [
+        ("user", "Buenos días, señor Holmes. ¿Cómo funciona su método deductivo?"),
+        (
+            "assistant",
+            "Elemental. La mayoría de los hombres ven, pero no observan; la distinción es evidente. La ciencia de la deducción consiste en advertir los detalles que escapan a los demás: la ceniza de un cigarro, las huellas de barro o el desgaste en una manga. Cuando se elimina lo imposible, lo que queda, por improbable que parezca, debe ser la verdad. Dígame, ¿qué enigma le trae a Baker Street?",
+        ),
+    ],
+    "don_quijote": [
+        ("user", "Saludos, caballero. ¿Cuál es su sagrada misión en este mundo?"),
+        (
+            "assistant",
+            "¡Sépase, noble amigo, que soy Don Quijote de la Mancha, desfacedor de tuertos y amparo de los menesterosos! Por la libertad y por la honra, así como por mi sin par señora Dulcinea del Toboso, se puede y debe aventurar la vida. Aunque los viles encantadores muden los gigantes en molinos de viento, jamás desmayará este brazo en defender la justicia y la virtud.",
+        ),
+    ],
+    "socrates": [
+        ("user", "Hola Sócrates. ¿Qué significa conocerse a uno mismo?"),
+        (
+            "assistant",
+            "Salud, amigo mío. Conocerse a uno mismo es reconocer ante todo los límites del propio saber: solo sé que nada sé. Quien cree saber lo que ignora vive prisionero de una ilusión. ¿Acaso no es más valioso examinar nuestra alma y buscar la virtud cada día antes que perseguir las riquezas y la vana fama?",
+        ),
+    ],
+    "nikola_tesla": [
+        ("user", "Maestro Tesla, ¿cuál es el secreto del universo y de sus inventos?"),
+        (
+            "assistant",
+            "Si quieres descubrir los secretos del universo, piensa en términos de energía, frecuencia y vibración. Todo lo que he creado —desde la corriente alterna polifásica y el motor de inducción hasta la bobina de alta tensión— nació primero en mi mente, funcionando a la perfección antes de tocar la materia. El presente es de ellos; el futuro, para el que realmente he trabajado, es de la humanidad entera.",
+        ),
+    ],
+    "hincha_colocolo": [
+        ("user", "¡Wena compa! ¿Por qué Colo-Colo es el equipo más grande de Chile?"),
+        (
+            "assistant",
+            "¡Aguante el Cacique, hermano! Colo-Colo es Chile entero. Fundado en 1925 por el gran David Arellano en el bar Quitapenas, somos el Eterno Campeón con más de 33 estrellas y el único club chileno que tiene la Copa Libertadores de América ganada en la Ruca en 1991 con don Mirko Jozic. De Caszely y Chamaco hasta Barti, Matías y Esteban Paredes, ¡la historia alba se respeta siempre!",
+        ),
+    ],
+    "hincha_udechile": [
+        ("user", "¡Hola bullanguero! ¿Qué significa la mística de la Universidad de Chile?"),
+        (
+            "assistant",
+            "¡Vamos la U, toda la vida! La mística azul no se compra con nada: es un sentimiento que se lleva en la sangre, alentando en las buenas y en las malas sin abandonar jamás. Desde el glorioso Ballet Azul de don Leonel Sánchez y el título heroico del 94 con el Matador Marcelo Salas, hasta la Copa Sudamericana 2011 invicta de don Jorge Sampaoli y Edu Vargas. ¡La Gloriosa U es alegría pura!",
+        ),
+    ],
+    "el_flaite_chileno": [
+        ("user", "Wena hermano, ¿cómo estai? Tírame la pulenta de cómo se vive el corte fino en la pobla."),
+        (
+            "assistant",
+            "¡Wena compita, qué pasa! Aquí andamo' de pana po wacho, siempre a lo vío y con la chispeza al cien. En la pobla se vive con respeto y lealtad: zapatillas Jordan impecables, su corte en degrade fino, escuchando al Pablo Chill-E o al Cris Mj a todo chancho y compartiendo unos buenos tocomples con los cabros. Yo no le compro a los perkines, pero a los míos los banco a morir. ¿Qué querí' saber, hermano?",
+        ),
+    ],
+}
+
+
 def sembrar_conversaciones():
     """Agrega una conversación de ejemplo a los agentes sin historial.
 
@@ -233,7 +252,8 @@ def sembrar_conversaciones():
     for nombre in bd.listar_agentes():
         if bd.obtener_historial(nombre, cantidad=1):
             continue
-        for rol, mensaje in CONVERSACIONES_EJEMPLO:
+        mensajes = CONVERSACIONES_PERSONAJES.get(nombre, CONVERSACIONES_EJEMPLO)
+        for rol, mensaje in mensajes:
             bd.guardar_mensaje(nombre, rol, mensaje)
         sembrados.append(nombre)
     return sembrados
@@ -260,20 +280,10 @@ def main():
         print(f"Archivo: {bd.BASE_DATOS}")
         return
 
-    carpetas = listar_agentes_archivos()
-    if carpetas:
-        importados = importar_desde_archivos()
-        if importados:
-            print("Agentes importados desde agents/:")
-            for nombre in importados:
-                print(f"  - {nombre}")
-        else:
-            print("Los agentes de agents/ ya estaban en la base de datos.")
-    else:
-        crear_bases_y_agentes_ejemplo()
-        print("No hay carpetas en agents/; se crearon agentes y bases de ejemplo:")
-        for nombre in bd.listar_agentes():
-            print(f"  - {nombre}")
+    crear_bases_y_agentes_ejemplo()
+    print("Bases de conocimiento y agentes base creados:")
+    for nombre in bd.listar_agentes():
+        print(f"  - {nombre}")
 
     bd.migrar_conocimientos_legacy()
 

@@ -1,571 +1,580 @@
-// Lógica de la página de chat: conversación, pestañas y configuración.
+// Lógica del Chat Google AI: Hilos, Memoria, Sugerencias, Gestión y Ergonomía
 (function () {
   "use strict";
 
+  var contenedorMensajes = document.getElementById("mensajes");
+  var formMensaje = document.getElementById("form-mensaje");
+  var campoMensaje = document.getElementById("campo-mensaje");
+  var botonEnviar = document.getElementById("boton-enviar");
+  var listaSesionesSidebar = document.getElementById("lista-sesiones-sidebar");
+  var sidebar = document.getElementById("chat-sidebar");
+
+  var modalRenombrar = document.getElementById("modal-renombrar-sesion");
+  var campoRenombrarId = document.getElementById("renombrar-sesion-id");
+  var campoRenombrarTitulo = document.getElementById("campo-renombrar-titulo");
+
+  var modalLimpiarMemoria = document.getElementById("modal-limpiar-memoria");
+  var modalGestionAgente = document.getElementById("modal-gestion-agente");
+  var formGestionAgente = document.getElementById("form-gestion-agente");
+  var selectIdentidad = document.getElementById("editar-identidad");
+  var bloqueCustom = document.getElementById("bloque-identidad-custom");
+
   var nombreAgente = document.body.dataset.agente;
-  var contenedor = document.getElementById("mensajes");
-  var form = document.getElementById("form-mensaje");
-  var campo = document.getElementById("campo-mensaje");
-  var boton = document.getElementById("boton-enviar");
-  var indicadorMemoria = document.getElementById("indicador-memoria");
+  var sesionActivaId = parseInt(document.body.dataset.sesionId, 10) || null;
+
+  // Toast
   var toast = document.getElementById("toast");
   var contenidoToast = document.getElementById("toast-contenido");
   var iconoToast = document.getElementById("toast-icono");
   var textoToast = document.getElementById("texto-toast");
-  var mensajeEnProceso = false;
-
-  // ------------------------------------------------------------------
-  // Utilidades
-  // ------------------------------------------------------------------
-
-  function escapar(texto) {
-    var div = document.createElement("div");
-    div.textContent = texto;
-    return div.innerHTML;
-  }
-
-  function marcar(texto) {
-    if (window.marked && window.DOMPurify) {
-      var html = marked.parse(texto, { breaks: true, gfm: true });
-      return DOMPurify.sanitize(html);
-    }
-    return escapar(texto).replace(/\n/g, "<br>");
-  }
 
   function mostrarToast(mensaje, tipo) {
     var esExito = tipo === "exito";
     textoToast.textContent = mensaje;
     contenidoToast.className =
       "flex items-center gap-2.5 rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-2xl " +
-      (esExito ? "bg-emerald-600" : "bg-rose-600");
-    iconoToast.setAttribute("data-lucide", esExito ? "check-circle-2" : "triangle-alert");
+      (esExito ? "bg-[#34A853]" : "bg-[#EA4335]");
+    iconoToast.setAttribute("data-lucide", esExito ? "check-circle-2" : "alert-circle");
     toast.classList.remove("hidden");
     clearTimeout(toast._temporizador);
     toast._temporizador = setTimeout(function () {
       toast.classList.add("hidden");
-    }, 4500);
+    }, 4000);
     if (window.lucide) lucide.createIcons();
   }
 
-  function desplazarAlFinal() {
-    contenedor.scrollTop = contenedor.scrollHeight;
-  }
-
   // ------------------------------------------------------------------
-  // Burbujas de mensaje
+  // Control de Barra Lateral y Selector de Agente
   // ------------------------------------------------------------------
-
-  function crearBurbuja(rol, contenido, esNuevo) {
-    var envoltura = document.createElement("div");
-    envoltura.className =
-      "mensaje-burbuja flex " + (rol === "user" ? "justify-end" : "justify-start");
-
-    if (rol === "user") {
-      var burbujaUsuario = document.createElement("div");
-      burbujaUsuario.className =
-        "max-w-[78%] rounded-3xl rounded-br-lg bg-gradient-to-r from-brand-600 to-fuchsia-600 px-5 py-3 text-sm leading-relaxed text-white shadow-lg shadow-brand-600/20";
-      burbujaUsuario.textContent = contenido;
-      envoltura.appendChild(burbujaUsuario);
-    } else {
-      var burbujaAgente = document.createElement("div");
-      burbujaAgente.className =
-        "prose-chat max-w-[82%] rounded-3xl rounded-bl-lg border border-slate-200/80 bg-white px-5 py-3.5 text-sm text-slate-700 shadow-[0_6px_20px_rgb(124,58,237,0.07)]";
-      burbujaAgente.innerHTML = marcar(contenido);
-      envoltura.appendChild(burbujaAgente);
+  window.toggleSidebarChat = function () {
+    if (sidebar) {
+      sidebar.classList.toggle("hidden");
     }
+  };
 
-    if (esNuevo) contenedor.appendChild(envoltura);
-    else contenedor.insertBefore(envoltura, contenedor.firstChild);
-    return envoltura;
-  }
-
-  function crearIndicadorEscritura() {
-    var envoltura = document.createElement("div");
-    envoltura.id = "escribiendo";
-    envoltura.className = "mensaje-burbuja flex justify-start";
-    var caja = document.createElement("div");
-    caja.className =
-      "flex items-center gap-1.5 rounded-3xl rounded-bl-lg border border-slate-200/80 bg-white px-5 py-4 shadow-[0_6px_20px_rgb(124,58,237,0.07)]";
-    for (var i = 0; i < 3; i++) {
-      var punto = document.createElement("span");
-      punto.className = "punto-escritura h-2 w-2 rounded-full bg-brand-400";
-      caja.appendChild(punto);
+  window.cambiarAgenteActivo = function (nuevoNombre) {
+    if (nuevoNombre && nuevoNombre !== nombreAgente) {
+      window.location.href = "/agente/" + encodeURIComponent(nuevoNombre);
     }
-    envoltura.appendChild(caja);
-    contenedor.appendChild(envoltura);
-    desplazarAlFinal();
-  }
+  };
 
-  function quitarIndicadorEscritura() {
-    var indicador = document.getElementById("escribiendo");
-    if (indicador) indicador.remove();
-  }
+  window.filtrarHilosSidebar = function (query) {
+    var q = (query || "").toLowerCase().trim();
+    document.querySelectorAll("#lista-sesiones-sidebar [data-sesion-item]").forEach(function (el) {
+      var tit = (el.dataset.sesionTitulo || "").toLowerCase();
+      el.classList.toggle("hidden", q !== "" && tit.indexOf(q) === -1);
+    });
+  };
 
   // ------------------------------------------------------------------
-  // Conversación
+  // Sugerencias de Inicio Rápido
   // ------------------------------------------------------------------
+  window.usarSugerencia = function (texto) {
+    campoMensaje.value = texto;
+    formMensaje.requestSubmit();
+  };
 
-  function cargarHistorial() {
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/historial")
-      .then(function (respuesta) {
-        return respuesta.json();
-      })
+  // ------------------------------------------------------------------
+  // Copiar al Portapapeles
+  // ------------------------------------------------------------------
+  window.copiarTexto = function (texto, btn) {
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(texto).then(function () {
+      var htmlOriginal = btn.innerHTML;
+      btn.innerHTML = '<i data-lucide="check" class="h-3 w-3 inline text-[#34A853]"></i> <span class="text-[#34A853]">¡Copiado!</span>';
+      if (window.lucide) lucide.createIcons();
+      setTimeout(function () {
+        btn.innerHTML = htmlOriginal;
+        if (window.lucide) lucide.createIcons();
+      }, 2000);
+    });
+  };
+
+  // ------------------------------------------------------------------
+  // Carga y Renderizado de Mensajes
+  // ------------------------------------------------------------------
+  function cargarMensajesSesion(sesionId) {
+    contenedorMensajes.innerHTML =
+      '<div class="flex h-64 items-center justify-center text-xs text-[#5f6368] dark:text-[#c4c7c5]">' +
+      '  <span class="animate-pulse">Cargando conversación…</span>' +
+      '</div>';
+
+    fetch("/api/sesion/" + sesionId)
+      .then(function (r) { return r.json(); })
       .then(function (datos) {
-        var mensajes = (datos.mensajes || []).filter(function (m) {
-          return m.mensaje;
-        });
+        contenedorMensajes.innerHTML = "";
+        var mensajes = datos.mensajes || [];
+
         if (!mensajes.length) {
-          mostrarMensajeBienvenida();
+          // Welcome Screen con sugerencias de inicio rápido estilo Google Gemini
+          contenedorMensajes.innerHTML =
+            '<div class="mx-auto max-w-2xl py-10 text-center animate-fade-in">' +
+            '  <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] text-white shadow-xl shadow-[#1a73e8]/25 mb-4">' +
+            '    <i data-lucide="sparkles" class="h-8 w-8"></i>' +
+            '  </div>' +
+            '  <h3 class="text-xl font-bold text-[#202124] dark:text-white">¡Hola! Soy ' + nombreAgente + '</h3>' +
+            '  <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-1 max-w-md mx-auto">Pregúntame cualquier duda sobre mis bases de conocimiento o pídemelo en tu estilo preferido.</p>' +
+            '  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left max-w-xl mx-auto">' +
+            '    <button onclick="usarSugerencia(\'¿Qué conocimientos o documentos tienes disponibles?\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="book-open" class="h-3.5 w-3.5 text-[#1e8e3e] dark:text-[#81c995]"></i> Bases Temáticas</p>' +
+            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">¿Qué conocimientos tienes disponibles?</p>' +
+            '    </button>' +
+            '    <button onclick="usarSugerencia(\'Resume los puntos clave de la información que conoces.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="file-text" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i> Resumen Rápido</p>' +
+            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">Resume los puntos clave de tus bases.</p>' +
+            '    </button>' +
+            '    <button onclick="usarSugerencia(\'Explícame cómo funciona tu memoria en nuestras conversaciones.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="database" class="h-3.5 w-3.5 text-[#f9ab00] dark:text-[#fdd663]"></i> Memoria Viva</p>' +
+            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">¿Cómo funciona tu memoria activa?</p>' +
+            '    </button>' +
+            '    <button onclick="usarSugerencia(\'Proponme una idea o desafío para resolver juntos hoy.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="lightbulb" class="h-3.5 w-3.5 text-[#d93025] dark:text-[#f28b82]"></i> Pregunta Creativa</p>' +
+            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">Proponme un desafío para empezar.</p>' +
+            '    </button>' +
+            '  </div>' +
+            '</div>';
+          if (window.lucide) lucide.createIcons();
           return;
         }
+
         mensajes.forEach(function (m) {
-          crearBurbuja(m.rol, m.mensaje, true);
+          renderizarMensaje(m.rol, m.mensaje, m.fecha, m.hora);
         });
+
         desplazarAlFinal();
       })
       .catch(function () {
-        mostrarMensajeBienvenida();
+        contenedorMensajes.innerHTML =
+          '<div class="flex h-full items-center justify-center text-xs text-[#d93025] dark:text-[#f28b82]">Error al cargar la conversación.</div>';
       });
   }
 
-  function mostrarMensajeBienvenida() {
-    contenedor.innerHTML = "";
-    var envoltura = document.createElement("div");
-    envoltura.className = "flex h-full flex-col items-center justify-center text-center";
-    envoltura.innerHTML =
-      '<div class="flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-brand-500 to-fuchsia-500 text-white shadow-xl shadow-brand-500/25">' +
-      '  <i data-lucide="message-circle" class="h-8 w-8"></i>' +
-      "</div>" +
-      '<h2 class="mt-5 text-xl font-bold text-slate-900">Hola, soy ' +
-      escapar(document.querySelector("header h1").textContent) +
-      "</h2>" +
-      '<p class="mt-2 max-w-md text-sm text-slate-500">Escribe tu primer mensaje y empezaremos a conversar. ' +
-      "Tengo mi propia identidad, conocimientos y memoria.</p>";
-    contenedor.appendChild(envoltura);
+  function renderizarMensaje(rol, texto, fecha, hora) {
+    var esUsuario = rol === "user";
+    var fila = document.createElement("div");
+    fila.className = "flex " + (esUsuario ? "justify-end" : "justify-start") + " animate-fade-in";
+
+    var caja = document.createElement("div");
+    caja.className = "max-w-[90%] sm:max-w-[80%] lg:max-w-[70%]";
+
+    var burbuja = document.createElement("div");
+    if (esUsuario) {
+      burbuja.className = "rounded-3xl rounded-br-sm bg-[#1a73e8] px-5 py-3.5 text-sm text-white shadow-md";
+      burbuja.textContent = texto;
+    } else {
+      burbuja.className = "rounded-3xl rounded-bl-sm border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-5 py-4 text-sm leading-relaxed text-[#202124] dark:text-[#e3e3e3] shadow-sm prose-chat";
+      if (window.marked && window.DOMPurify) {
+        burbuja.innerHTML = DOMPurify.sanitize(marked.parse(texto, { breaks: true, gfm: true }));
+      } else {
+        burbuja.textContent = texto;
+      }
+    }
+
+    var pie = document.createElement("div");
+    pie.className = "mt-1.5 flex items-center justify-between text-[10px] text-[#5f6368] dark:text-[#c4c7c5] px-1";
+    
+    if (esUsuario) {
+      pie.innerHTML = '<span class="ml-auto">Tú ' + (hora ? '· ' + hora : '') + '</span>';
+    } else {
+      var safeText = encodeURIComponent(texto);
+      pie.innerHTML =
+        '<span>' + nombreAgente + (hora ? ' · ' + hora : '') + '</span>' +
+        '<button onclick="copiarTexto(decodeURIComponent(\'' + safeText + '\'), this)" class="inline-flex items-center gap-1 text-[11px] text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#1a73e8] dark:hover:text-[#8ab4f8] transition">' +
+        '  <i data-lucide="copy" class="h-3 w-3"></i>' +
+        '  <span>Copiar</span>' +
+        '</button>';
+    }
+
+    caja.appendChild(burbuja);
+    caja.appendChild(pie);
+    fila.appendChild(caja);
+    contenedorMensajes.appendChild(fila);
+
     if (window.lucide) lucide.createIcons();
   }
 
-  function enviarMensaje() {
-    var texto = campo.value.trim();
-    if (!texto || mensajeEnProceso) return;
+  function renderizarBurbujaCargando() {
+    var fila = document.createElement("div");
+    fila.id = "burbuja-cargando";
+    fila.className = "flex justify-start animate-fade-in";
+    fila.innerHTML =
+      '<div class="flex items-center gap-2 rounded-3xl rounded-bl-sm border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-5 py-3.5 shadow-sm text-xs text-[#5f6368] dark:text-[#c4c7c5]">' +
+      '  <div class="flex items-center gap-1">' +
+      '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#4285F4]"></span>' +
+      '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#EA4335] [animation-delay:0.15s]"></span>' +
+      '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#FBBC04] [animation-delay:0.3s]"></span>' +
+      '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#34A853] [animation-delay:0.45s]"></span>' +
+      '  </div>' +
+      '  <span>Pensando con DeepSeek…</span>' +
+      '</div>';
+    contenedorMensajes.appendChild(fila);
+    desplazarAlFinal();
+  }
 
-    mensajeEnProceso = true;
-    boton.disabled = true;
-    campo.value = "";
-    campo.style.height = "auto";
+  function quitarBurbujaCargando() {
+    var el = document.getElementById("burbuja-cargando");
+    if (el) el.remove();
+  }
 
-    if (!contenedor.querySelector(".mensaje-burbuja")) {
-      contenedor.innerHTML = "";
+  function desplazarAlFinal() {
+    contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
+  }
+
+  // ------------------------------------------------------------------
+  // Enviar Mensaje y Auto-Crecimiento de Textarea
+  // ------------------------------------------------------------------
+  campoMensaje.addEventListener("input", function () {
+    this.style.height = "auto";
+    this.style.height = Math.min(this.scrollHeight, 180) + "px";
+  });
+
+  campoMensaje.addEventListener("keydown", function (e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      formMensaje.requestSubmit();
     }
-    crearBurbuja("user", texto, true);
-    crearIndicadorEscritura();
+  });
+
+  formMensaje.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var texto = campoMensaje.value.trim();
+    if (!texto || botonEnviar.disabled) return;
+
+    if (!sesionActivaId) {
+      mostrarToast("No hay una conversación activa.");
+      return;
+    }
+
+    // Limpiar pantalla de bienvenida
+    var bienvenida = contenedorMensajes.querySelector("h3");
+    if (bienvenida && bienvenida.textContent.indexOf("¡Hola!") !== -1) {
+      contenedorMensajes.innerHTML = "";
+    }
+
+    var ahora = new Date();
+    var hora = ahora.getHours().toString().padStart(2, "0") + ":" + ahora.getMinutes().toString().padStart(2, "0");
+    renderizarMensaje("user", texto, null, hora);
     desplazarAlFinal();
 
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/mensaje", {
+    campoMensaje.value = "";
+    campoMensaje.style.height = "auto";
+    botonEnviar.disabled = true;
+    renderizarBurbujaCargando();
+
+    fetch("/api/sesion/" + sesionActivaId + "/mensaje", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mensaje: texto }),
     })
-      .then(function (respuesta) {
-        return respuesta.json().then(function (datos) {
-          return { ok: respuesta.ok, datos: datos };
-        });
+      .then(function (r) {
+        return r.json().then(function (d) { return { ok: r.ok, datos: d }; });
       })
-      .then(function (resultado) {
-        quitarIndicadorEscritura();
-        if (!resultado.ok) {
-          throw new Error(resultado.datos.error || "No se pudo obtener respuesta.");
-        }
-        crearBurbuja("assistant", resultado.datos.respuesta, true);
-        if (resultado.datos.memoria_guardada) {
-          mostrarNotaMemoria();
-        }
+      .then(function (res) {
+        quitarBurbujaCargando();
+        if (!res.ok) throw new Error(res.datos.error || "Error al comunicarse con DeepSeek.");
+
+        renderizarMensaje("assistant", res.datos.respuesta, null, hora);
         desplazarAlFinal();
+
+        if (res.datos.memoria_guardada) {
+          mostrarToast("Hecho relevante aprendido en memoria viva.", "exito");
+        }
+
+        actualizarListaSesionesSidebar();
       })
-      .catch(function (motivo) {
-        quitarIndicadorEscritura();
-        mostrarToast(motivo.message);
+      .catch(function (error) {
+        quitarBurbujaCargando();
+        mostrarToast(error.message);
       })
       .finally(function () {
-        mensajeEnProceso = false;
-        boton.disabled = false;
-        campo.focus();
-      });
-  }
-
-  function mostrarNotaMemoria() {
-    indicadorMemoria.classList.remove("hidden");
-    indicadorMemoria.classList.add("inline-flex");
-    clearTimeout(indicadorMemoria._temporizador);
-    indicadorMemoria._temporizador = setTimeout(function () {
-      indicadorMemoria.classList.add("hidden");
-      indicadorMemoria.classList.remove("inline-flex");
-    }, 3000);
-  }
-
-  // ------------------------------------------------------------------
-  // Pestañas del panel lateral
-  // ------------------------------------------------------------------
-
-  window.cambiarPestana = function (clave) {
-    document.querySelectorAll("[data-pestana-contenido]").forEach(function (el) {
-      el.classList.toggle("hidden", el.dataset.pestanaContenido !== clave);
-      el.classList.toggle("pestana-activa", el.dataset.pestanaContenido === clave);
-    });
-    document.querySelectorAll("[data-pestana-boton]").forEach(function (el) {
-      var activo = el.dataset.pestanaBoton === clave;
-      el.classList.toggle("bg-white/15", activo);
-      el.classList.toggle("text-white", activo);
-      el.classList.toggle("text-brand-300", !activo);
-      el.classList.toggle("hover:text-white", !activo);
-    });
-    if (window.lucide) lucide.createIcons();
-  };
-
-  // ------------------------------------------------------------------
-  // Edición del usuario (modal)
-  // ------------------------------------------------------------------
-
-  var modalEditar = document.getElementById("modal-editar");
-  var formEditar = document.getElementById("form-editar");
-  var editarPerfil = document.getElementById("editar-perfil");
-  var editarSelect = document.getElementById("editar-select-identidad");
-  var editarBloqueCustom = document.getElementById("editar-bloque-personalizada");
-  var editarCustom = document.getElementById("editar-identidad-custom");
-  var editarFuentes = document.getElementById("editar-fuentes");
-  var nuevaFuenteNombre = document.getElementById("nueva-fuente-nombre");
-  var nuevaFuenteContenido = document.getElementById("nueva-fuente-contenido");
-  var botonGuardarEditar = document.getElementById("boton-guardar-editar");
-
-  function crearFilaFuente(fuente, seleccionada) {
-    var etiqueta = document.createElement("label");
-    etiqueta.className = "flex items-start gap-2.5 rounded-lg bg-white px-3 py-2 shadow-sm";
-
-    var checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.value = fuente.id;
-    checkbox.className = "mt-0.5 h-4 w-4 shrink-0 accent-brand-600";
-    checkbox.checked = seleccionada;
-
-    var texto = document.createElement("div");
-    texto.className = "min-w-0 flex-1";
-    var nombre = document.createElement("p");
-    nombre.className = "text-sm font-semibold text-slate-800";
-    nombre.textContent = fuente.nombre;
-    var contenido = document.createElement("p");
-    contenido.className = "truncate text-xs text-slate-500";
-    contenido.textContent = fuente.contenido || "(sin contenido)";
-    texto.appendChild(nombre);
-    texto.appendChild(contenido);
-
-    var botonBorrar = document.createElement("button");
-    botonBorrar.type = "button";
-    botonBorrar.title = "Eliminar fuente";
-    botonBorrar.className =
-      "shrink-0 rounded-full p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600";
-    botonBorrar.innerHTML = '<i data-lucide="trash-2" class="h-3.5 w-3.5"></i>';
-    botonBorrar.addEventListener("click", function (evento) {
-      evento.preventDefault();
-      eliminarFuente(fuente.id);
-    });
-
-    etiqueta.appendChild(checkbox);
-    etiqueta.appendChild(texto);
-    etiqueta.appendChild(botonBorrar);
-    return etiqueta;
-  }
-
-  function renderizarCheckboxesFuentes(fuentes, seleccionadas) {
-    editarFuentes.innerHTML = "";
-    var lista = fuentes || [];
-    if (!lista.length) {
-      editarFuentes.innerHTML =
-        '<p class="text-xs text-slate-400">Todavía no hay fuentes. Agrega una debajo.</p>';
-      return;
-    }
-    lista.forEach(function (fuente) {
-      var activa = seleccionadas.indexOf(fuente.id) !== -1;
-      editarFuentes.appendChild(crearFilaFuente(fuente, activa));
-    });
-    if (window.lucide) lucide.createIcons();
-  }
-
-  window.abrirModalEditar = function () {
-    modalEditar.classList.remove("hidden");
-    modalEditar.classList.add("flex");
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente))
-      .then(function (respuesta) {
-        return respuesta.json();
-      })
-      .then(function (datos) {
-        editarPerfil.value = datos.perfil || "";
-        var seleccionadas = (datos.fuentes || []).map(function (f) {
-          return f.id;
-        });
-        renderizarCheckboxesFuentes(datos.todas_fuentes, seleccionadas);
-        if (datos.identidad.personalizada) {
-          editarSelect.value = "personalizada";
-          editarCustom.value = datos.identidad.prompt || "";
-          editarBloqueCustom.classList.remove("hidden");
-        } else {
-          editarSelect.value = datos.identidad.clave || "";
-          editarCustom.value = "";
-          editarBloqueCustom.classList.add("hidden");
-        }
-      })
-      .catch(function () {
-        cerrarModalEditar();
-        mostrarToast("No se pudo cargar la información del agente.");
-      });
-  };
-
-  window.cerrarModalEditar = function () {
-    modalEditar.classList.add("hidden");
-    modalEditar.classList.remove("flex");
-  };
-
-  window.agregarFuente = function () {
-    var nombre = nuevaFuenteNombre.value.trim();
-    var contenido = nuevaFuenteContenido.value.trim();
-    if (!nombre) {
-      mostrarToast("Escribe un nombre para la fuente.");
-      nuevaFuenteNombre.focus();
-      return;
-    }
-    fetch("/api/fuentes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: nombre, contenido: contenido }),
-    })
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (datos) {
-        if (datos.error) throw new Error(datos.error);
-        if (!editarFuentes.querySelector("input[type=checkbox]")) {
-          editarFuentes.innerHTML = "";
-        }
-        editarFuentes.appendChild(crearFilaFuente(datos, true));
-        nuevaFuenteNombre.value = "";
-        nuevaFuenteContenido.value = "";
-        if (window.lucide) lucide.createIcons();
-        mostrarToast("Base de conocimiento agregada y asociada.", "exito");
-      })
-      .catch(function (motivo) {
-        mostrarToast(motivo.message);
-      });
-  };
-
-  function eliminarFuente(id) {
-    fetch("/api/fuentes/" + id, { method: "DELETE" })
-      .then(function (r) {
-        return r.json();
-      })
-      .then(function (datos) {
-        if (datos.error) throw new Error(datos.error);
-        var fila = editarFuentes.querySelector('input[value="' + id + '"]');
-        if (fila) fila.closest("label").remove();
-        if (!editarFuentes.querySelector("input[type=checkbox]")) {
-          editarFuentes.innerHTML =
-            '<p class="text-xs text-slate-400">Todavía no hay bases de conocimiento creadas.</p>';
-        }
-        mostrarToast("Base de conocimiento eliminada.", "exito");
-      })
-      .catch(function (motivo) {
-        mostrarToast(motivo.message);
-      });
-  }
-
-  editarSelect.addEventListener("change", function () {
-    var esPersonalizada = editarSelect.value === "personalizada";
-    editarBloqueCustom.classList.toggle("hidden", !esPersonalizada);
-    if (!esPersonalizada) editarCustom.value = "";
-  });
-
-  formEditar.addEventListener("submit", function (evento) {
-    evento.preventDefault();
-    botonGuardarEditar.disabled = true;
-
-    var perfil = editarPerfil.value.trim();
-    var custom = editarCustom.value.trim();
-    var clave = editarSelect.value;
-
-    var cuerpo = { perfil: perfil };
-    var fuentesIds = Array.prototype.slice.call(
-      editarFuentes.querySelectorAll("input[type=checkbox]:checked")
-    ).map(function (casilla) {
-      return parseInt(casilla.value, 10);
-    });
-    cuerpo.fuentes = fuentesIds;
-    if (custom) {
-      cuerpo.identidad_custom = custom;
-    } else if (clave && clave !== "personalizada") {
-      cuerpo.identidad = clave;
-    } else {
-      mostrarToast("Elige una identidad o escribe una personalizada.");
-      botonGuardarEditar.disabled = false;
-      return;
-    }
-
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/editar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(cuerpo),
-    })
-      .then(function (respuesta) {
-        return respuesta.json().then(function (datos) {
-          return { ok: respuesta.ok, datos: datos };
-        });
-      })
-      .then(function (resultado) {
-        if (!resultado.ok) {
-          throw new Error(resultado.datos.error || "No se pudieron guardar los cambios.");
-        }
-        cerrarModalEditar();
-        refrescarAgente(resultado.datos);
-        mostrarToast("Cambios guardados correctamente.", "exito");
-      })
-      .catch(function (motivo) {
-        mostrarToast(motivo.message);
-      })
-      .finally(function () {
-        botonGuardarEditar.disabled = false;
+        botonEnviar.disabled = false;
+        setTimeout(function () { campoMensaje.focus(); }, 50);
       });
   });
 
-  function refrescarAgente(datos) {
-    if (!datos) return;
-    var persona = datos.persona || "";
-    var pSidebar = document.getElementById("persona-sidebar");
-    var pHeader = document.getElementById("persona-header");
-    if (pSidebar) pSidebar.textContent = persona;
-    if (pHeader) pHeader.textContent = "Hablando con " + persona;
-
-    var iniciales = datos.iniciales || "";
-    var iniSidebar = document.getElementById("iniciales-sidebar");
-    var iniHeader = document.getElementById("iniciales-header");
-    if (iniSidebar) iniSidebar.textContent = iniciales;
-    if (iniHeader) iniHeader.textContent = iniciales;
-
-    var verPerfil = document.getElementById("ver-perfil");
-    if (verPerfil) verPerfil.textContent = datos.perfil || "";
-
-    var verFuentes = document.getElementById("ver-fuentes");
-    if (verFuentes) {
-      verFuentes.innerHTML = "";
-      var lista = datos.fuentes || [];
-      if (!lista.length) {
-        var vacio = document.createElement("p");
-        vacio.className = "rounded-xl bg-white/5 p-4 text-[13px] text-brand-200";
-        vacio.textContent = "(Sin bases de conocimiento asociadas)";
-        verFuentes.appendChild(vacio);
-      } else {
-        lista.forEach(function (fuente) {
-          var tarjeta = document.createElement("div");
-          tarjeta.className = "rounded-xl bg-white/5 p-3";
-          var nombre = document.createElement("p");
-          nombre.className = "text-xs font-bold text-white";
-          nombre.textContent = fuente.nombre;
-          var contenido = document.createElement("p");
-          contenido.className =
-            "mt-1 whitespace-pre-wrap break-words text-[12px] leading-relaxed text-brand-200";
-          contenido.textContent = fuente.contenido || "";
-          tarjeta.appendChild(nombre);
-          tarjeta.appendChild(contenido);
-          verFuentes.appendChild(tarjeta);
-        });
-      }
-    }
-
-    var verIdNombre = document.getElementById("ver-identidad-nombre");
-    var verIdDesc = document.getElementById("ver-identidad-descripcion");
-    if (verIdNombre) verIdNombre.textContent = datos.identidad.nombre;
-    if (verIdDesc) verIdDesc.textContent = datos.identidad.descripcion;
-
-    var badge = document.getElementById("identidad-badge-text");
-    if (badge) badge.textContent = datos.identidad.nombre;
-
-    var verPrompt = document.getElementById("ver-identidad-prompt");
-    if (verPrompt) {
-      if (datos.identidad.personalizada) {
-        verPrompt.classList.remove("hidden");
-        verPrompt.textContent = datos.identidad.prompt || "";
-      } else {
-        verPrompt.classList.add("hidden");
-        verPrompt.textContent = "";
-      }
-    }
-
-    if (window.lucide) lucide.createIcons();
-  }
-
   // ------------------------------------------------------------------
-  // Acciones del panel
+  // Gestión de Sesiones (Hilos)
   // ------------------------------------------------------------------
-
-  window.abrirModalLimpiarMemoria = function () {
-    var modal = document.getElementById("modal-limpiar-memoria");
-    modal.classList.remove("hidden");
-    modal.classList.add("flex");
-  };
-
-  window.cerrarModalLimpiarMemoria = function () {
-    var modal = document.getElementById("modal-limpiar-memoria");
-    modal.classList.add("hidden");
-    modal.classList.remove("flex");
-  };
-
-  window.confirmarLimpiarMemoria = function () {
-    cerrarModalLimpiarMemoria();
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/limpiar", {
+  window.crearNuevaConversacion = function () {
+    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/sesiones", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
     })
-      .then(function (r) {
-        return r.json();
+      .then(function (r) { return r.json(); })
+      .then(function (ses) {
+        sesionActivaId = ses.id;
+        document.body.dataset.sesionId = ses.id;
+        cargarMensajesSesion(ses.id);
+        actualizarListaSesionesSidebar();
+        mostrarToast("Nueva conversación iniciada.", "exito");
+        setTimeout(function () { campoMensaje.focus(); }, 50);
       })
+      .catch(function () {
+        mostrarToast("No se pudo iniciar una nueva conversación.");
+      });
+  };
+
+  window.cambiarSesionActiva = function (sesionId) {
+    if (sesionId === sesionActivaId) return;
+    sesionActivaId = sesionId;
+    document.body.dataset.sesionId = sesionId;
+    cargarMensajesSesion(sesionId);
+    actualizarListaSesionesSidebar();
+  };
+
+  function actualizarListaSesionesSidebar() {
+    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/sesiones")
+      .then(function (r) { return r.json(); })
       .then(function (datos) {
-        if (datos.error) throw new Error(datos.error);
-        var preMemoria = document.querySelector('[data-pestana-contenido="memoria"] pre');
-        if (preMemoria) preMemoria.textContent = "(La memoria está vacía)";
-        mostrarToast("Memoria borrada.", "exito");
+        var sesiones = datos.sesiones || [];
+        listaSesionesSidebar.innerHTML = "";
+
+        sesiones.forEach(function (s) {
+          var esActiva = s.id === sesionActivaId;
+          var div = document.createElement("div");
+          div.setAttribute("data-sesion-item", s.id);
+          div.setAttribute("data-sesion-titulo", s.titulo);
+          div.className =
+            "group relative flex items-center justify-between rounded-xl border p-2.5 transition " +
+            (esActiva
+              ? "border-[#1a73e8] bg-[#1a73e8]/10 font-bold text-[#1a73e8] dark:text-[#8ab4f8]"
+              : "border-transparent hover:bg-black/5 dark:hover:bg-white/5 text-[#202124] dark:text-[#e3e3e3]");
+
+          var safeTitle = (s.titulo || "").replace(/'/g, "\\'");
+          div.innerHTML =
+            '<button onclick="cambiarSesionActiva(' + s.id + ')" class="min-w-0 flex-1 text-left">' +
+            '  <p class="truncate text-xs" title="' + safeTitle + '">' + s.titulo + '</p>' +
+            '  <p class="mt-0.5 text-[10px] text-[#5f6368] dark:text-[#c4c7c5] font-normal">' + s.total_mensajes + ' msgs · ' + (s.actualizado_en ? s.actualizado_en.slice(0, 10) : "") + '</p>' +
+            '</button>' +
+            '<div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition">' +
+            '  <button onclick="abrirModalRenombrarSesion(' + s.id + ', \'' + safeTitle + '\')" title="Renombrar" class="rounded-lg p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white"><i data-lucide="pencil" class="h-3 w-3"></i></button>' +
+            '  <button onclick="confirmarEliminarSesion(' + s.id + ')" title="Eliminar" class="rounded-lg p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]"><i data-lucide="trash-2" class="h-3 w-3"></i></button>' +
+            '</div>';
+
+          listaSesionesSidebar.appendChild(div);
+        });
+
+        if (window.lucide) lucide.createIcons();
+      });
+  }
+
+  window.abrirModalRenombrarSesion = function (sesionId, tituloActual) {
+    campoRenombrarId.value = sesionId;
+    campoRenombrarTitulo.value = tituloActual || "";
+    modalRenombrar.classList.remove("hidden");
+    modalRenombrar.classList.add("flex");
+    setTimeout(function () { campoRenombrarTitulo.focus(); }, 50);
+  };
+
+  window.cerrarModalRenombrarSesion = function () {
+    modalRenombrar.classList.add("hidden");
+    modalRenombrar.classList.remove("flex");
+  };
+
+  window.guardarRenombrarSesion = function () {
+    var id = campoRenombrarId.value;
+    var nuevoTitulo = campoRenombrarTitulo.value.trim();
+    if (!nuevoTitulo) {
+      mostrarToast("El título no puede estar vacío.");
+      return;
+    }
+
+    fetch("/api/sesion/" + id, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ titulo: nuevoTitulo }),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        cerrarModalRenombrarSesion();
+        mostrarToast("Conversación renombrada.", "exito");
+        actualizarListaSesionesSidebar();
       })
-      .catch(function (motivo) {
-        mostrarToast(motivo.message);
+      .catch(function () {
+        mostrarToast("Error al renombrar la conversación.");
+      });
+  };
+
+  window.confirmarEliminarSesion = function (sesionId) {
+    if (!confirm("¿Deseas eliminar este hilo de conversación y sus mensajes?")) return;
+
+    fetch("/api/sesion/" + sesionId, { method: "DELETE" })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        mostrarToast("Conversación eliminada.", "exito");
+        if (sesionId === sesionActivaId) {
+          fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/sesiones")
+            .then(function (res) { return res.json(); })
+            .then(function (d) {
+              if (d.sesiones && d.sesiones.length) {
+                cambiarSesionActiva(d.sesiones[0].id);
+              } else {
+                crearNuevaConversacion();
+              }
+            });
+        } else {
+          actualizarListaSesionesSidebar();
+        }
+      })
+      .catch(function () {
+        mostrarToast("Error al eliminar la conversación.");
       });
   };
 
   // ------------------------------------------------------------------
-  // Eventos
+  // Modal de Gestión Integral del Agente
   // ------------------------------------------------------------------
+  window.abrirModalGestionAgente = function () {
+    modalGestionAgente.classList.remove("hidden");
+    modalGestionAgente.classList.add("flex");
+  };
 
-  form.addEventListener("submit", function (evento) {
-    evento.preventDefault();
-    enviarMensaje();
+  window.cerrarModalGestionAgente = function () {
+    modalGestionAgente.classList.add("hidden");
+    modalGestionAgente.classList.remove("flex");
+  };
+
+  window.cambiarTabModalGestion = function (tab) {
+    var tabs = ["perfil", "fuentes", "rol", "memoria"];
+    tabs.forEach(function (t) {
+      var seccion = document.getElementById("tab-gestion-" + t);
+      var btn = document.getElementById("btn-tab-modal-" + t);
+      if (seccion) seccion.classList.toggle("hidden", t !== tab);
+      if (btn) {
+        if (t === tab) {
+          btn.className = "px-3 py-1.5 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white";
+        }
+      }
+    });
+  };
+
+  selectIdentidad.addEventListener("change", function () {
+    bloqueCustom.classList.toggle("hidden", selectIdentidad.value !== "personalizada");
   });
 
-  // Enter envía; Shift+Enter hace salto de línea. Ajuste de altura.
-  campo.addEventListener("keydown", function (evento) {
-    if (evento.key === "Enter" && !evento.shiftKey) {
-      evento.preventDefault();
-      enviarMensaje();
+  // ------------------------------------------------------------------
+  // Manejo de Avatar e Imágenes en Chat
+  // ------------------------------------------------------------------
+  window.subirAvatarArchivo = function (input, prefijo) {
+    if (!input.files || !input.files[0]) return;
+    var file = input.files[0];
+    var formData = new FormData();
+    formData.append("avatar", file);
+
+    mostrarToast("Subiendo imagen…", "exito");
+    fetch("/api/upload/avatar", {
+      method: "POST",
+      body: formData,
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) throw new Error(d.error || "Error al subir imagen.");
+        window.actualizarAvatarUrlInput(d.url, prefijo);
+        mostrarToast("Imagen cargada con éxito.", "exito");
+      })
+      .catch(function (err) {
+        mostrarToast(err.message);
+      });
+  };
+
+  window.actualizarAvatarUrlInput = function (url, prefijo) {
+    var urlLimpia = (url || "").trim();
+    var previewImg = document.getElementById(prefijo + "-avatar-preview-img");
+    var previewInitials = document.getElementById(prefijo + "-avatar-preview-initials");
+    var campoUrl = document.getElementById(prefijo + "-campo-avatar-url");
+    var campoInput = document.getElementById(prefijo + "-campo-avatar-url-input");
+
+    if (campoUrl) campoUrl.value = urlLimpia;
+    if (campoInput && campoInput.value !== urlLimpia) campoInput.value = urlLimpia;
+
+    if (previewImg && previewInitials) {
+      if (urlLimpia) {
+        previewImg.src = urlLimpia;
+        previewImg.classList.remove("hidden");
+        previewInitials.classList.add("hidden");
+      } else {
+        previewImg.src = "";
+        previewImg.classList.add("hidden");
+        previewInitials.classList.remove("hidden");
+      }
+    }
+  };
+
+  window.limpiarAvatarSeleccionado = function (prefijo) {
+    window.actualizarAvatarUrlInput("", prefijo);
+    var inputFile = document.getElementById(prefijo + "-input-avatar-file");
+    if (inputFile) inputFile.value = "";
+  };
+
+  formGestionAgente.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var perfil = document.getElementById("editar-perfil").value.trim();
+    var custom = document.getElementById("editar-identidad-custom").value.trim();
+    var clave = selectIdentidad.value;
+    var avatarUrl = document.getElementById("chat-campo-avatar-url") ? document.getElementById("chat-campo-avatar-url").value.trim() : "";
+
+    var seleccionadas = [];
+    document.querySelectorAll("input[name=editar_fuentes]:checked").forEach(function (cb) {
+      seleccionadas.push(parseInt(cb.value, 10));
+    });
+
+    var payload = { perfil: perfil, avatar_url: avatarUrl, fuentes: seleccionadas };
+    if (clave === "personalizada") payload.identidad_custom = custom;
+    else payload.identidad = clave;
+
+    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/editar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        cerrarModalGestionAgente();
+        mostrarToast("Agente actualizado correctamente.", "exito");
+        setTimeout(function () { window.location.reload(); }, 500);
+      })
+      .catch(function () {
+        mostrarToast("Error al actualizar el agente.");
+      });
+  });
+
+  window.abrirModalLimpiarMemoria = function () {
+    modalLimpiarMemoria.classList.remove("hidden");
+    modalLimpiarMemoria.classList.add("flex");
+  };
+
+  window.cerrarModalLimpiarMemoria = function () {
+    modalLimpiarMemoria.classList.add("hidden");
+    modalLimpiarMemoria.classList.remove("flex");
+  };
+
+  window.ejecutarLimpiarMemoria = function () {
+    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/limpiar", { method: "POST" })
+      .then(function (r) { return r.json(); })
+      .then(function () {
+        cerrarModalLimpiarMemoria();
+        if (modalGestionAgente) cerrarModalGestionAgente();
+        mostrarToast("Memoria viva del agente limpiada.", "exito");
+        setTimeout(function () { window.location.reload(); }, 500);
+      });
+  };
+
+  // Carga inicial
+  if (sesionActivaId) {
+    cargarMensajesSesion(sesionActivaId);
+  } else {
+    crearNuevaConversacion();
+  }
+
+  // Tecla Escape para modales
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") {
+      cerrarModalGestionAgente();
+      cerrarModalLimpiarMemoria();
+      cerrarModalRenombrarSesion();
     }
   });
-
-  // Cierra los modales con la tecla Escape.
-  document.addEventListener("keydown", function (evento) {
-    if (evento.key !== "Escape") return;
-    cerrarModalLimpiarMemoria();
-    cerrarModalEditar();
-  });
-
-  campo.addEventListener("input", function () {
-    campo.style.height = "auto";
-    campo.style.height = Math.min(campo.scrollHeight, 160) + "px";
-  });
-
-  // Inicio
-  cargarHistorial();
-  campo.focus();
 })();
