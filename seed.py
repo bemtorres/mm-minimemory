@@ -24,6 +24,7 @@ import os
 import sys
 
 import basededatos as bd
+from empresa import crear_perfiles
 
 
 PERFIL_INICIAL = """NOMBRE:
@@ -286,6 +287,16 @@ def main():
         print(f"  - {nombre}")
 
     bd.migrar_conocimientos_legacy()
+
+    creados, actualizados = crear_perfiles(forzar=forzar)
+    if creados:
+        print(f"Perfiles de empresa creados ({len(creados)}):")
+        for nombre in creados:
+            print(f"  - {nombre}")
+    if actualizados:
+        print(f"Perfiles de empresa actualizados ({len(actualizados)}):")
+        for nombre in actualizados:
+            print(f"  - {nombre}")
 
     sembrados = sembrar_conversaciones()
     if sembrados:

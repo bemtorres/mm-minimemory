@@ -192,36 +192,8 @@
     return div.innerHTML.replace(/\n/g, "<br>");
   }
 
-  /**
-   * Simula el "modo stream" del agente: revela la respuesta progresivamente
-   * (efecto de escritura) en lugar de mostrarla de golpe.
-   * No usa el streaming real de la IA, solo una animación en JS.
-   */
-  function streamAssistantText(bubble, fullText, onComplete) {
-    var length = fullText.length;
-    var index = 0;
-    var chunk = length > 900 ? 8 : 4;
-    var interval = 16;
-
-    function tick() {
-      if (!document.body.contains(bubble)) return;
-      index = Math.min(index + chunk, length);
-      bubble.innerHTML = marcar(fullText.slice(0, index));
-      bubble.insertAdjacentHTML("beforeend", '<span class="stream-caret"></span>');
-      scrollToBottom();
-      if (index < length) {
-        window.setTimeout(tick, interval);
-      } else {
-        var caret = bubble.querySelector(".stream-caret");
-        if (caret) caret.remove();
-        if (onComplete) onComplete();
-      }
-    }
-    tick();
-  }
-
   /** Renderiza una burbuja de mensaje individual */
-  function renderMessage(role, text, date, time, stream, onComplete) {
+  function renderMessage(role, text, date, time) {
     var isUser = role === "user";
     var row = document.createElement("div");
     row.className = "flex " + (isUser ? "justify-end" : "justify-start") + " animate-fade-in";
@@ -235,12 +207,7 @@
       bubble.textContent = text;
     } else {
       bubble.className = "rounded-3xl rounded-bl-sm border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-5 py-4 text-sm leading-relaxed text-[#202124] dark:text-[#e3e3e3] shadow-sm prose-chat";
-      if (stream) {
-        bubble.innerHTML = marcar("");
-        streamAssistantText(bubble, text, onComplete);
-      } else {
-        bubble.innerHTML = marcar(text);
-      }
+      bubble.innerHTML = marcar(text);
     }
 
     var footer = document.createElement("div");
@@ -353,11 +320,10 @@
         removeLoadingBubble();
         if (!result.ok) throw new Error(result.data.error || "Error al comunicarse con DeepSeek.");
 
-        renderMessage("assistant", result.data.respuesta, null, time, true, function () {
-          if (result.data.memoria_guardada) {
-            showToast(getI18nText("chat.memoryUpdated", null, "Memoria del agente actualizada"), "exito");
-          }
-        });
+        renderMessage("assistant", result.data.respuesta, null, time);
+        if (result.data.memoria_guardada) {
+          showToast(getI18nText("chat.memoryUpdated", null, "Memoria del agente actualizada"), "exito");
+        }
 
         updateSidebarSessions();
       })
