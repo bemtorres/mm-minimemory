@@ -1,7 +1,7 @@
 # THEYTHINK AI — Intelligent Multi-Agent AI Platform
 
 <p align="center">
-  <img src="theythinkai_logo.jpg" alt="THEYTHINK AI Logo" width="160" style="border-radius: 24px;" />
+  <img src="theythinkai_logo.png" alt="THEYTHINK AI Logo" width="160" style="border-radius: 24px;" />
 </p>
 
 <p align="center">

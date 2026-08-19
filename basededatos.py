@@ -1627,3 +1627,64 @@ class AgenteDB:
         if agregadas:
             self.cargar_memoria()
         return agregadas
+
+    # Alias en inglés dentro de la clase
+    ask = preguntar
+    update_memory = actualizar_memoria
+    build_prompt = construir_prompt
+    load_profile = cargar_perfil
+    load_knowledge = cargar_conocimiento
+    load_identity = cargar_identidad
+    load_memory = cargar_memoria
+    save_conversation = guardar_conversacion
+    get_history = obtener_historial
+
+
+# ----------------------------------------------------------------------
+# Alias en inglés de funciones para compatibilidad bilingüe
+# ----------------------------------------------------------------------
+AgentDB = AgenteDB
+init_db = inicializar
+clear_db = vaciar
+create_user = crear_usuario
+verify_user = verificar_usuario
+init_default_admin = inicializar_admin_por_defecto
+list_users = listar_usuarios
+get_user = obtener_usuario
+get_user_by_name = obtener_usuario_por_nombre
+update_user = actualizar_usuario
+delete_user = eliminar_usuario
+list_agents = listar_agentes
+agent_exists = existe_agente
+create_agent = crear_agente
+get_agent = obtener_agente
+update_profile = actualizar_perfil
+update_avatar = actualizar_avatar
+change_identity = cambiar_identidad
+update_knowledge = actualizar_conocimiento
+clear_memory = borrar_memoria
+delete_agent = eliminar_agente
+list_sources = listar_fuentes
+create_source = crear_fuente
+get_source = obtener_fuente
+get_source_by_name = obtener_fuente_por_nombre
+update_source = actualizar_fuente
+delete_source = eliminar_fuente
+get_agent_sources = obtener_fuentes_agente
+set_agent_sources = establecer_fuentes_agente
+list_roles = listar_roles
+get_role = obtener_rol
+get_role_by_key = obtener_rol_por_clave
+create_role = crear_rol
+update_role = actualizar_rol
+delete_role = eliminar_rol
+create_chat_session = crear_sesion_chat
+get_or_create_active_session = obtener_o_crear_sesion_activa
+get_chat_session = obtener_sesion_chat
+rename_chat_session = renombrar_sesion_chat
+delete_chat_session = eliminar_sesion_chat
+list_agent_sessions = listar_sesiones_agente
+list_all_sessions = listar_todas_las_sesiones
+get_session_all_messages = obtener_todos_mensajes_sesion
+get_dashboard_stats = obtener_estadisticas_dashboard
+migrate_legacy_knowledge = migrar_conocimientos_legacy

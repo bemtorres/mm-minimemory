@@ -1,11 +1,11 @@
-"""Interfaz web de los agentes personales (Flask + Tailwind CSS / HeroUI).
+"""Servidor web Flask de los agentes personales inteligentes con DeepSeek AI.
 
 Incluye:
-- Chat interactivo con DeepSeek y múltiples hilos de conversación.
-- Gestión de agentes, identidades y memoria.
-- Bases de conocimiento independientes asociadas a los agentes.
-- Sistema de autenticación (Login/Logout).
-- Dashboard administrativo para gestionar agentes, bases y métricas.
+- Chat interactivo multi-hilo con streaming y memoria continua.
+- Gestión de agentes, identidades dinámicas y bases de conocimiento.
+- Sistema de autenticación de usuarios con hashing de contraseñas.
+- Dashboard administrativo con métricas y visor de transcripciones.
+- Soporte para internacionalización i18n en 6 idiomas.
 """
 
 import os
@@ -26,6 +26,7 @@ from flask import (
 from werkzeug.utils import secure_filename
 
 from basededatos import (
+    AgentDB,
     AgenteDB,
     actualizar_avatar,
     actualizar_conocimiento,
@@ -76,87 +77,95 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "minimind-secret-key-agentes-2026-auth")
 
-CARPETA_AVATARES = os.path.join(app.static_folder, "uploads", "avatars")
-os.makedirs(CARPETA_AVATARES, exist_ok=True)
-EXTENSIONES_PERMITIDAS = {"png", "jpg", "jpeg", "gif", "webp", "svg"}
+AVATAR_UPLOAD_FOLDER = os.path.join(app.static_folder, "uploads", "avatars")
+os.makedirs(AVATAR_UPLOAD_FOLDER, exist_ok=True)
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "webp", "svg"}
 
-# Máximo de mensajes del historial que se muestran en el chat.
-HISTORIAL_VISIBLE = 60
+# Límite de mensajes visibles en el historial del chat
+VISIBLE_HISTORY_LIMIT = 60
 
+# Perfil inicial por defecto para agentes creados sin descripción
+INITIAL_PROFILE_TEMPLATE = "NOMBRE:\nAgente\n\nDESCRIPCIÓN:\nAgente inteligente de asistencia."
+
+# Inicialización de tablas y personajes canónicos
 inicializar()
 
 
-def login_requerido(f):
-    """Decorador para proteger rutas que requieren inicio de sesión."""
+def require_login(f):
+    """Decorador de seguridad para proteger rutas que requieren autenticación."""
     @wraps(f)
-    def decorada(*args, **kwargs):
+    def decorated_function(*args, **kwargs):
         if not session.get("usuario"):
             if request.path.startswith("/api/"):
                 return jsonify({"error": "No autorizado. Inicia sesión primero."}), 401
-            return redirect(url_for("pagina_login", next=request.path))
+            return redirect(url_for("login_view", next=request.path))
         return f(*args, **kwargs)
-    return decorada
+    return decorated_function
 
 
-def _tiene_api_key():
-    """True si hay una API Key de DeepSeek configurada en .env."""
-    clave = os.getenv("DEEPSEEK_API_KEY", "").strip()
-    return bool(clave) and clave != "tu_api_key"
+# Alias en español para el decorador
+login_requerido = require_login
 
 
-def _nombre_persona(nombre, perfil):
-    """Extrae el nombre de la persona desde el perfil del agente."""
-    lineas = perfil.splitlines()
-    for indice, linea in enumerate(lineas):
-        if linea.strip().startswith("NOMBRE:"):
-            for siguiente in lineas[indice + 1:]:
-                if siguiente.strip():
-                    return siguiente.strip()
-    return nombre
+def has_api_key() -> bool:
+    """Comprueba si existe una API Key de DeepSeek configurada en las variables de entorno."""
+    key = os.getenv("DEEPSEEK_API_KEY", "").strip()
+    return bool(key) and key != "tu_api_key"
 
 
-def _iniciales(texto):
-    """Iniciales de un nombre para el avatar del agente."""
-    partes = [parte for parte in texto.split() if parte]
-    if not partes:
+def get_person_name(agent_name: str, profile_text: str) -> str:
+    """Extrae el nombre de la persona o entidad desde el perfil del agente."""
+    lines = profile_text.splitlines()
+    for index, line in enumerate(lines):
+        if line.strip().startswith("NOMBRE:"):
+            for next_line in lines[index + 1:]:
+                if next_line.strip():
+                    return next_line.strip()
+    return agent_name
+
+
+def get_initials(name_text: str) -> str:
+    """Calcula las iniciales para el avatar visual del agente o usuario."""
+    parts = [part for part in name_text.split() if part]
+    if not parts:
         return "A"
-    if len(partes) == 1:
-        return partes[0][0].upper()
-    return (partes[0][0] + partes[-1][0]).upper()
+    if len(parts) == 1:
+        return parts[0][0].upper()
+    return (parts[0][0] + parts[-1][0]).upper()
 
 
-def _color_avatar(nombre):
-    """Color del avatar según el nombre del agente."""
-    paleta = ["violet", "fuchsia", "indigo", "sky", "emerald", "rose"]
-    return paleta[sum(ord(caracter) for caracter in nombre) % len(paleta)]
+def get_avatar_color(agent_name: str) -> str:
+    """Asigna una paleta de color determinista según el nombre del agente."""
+    palette = ["violet", "fuchsia", "indigo", "sky", "emerald", "rose"]
+    return palette[sum(ord(char) for char in agent_name) % len(palette)]
 
 
-def _info_identidad(clave, custom):
-    """Devuelve (nombre, descripcion, prompt, es_personalizada, clave) consultando la base de datos."""
-    if custom.strip():
+def get_identity_info(role_key: str, custom_prompt: str) -> dict:
+    """Obtiene la información de rol e identidad consultando la base de datos."""
+    if custom_prompt.strip():
         return {
             "nombre": "Identidad personalizada",
             "descripcion": "Prompt propio guardado como identidad personalizada.",
-            "prompt": custom,
+            "prompt": custom_prompt,
             "personalizada": True,
             "clave": "",
         }
-    if clave:
-        rol = obtener_rol_por_clave(clave)
-        if rol:
+    if role_key:
+        role = obtener_rol_por_clave(role_key)
+        if role:
             return {
-                "nombre": rol["nombre"],
-                "descripcion": rol["descripcion"],
-                "prompt": rol["prompt"],
+                "nombre": role["nombre"],
+                "descripcion": role["descripcion"],
+                "prompt": role["prompt"],
                 "personalizada": False,
-                "clave": rol["clave"],
+                "clave": role["clave"],
             }
-    rol_defecto = obtener_rol_por_clave("basic")
-    if rol_defecto:
+    default_role = obtener_rol_por_clave("basic")
+    if default_role:
         return {
-            "nombre": rol_defecto["nombre"],
-            "descripcion": rol_defecto["descripcion"],
-            "prompt": rol_defecto["prompt"],
+            "nombre": default_role["nombre"],
+            "descripcion": default_role["descripcion"],
+            "prompt": default_role["prompt"],
             "personalizada": False,
             "clave": "basic",
         }
@@ -169,77 +178,79 @@ def _info_identidad(clave, custom):
     }
 
 
-def _cargar_agente(nombre):
-    """Devuelve un dict con los datos de un agente desde la base de datos."""
-    datos = obtener_agente(nombre)
-    if not datos:
+def load_agent_data(agent_name: str) -> dict | None:
+    """Carga y estructura los datos completos de un agente para renderizado o API."""
+    data = obtener_agente(agent_name)
+    if not data:
         return None
-    persona = _nombre_persona(nombre, datos["perfil"])
+    person_name = get_person_name(agent_name, data["perfil"])
     return {
-        "nombre": nombre,
-        "persona": persona,
-        "iniciales": _iniciales(persona),
-        "color": _color_avatar(nombre),
-        "avatar_url": datos.get("avatar_url", "") or "",
-        "perfil": datos["perfil"],
-        "conocimiento": datos["conocimiento"],
-        "memoria": datos["memoria"],
-        "creado_en": datos["creado_en"],
-        "identidad": _info_identidad(
-            datos["identidad_clave"], datos["identidad_custom"]
+        "nombre": agent_name,
+        "persona": person_name,
+        "iniciales": get_initials(person_name),
+        "color": get_avatar_color(agent_name),
+        "avatar_url": data.get("avatar_url", "") or "",
+        "perfil": data["perfil"],
+        "conocimiento": data["conocimiento"],
+        "memoria": data["memoria"],
+        "creado_en": data["creado_en"],
+        "identidad": get_identity_info(
+            data["identidad_clave"], data["identidad_custom"]
         ),
-        "fuentes": obtener_fuentes_agente(nombre),
+        "fuentes": obtener_fuentes_agente(agent_name),
         "todas_fuentes": listar_fuentes(),
-        "sesiones": listar_sesiones_agente(nombre),
+        "sesiones": listar_sesiones_agente(agent_name),
         "roles": listar_roles(),
     }
 
 
-def _agente_o_404(nombre):
-    """Devuelve el nombre si el agente existe; si no, responde 404."""
-    if nombre not in listar_agentes():
+def get_agent_or_404(agent_name: str) -> str:
+    """Verifica la existencia del agente o lanza error 404."""
+    if agent_name not in listar_agentes():
         abort(404)
-    return nombre
+    return agent_name
 
 
 # ----------------------------------------------------------------------
-# Páginas Públicas y de Chat
+# Vistas Públicas y de Chat
 # ----------------------------------------------------------------------
 
 
-@app.get("/")
-def inicio():
-    agentes = [_cargar_agente(nombre) for nombre in listar_agentes()]
-    fuentes = listar_fuentes()
+@app.get("/", endpoint="inicio")
+def home_view():
+    """Página principal de bienvenida y catálogo interactivo."""
+    agents = [load_agent_data(name) for name in listar_agentes()]
+    sources = listar_fuentes()
     roles = listar_roles()
     return render_template(
         "index.html",
-        agentes=agentes,
-        fuentes=fuentes,
+        agentes=agents,
+        fuentes=sources,
         roles=roles,
         identidades=IDENTIDADES,
-        tiene_api_key=_tiene_api_key(),
+        tiene_api_key=has_api_key(),
         usuario_actual=session.get("usuario"),
     )
 
 
-@app.get("/agente/<nombre>")
-@login_requerido
-def pagina_chat(nombre):
-    _agente_o_404(nombre)
-    agente = _cargar_agente(nombre)
-    sesion_activa = obtener_o_crear_sesion_activa(nombre)
+@app.get("/agente/<nombre>", endpoint="pagina_chat")
+@require_login
+def chat_view(nombre):
+    """Página del chat interactivo con el agente seleccionado."""
+    get_agent_or_404(nombre)
+    agent_data = load_agent_data(nombre)
+    active_session = obtener_o_crear_sesion_activa(nombre)
     roles = listar_roles()
-    todos_los_agentes = listar_agentes()
+    all_agents = listar_agentes()
     return render_template(
         "chat.html",
-        agente=agente,
-        sesion_activa=sesion_activa,
+        agente=agent_data,
+        sesion_activa=active_session,
         sesiones=listar_sesiones_agente(nombre),
         roles=roles,
-        todos_los_agentes=todos_los_agentes,
+        todos_los_agentes=all_agents,
         identidades=IDENTIDADES,
-        tiene_api_key=_tiene_api_key(),
+        tiene_api_key=has_api_key(),
         usuario_actual=session.get("usuario"),
     )
 
@@ -249,39 +260,42 @@ def pagina_chat(nombre):
 # ----------------------------------------------------------------------
 
 
-@app.get("/login")
-def pagina_login():
+@app.get("/login", endpoint="pagina_login")
+def login_view():
+    """Página de inicio de sesión."""
     if session.get("usuario"):
-        siguiente = request.args.get("next") or url_for("pagina_dashboard")
-        return redirect(siguiente)
+        next_url = request.args.get("next") or url_for("dashboard_view")
+        return redirect(next_url)
     return render_template("login.html", next=request.args.get("next", ""))
 
 
 @app.post("/login")
-def procesar_login():
-    datos = request.get_json(silent=True) or request.form
-    usuario = (datos.get("usuario") or "").strip()
-    password = (datos.get("password") or "").strip()
-    siguiente = request.args.get("next") or (datos.get("next") if isinstance(datos, dict) else "") or url_for("pagina_dashboard")
+def login_action():
+    """Procesa las credenciales enviadas por el formulario o API de Login."""
+    payload = request.get_json(silent=True) or request.form
+    username = (payload.get("usuario") or "").strip()
+    password = (payload.get("password") or "").strip()
+    next_url = request.args.get("next") or (payload.get("next") if isinstance(payload, dict) else "") or url_for("dashboard_view")
 
-    resultado = verificar_usuario(usuario, password)
-    if not resultado:
+    user_result = verificar_usuario(username, password)
+    if not user_result:
         if request.is_json:
             return jsonify({"error": "Usuario o contraseña incorrectos."}), 401
-        return render_template("login.html", error="Usuario o contraseña incorrectos.", usuario=usuario, next=siguiente), 401
+        return render_template("login.html", error="Usuario o contraseña incorrectos.", usuario=username, next=next_url), 401
 
-    session["usuario"] = resultado["usuario"]
-    session["rol"] = resultado["rol"]
+    session["usuario"] = user_result["usuario"]
+    session["rol"] = user_result["rol"]
 
     if request.is_json:
-        return jsonify({"ok": True, "redirect": siguiente})
-    return redirect(siguiente)
+        return jsonify({"ok": True, "redirect": next_url})
+    return redirect(next_url)
 
 
-@app.get("/logout")
-def cerrar_sesion():
+@app.get("/logout", endpoint="cerrar_sesion")
+def logout_action():
+    """Cierra la sesión del usuario actual."""
     session.clear()
-    return redirect(url_for("inicio"))
+    return redirect(url_for("home_view"))
 
 
 # ----------------------------------------------------------------------
@@ -289,29 +303,31 @@ def cerrar_sesion():
 # ----------------------------------------------------------------------
 
 
-@app.get("/dashboard")
+@app.get("/dashboard", endpoint="pagina_dashboard")
 @app.get("/admin")
-@login_requerido
-def pagina_dashboard():
+@require_login
+def dashboard_view():
+    """Vista principal del Dashboard administrativo."""
     stats = obtener_estadisticas_dashboard()
-    fuentes = listar_fuentes()
+    sources = listar_fuentes()
     roles = listar_roles()
-    usuarios = listar_usuarios()
+    users = listar_usuarios()
     return render_template(
         "dashboard.html",
         stats=stats,
-        fuentes=fuentes,
+        fuentes=sources,
         roles=roles,
-        usuarios=usuarios,
+        usuarios=users,
         identidades=IDENTIDADES,
         usuario_actual=session.get("usuario"),
-        tiene_api_key=_tiene_api_key(),
+        tiene_api_key=has_api_key(),
     )
 
 
 @app.get("/api/dashboard/stats")
-@login_requerido
+@require_login
 def api_dashboard_stats():
+    """Endpoint API para obtener métricas generales del sistema."""
     return jsonify(obtener_estadisticas_dashboard())
 
 
@@ -321,158 +337,167 @@ def api_dashboard_stats():
 
 
 @app.get("/api/agente/<nombre>")
-def api_agente(nombre):
-    _agente_o_404(nombre)
-    return jsonify(_cargar_agente(nombre))
+def api_get_agent(nombre):
+    """Obtiene los datos detallados de un agente en JSON."""
+    get_agent_or_404(nombre)
+    return jsonify(load_agent_data(nombre))
 
 
 @app.post("/api/upload/avatar")
-@login_requerido
+@require_login
 def api_upload_avatar():
+    """Sube una imagen de avatar para un agente."""
     if "avatar" not in request.files and "file" not in request.files:
         return jsonify({"error": "No se envió ningún archivo de imagen."}), 400
-    archivo = request.files.get("avatar") or request.files.get("file")
-    if not archivo or not archivo.filename:
+    file = request.files.get("avatar") or request.files.get("file")
+    if not file or not file.filename:
         return jsonify({"error": "Nombre de archivo inválido."}), 400
 
-    partes = archivo.filename.rsplit(".", 1)
-    if len(partes) < 2 or partes[1].lower() not in EXTENSIONES_PERMITIDAS:
+    parts = file.filename.rsplit(".", 1)
+    if len(parts) < 2 or parts[1].lower() not in ALLOWED_EXTENSIONS:
         return jsonify({"error": "Formato no permitido. Usa PNG, JPG, JPEG, WEBP, GIF o SVG."}), 400
 
-    ext = partes[1].lower()
-    nombre_archivo = f"{uuid.uuid4().hex[:12]}_{secure_filename(partes[0])}.{ext}"
-    ruta_destino = os.path.join(CARPETA_AVATARES, nombre_archivo)
-    archivo.save(ruta_destino)
-    url_relativa = f"/static/uploads/avatars/{nombre_archivo}"
-    return jsonify({"ok": True, "url": url_relativa})
+    extension = parts[1].lower()
+    filename = f"{uuid.uuid4().hex[:12]}_{secure_filename(parts[0])}.{extension}"
+    target_path = os.path.join(AVATAR_UPLOAD_FOLDER, filename)
+    file.save(target_path)
+    relative_url = f"/static/uploads/avatars/{filename}"
+    return jsonify({"ok": True, "url": relative_url})
 
 
 @app.post("/api/agentes")
-def api_crear_agente():
-    datos = request.get_json(silent=True) or {}
-    nombre = (datos.get("nombre") or "").strip()
-    if not nombre:
+def api_create_agent():
+    """Crea un nuevo agente en la base de datos."""
+    payload = request.get_json(silent=True) or {}
+    name = (payload.get("nombre") or "").strip()
+    if not name:
         return jsonify({"error": "Escribe un nombre para el agente."}), 400
-    if "/" in nombre or "\\" in nombre or nombre.startswith("."):
+    if "/" in name or "\\" in name or name.startswith("."):
         return jsonify({"error": "El nombre no puede contener '/' ni '\\'."}), 400
-    if nombre in listar_agentes():
-        return jsonify({"error": f"El agente '{nombre}' ya existe."}), 400
+    if name in listar_agentes():
+        return jsonify({"error": f"El agente '{name}' ya existe."}), 400
 
-    perfil = (datos.get("perfil") or "").strip()
-    conocimiento = (datos.get("conocimiento") or "").strip()
-    clave = (datos.get("identidad") or "").strip()
-    personalizada = (datos.get("identidad_custom") or "").strip()
-    avatar_url = (datos.get("avatar_url") or "").strip()
-    fuentes = datos.get("fuentes") or datos.get("fuentes_ids") or []
+    profile = (payload.get("perfil") or "").strip()
+    knowledge = (payload.get("conocimiento") or "").strip()
+    role_key = (payload.get("identidad") or "").strip()
+    custom_identity = (payload.get("identidad_custom") or "").strip()
+    avatar_url = (payload.get("avatar_url") or "").strip()
+    sources = payload.get("fuentes") or payload.get("fuentes_ids") or []
 
-    ids = []
-    if isinstance(fuentes, list):
-        for valor in fuentes:
+    source_ids = []
+    if isinstance(sources, list):
+        for val in sources:
             try:
-                ids.append(int(valor))
+                source_ids.append(int(val))
             except (TypeError, ValueError):
                 continue
 
-    rol_valido = bool(obtener_rol_por_clave(clave)) or clave in IDENTIDADES
+    valid_role = bool(obtener_rol_por_clave(role_key)) or role_key in IDENTIDADES
     crear_agente(
-        nombre=nombre,
-        perfil=perfil if perfil else PERFIL_INICIAL,
-        conocimiento=conocimiento,
-        identidad_clave=clave if rol_valido else "",
-        identidad_custom=personalizada,
+        nombre=name,
+        perfil=profile if profile else INITIAL_PROFILE_TEMPLATE,
+        conocimiento=knowledge,
+        identidad_clave=role_key if valid_role else "",
+        identidad_custom=custom_identity,
         avatar_url=avatar_url,
-        fuentes_ids=ids,
+        fuentes_ids=source_ids,
     )
     migrar_conocimientos_legacy()
-    return jsonify({"ok": True, "nombre": nombre}), 201
+    return jsonify({"ok": True, "nombre": name}), 201
 
 
 @app.delete("/api/agente/<nombre>")
-@login_requerido
-def api_eliminar_agente(nombre):
-    _agente_o_404(nombre)
-    exito = eliminar_agente(nombre)
-    if not exito:
+@require_login
+def api_delete_agent(nombre):
+    """Elimina un agente y todos sus registros asociados."""
+    get_agent_or_404(nombre)
+    success = eliminar_agente(nombre)
+    if not success:
         return jsonify({"error": "No se pudo eliminar el agente."}), 500
     return jsonify({"ok": True, "mensaje": f"Agente '{nombre}' eliminado correctamente."})
 
 
 @app.post("/api/agente/<nombre>/perfil")
-def api_perfil(nombre):
-    _agente_o_404(nombre)
-    datos = request.get_json(silent=True) or {}
-    texto = (datos.get("perfil") or "").strip()
-    if not texto:
+def api_update_agent_profile(nombre):
+    """Actualiza el perfil descriptivo del agente."""
+    get_agent_or_404(nombre)
+    payload = request.get_json(silent=True) or {}
+    text = (payload.get("perfil") or "").strip()
+    if not text:
         return jsonify({"error": "El perfil no puede estar vacío."}), 400
-    actualizar_perfil(nombre, texto)
-    return jsonify(_cargar_agente(nombre))
+    actualizar_perfil(nombre, text)
+    return jsonify(load_agent_data(nombre))
 
 
 @app.post("/api/agente/<nombre>/conocimiento")
-def api_conocimiento(nombre):
-    _agente_o_404(nombre)
-    datos = request.get_json(silent=True) or {}
-    texto = (datos.get("conocimiento") or "").strip()
-    actualizar_conocimiento(nombre, texto)
-    return jsonify(_cargar_agente(nombre))
+def api_update_agent_knowledge(nombre):
+    """Actualiza el conocimiento directo del agente."""
+    get_agent_or_404(nombre)
+    payload = request.get_json(silent=True) or {}
+    text = (payload.get("conocimiento") or "").strip()
+    actualizar_conocimiento(nombre, text)
+    return jsonify(load_agent_data(nombre))
 
 
 @app.post("/api/agente/<nombre>/identidad")
-def api_cambiar_identidad(nombre):
-    _agente_o_404(nombre)
-    datos = request.get_json(silent=True) or {}
-    personalizada = (datos.get("identidad_custom") or "").strip()
-    clave = (datos.get("identidad") or "").strip()
-    rol_valido = bool(obtener_rol_por_clave(clave)) or clave in IDENTIDADES
-    if personalizada:
-        cambiar_identidad(nombre, custom=personalizada)
-    elif rol_valido:
-        cambiar_identidad(nombre, clave=clave)
+def api_change_agent_identity(nombre):
+    """Cambia el rol o prompt de identidad del agente."""
+    get_agent_or_404(nombre)
+    payload = request.get_json(silent=True) or {}
+    custom_prompt = (payload.get("identidad_custom") or "").strip()
+    role_key = (payload.get("identidad") or "").strip()
+    valid_role = bool(obtener_rol_por_clave(role_key)) or role_key in IDENTIDADES
+    if custom_prompt:
+        cambiar_identidad(nombre, custom=custom_prompt)
+    elif valid_role:
+        cambiar_identidad(nombre, clave=role_key)
     else:
         return jsonify({"error": "Identidad o rol no válido."}), 400
-    return jsonify(_cargar_agente(nombre))
+    return jsonify(load_agent_data(nombre))
 
 
 @app.post("/api/agente/<nombre>/editar")
-def api_editar(nombre):
-    _agente_o_404(nombre)
-    datos = request.get_json(silent=True) or {}
-    perfil = (datos.get("perfil") or "").strip()
-    conocimiento = (datos.get("conocimiento") or "").strip()
-    personalizada = (datos.get("identidad_custom") or "").strip()
-    clave = (datos.get("identidad") or "").strip()
-    avatar_url = datos.get("avatar_url")
-    fuentes = datos.get("fuentes") or datos.get("fuentes_ids")
-    rol_valido = bool(obtener_rol_por_clave(clave)) or clave in IDENTIDADES
+def api_edit_agent(nombre):
+    """Actualiza de forma integral el perfil, avatar, fuentes y rol del agente."""
+    get_agent_or_404(nombre)
+    payload = request.get_json(silent=True) or {}
+    profile = (payload.get("perfil") or "").strip()
+    knowledge = (payload.get("conocimiento") or "").strip()
+    custom_prompt = (payload.get("identidad_custom") or "").strip()
+    role_key = (payload.get("identidad") or "").strip()
+    avatar_url = payload.get("avatar_url")
+    sources = payload.get("fuentes") or payload.get("fuentes_ids")
+    valid_role = bool(obtener_rol_por_clave(role_key)) or role_key in IDENTIDADES
 
-    if not perfil:
+    if not profile:
         return jsonify({"error": "El perfil no puede estar vacío."}), 400
-    if not personalizada and not rol_valido and clave:
+    if not custom_prompt and not valid_role and role_key:
         return jsonify({"error": "Identidad o rol no válido."}), 400
 
-    actualizar_perfil(nombre, perfil)
-    actualizar_conocimiento(nombre, conocimiento)
+    actualizar_perfil(nombre, profile)
+    actualizar_conocimiento(nombre, knowledge)
     if avatar_url is not None:
         actualizar_avatar(nombre, str(avatar_url).strip())
 
-    if isinstance(fuentes, list):
-        ids = []
-        for valor in fuentes:
+    if isinstance(sources, list):
+        source_ids = []
+        for val in sources:
             try:
-                ids.append(int(valor))
+                source_ids.append(int(val))
             except (TypeError, ValueError):
                 continue
-        establecer_fuentes_agente(nombre, ids)
-    if personalizada:
-        cambiar_identidad(nombre, custom=personalizada)
+        establecer_fuentes_agente(nombre, source_ids)
+    if custom_prompt:
+        cambiar_identidad(nombre, custom=custom_prompt)
     else:
-        cambiar_identidad(nombre, clave=clave)
-    return jsonify(_cargar_agente(nombre))
+        cambiar_identidad(nombre, clave=role_key)
+    return jsonify(load_agent_data(nombre))
 
 
 @app.post("/api/agente/<nombre>/limpiar")
-def api_limpiar(nombre):
-    _agente_o_404(nombre)
+def api_clear_agent_memory(nombre):
+    """Borra todos los recuerdos almacenados en la memoria activa del agente."""
+    get_agent_or_404(nombre)
     borrar_memoria(nombre)
     return jsonify({"ok": True})
 
@@ -483,148 +508,154 @@ def api_limpiar(nombre):
 
 
 @app.get("/api/roles")
-@login_requerido
-def api_listar_roles():
+@require_login
+def api_list_roles():
+    """Lista todos los roles e identidades registrados."""
     return jsonify({"roles": listar_roles()})
 
 
 @app.get("/api/roles/<int:rol_id>")
-@login_requerido
-def api_obtener_rol(rol_id):
-    rol = obtener_rol(rol_id)
-    if not rol:
+@require_login
+def api_get_role(rol_id):
+    """Obtiene el detalle de un rol por su ID."""
+    role = obtener_rol(rol_id)
+    if not role:
         return jsonify({"error": "Rol no encontrado."}), 404
-    return jsonify(rol)
+    return jsonify(role)
 
 
 @app.post("/api/roles")
-@login_requerido
-def api_crear_rol():
-    datos = request.get_json(silent=True) or {}
-    clave = (datos.get("clave") or "").strip().lower()
-    nombre = (datos.get("nombre") or "").strip()
-    descripcion = (datos.get("descripcion") or "").strip()
-    prompt = (datos.get("prompt") or "").strip()
+@require_login
+def api_create_role():
+    """Crea un nuevo rol o identidad en SQLite."""
+    payload = request.get_json(silent=True) or {}
+    key = (payload.get("clave") or "").strip().lower()
+    name = (payload.get("nombre") or "").strip()
+    desc = (payload.get("descripcion") or "").strip()
+    prompt = (payload.get("prompt") or "").strip()
 
-    if not clave or not nombre or not prompt:
+    if not key or not name or not prompt:
         return jsonify({"error": "La clave, el nombre y el prompt son obligatorios."}), 400
 
     try:
-        nuevo_id = crear_rol(clave, nombre, descripcion, prompt)
+        new_id = crear_rol(key, name, desc, prompt)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
-    return jsonify({"id": nuevo_id, "clave": clave, "nombre": nombre, "descripcion": descripcion, "prompt": prompt}), 201
+    return jsonify({"id": new_id, "clave": key, "nombre": name, "descripcion": desc, "prompt": prompt}), 201
 
 
 @app.route("/api/roles/<int:rol_id>", methods=["POST", "PUT"])
-@login_requerido
-def api_actualizar_rol(rol_id):
-    datos = request.get_json(silent=True) or {}
-    clave = (datos.get("clave") or "").strip().lower()
-    nombre = (datos.get("nombre") or "").strip()
-    descripcion = (datos.get("descripcion") or "").strip()
-    prompt = (datos.get("prompt") or "").strip()
+@require_login
+def api_update_role(rol_id):
+    """Actualiza la información y prompt de un rol existente."""
+    payload = request.get_json(silent=True) or {}
+    key = (payload.get("clave") or "").strip().lower()
+    name = (payload.get("nombre") or "").strip()
+    desc = (payload.get("descripcion") or "").strip()
+    prompt = (payload.get("prompt") or "").strip()
 
-    if not clave or not nombre or not prompt:
+    if not key or not name or not prompt:
         return jsonify({"error": "La clave, el nombre y el prompt son obligatorios."}), 400
 
     try:
-        actualizar_rol(rol_id, clave, nombre, descripcion, prompt)
+        actualizar_rol(rol_id, key, name, desc, prompt)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
-    return jsonify({"id": rol_id, "clave": clave, "nombre": nombre, "descripcion": descripcion, "prompt": prompt})
+    return jsonify({"id": rol_id, "clave": key, "nombre": name, "descripcion": desc, "prompt": prompt})
 
 
 @app.delete("/api/roles/<int:rol_id>")
-@login_requerido
-def api_eliminar_rol(rol_id):
-    exito = eliminar_rol(rol_id)
-    if not exito:
+@require_login
+def api_delete_role(rol_id):
+    """Elimina un rol personalizado."""
+    success = eliminar_rol(rol_id)
+    if not success:
         return jsonify({"error": "No se pudo eliminar el rol."}), 404
     return jsonify({"ok": True})
 
 
 # ----------------------------------------------------------------------
-# API JSON: Usuarios y Perfil Administrativo (Show, Edit, Update, Delete)
+# API JSON: Usuarios y Perfil Administrativo
 # ----------------------------------------------------------------------
 
 
 @app.get("/api/usuarios")
-@login_requerido
-def api_listar_usuarios():
+@require_login
+def api_list_users():
+    """Lista todos los usuarios del sistema."""
     return jsonify({"usuarios": listar_usuarios()})
 
 
 @app.get("/api/usuario/<int:usuario_id>")
-@login_requerido
-def api_obtener_usuario(usuario_id):
-    """Show: Detalle del usuario."""
-    usuario = obtener_usuario(usuario_id)
-    if not usuario:
+@require_login
+def api_get_user(usuario_id):
+    """Obtiene la ficha de un usuario específico."""
+    user = obtener_usuario(usuario_id)
+    if not user:
         return jsonify({"error": "Usuario no encontrado."}), 404
-    return jsonify(usuario)
+    return jsonify(user)
 
 
 @app.post("/api/usuarios")
-@login_requerido
-def api_crear_usuario():
-    """Crear nuevo usuario."""
-    datos = request.get_json(silent=True) or {}
-    usuario = (datos.get("usuario") or "").strip()
-    password = (datos.get("password") or "").strip()
-    rol = (datos.get("rol") or "usuario").strip()
+@require_login
+def api_create_user():
+    """Crea una nueva cuenta de usuario."""
+    payload = request.get_json(silent=True) or {}
+    username = (payload.get("usuario") or "").strip()
+    password = (payload.get("password") or "").strip()
+    role = (payload.get("rol") or "usuario").strip()
 
-    if not usuario or not password:
+    if not username or not password:
         return jsonify({"error": "El nombre de usuario y la contraseña son obligatorios."}), 400
 
     try:
-        crear_usuario(usuario, password, rol)
+        crear_usuario(username, password, role)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
-    usuario_creado = obtener_usuario_por_nombre(usuario)
-    return jsonify(usuario_creado), 201
+    created_user = obtener_usuario_por_nombre(username)
+    return jsonify(created_user), 201
 
 
 @app.route("/api/usuario/<int:usuario_id>", methods=["POST", "PUT"])
-@login_requerido
-def api_actualizar_usuario(usuario_id):
-    """Edit & Update: Actualizar datos y/o contraseña del usuario."""
-    datos = request.get_json(silent=True) or {}
-    usuario = (datos.get("usuario") or "").strip()
-    rol = (datos.get("rol") or "usuario").strip()
-    password = (datos.get("password") or "").strip()
+@require_login
+def api_update_user(usuario_id):
+    """Actualiza datos y/o contraseña de un usuario."""
+    payload = request.get_json(silent=True) or {}
+    username = (payload.get("usuario") or "").strip()
+    role = (payload.get("rol") or "usuario").strip()
+    password = (payload.get("password") or "").strip()
 
-    if not usuario:
+    if not username:
         return jsonify({"error": "El nombre de usuario no puede estar vacío."}), 400
 
     try:
-        actualizar_usuario(usuario_id, usuario, rol, nuevo_password=password if password else None)
+        actualizar_usuario(usuario_id, username, role, nuevo_password=password if password else None)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
     # Si se actualizó el propio usuario activo, sincronizar sesión
-    usuario_actual = session.get("usuario")
-    usuario_db = obtener_usuario(usuario_id)
-    if usuario_actual and usuario_db:
-        usuario_sesion_info = obtener_usuario_por_nombre(usuario_actual)
-        if usuario_sesion_info and usuario_sesion_info["id"] == usuario_id:
-            session["usuario"] = usuario_db["usuario"]
-            session["rol"] = usuario_db["rol"]
+    active_user = session.get("usuario")
+    user_db = obtener_usuario(usuario_id)
+    if active_user and user_db:
+        session_info = obtener_usuario_por_nombre(active_user)
+        if session_info and session_info["id"] == usuario_id:
+            session["usuario"] = user_db["usuario"]
+            session["rol"] = user_db["rol"]
 
-    return jsonify(usuario_db)
+    return jsonify(user_db)
 
 
 @app.delete("/api/usuario/<int:usuario_id>")
-@login_requerido
-def api_eliminar_usuario(usuario_id):
-    """Delete: Eliminar usuario."""
-    usuario_actual = session.get("usuario")
+@require_login
+def api_delete_user(usuario_id):
+    """Elimina una cuenta de usuario."""
+    active_user = session.get("usuario")
     try:
-        exito = eliminar_usuario(usuario_id, usuario_actual_nombre=usuario_actual)
-        if not exito:
+        success = eliminar_usuario(usuario_id, usuario_actual_nombre=active_user)
+        if not success:
             return jsonify({"error": "Usuario no encontrado."}), 404
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
@@ -633,43 +664,43 @@ def api_eliminar_usuario(usuario_id):
 
 
 @app.get("/api/perfil")
-@login_requerido
-def api_obtener_perfil():
-    """Show: Detalle del perfil del usuario actualmente autenticado."""
-    usuario_nombre = session.get("usuario")
-    if not usuario_nombre:
+@require_login
+def api_get_my_profile():
+    """Obtiene el perfil del usuario autenticado."""
+    username = session.get("usuario")
+    if not username:
         return jsonify({"error": "No autenticado."}), 401
-    usuario = obtener_usuario_por_nombre(usuario_nombre)
-    if not usuario:
+    user = obtener_usuario_por_nombre(username)
+    if not user:
         return jsonify({"error": "Usuario no encontrado."}), 404
-    return jsonify(usuario)
+    return jsonify(user)
 
 
 @app.post("/api/perfil")
-@login_requerido
-def api_actualizar_perfil():
-    """Update: Actualizar perfil y/o contraseña propia."""
-    usuario_nombre = session.get("usuario")
-    usuario_info = obtener_usuario_por_nombre(usuario_nombre)
-    if not usuario_info:
+@require_login
+def api_update_my_profile():
+    """Actualiza el nombre y/o contraseña propia del usuario autenticado."""
+    username = session.get("usuario")
+    user_info = obtener_usuario_por_nombre(username)
+    if not user_info:
         return jsonify({"error": "Usuario no encontrado."}), 404
 
-    datos = request.get_json(silent=True) or {}
-    nuevo_nombre = (datos.get("usuario") or usuario_nombre).strip()
-    nuevo_password = (datos.get("password") or "").strip()
+    payload = request.get_json(silent=True) or {}
+    new_username = (payload.get("usuario") or username).strip()
+    new_password = (payload.get("password") or "").strip()
 
     try:
         actualizar_usuario(
-            usuario_info["id"],
-            nuevo_nombre,
-            nuevo_rol=usuario_info["rol"],
-            nuevo_password=nuevo_password if nuevo_password else None,
+            user_info["id"],
+            new_username,
+            nuevo_rol=user_info["rol"],
+            nuevo_password=new_password if new_password else None,
         )
-        session["usuario"] = nuevo_nombre
+        session["usuario"] = new_username
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
-    return jsonify(obtener_usuario(usuario_info["id"]))
+    return jsonify(obtener_usuario(user_info["id"]))
 
 
 # ----------------------------------------------------------------------
@@ -678,111 +709,119 @@ def api_actualizar_perfil():
 
 
 @app.get("/api/sesiones")
-@login_requerido
-def api_todas_las_sesiones():
-    agente = request.args.get("agente")
-    return jsonify({"sesiones": listar_todas_las_sesiones(agente if agente else None)})
+@require_login
+def api_list_all_sessions():
+    """Lista todas las sesiones de conversación, opcionalmente filtradas por agente."""
+    agent_filter = request.args.get("agente")
+    return jsonify({"sesiones": listar_todas_las_sesiones(agent_filter if agent_filter else None)})
 
 
 @app.get("/api/agente/<nombre>/sesiones")
-@login_requerido
-def api_listar_sesiones(nombre):
-    _agente_o_404(nombre)
+@require_login
+def api_list_agent_sessions(nombre):
+    """Lista todas las sesiones de chat de un agente específico."""
+    get_agent_or_404(nombre)
     return jsonify({"sesiones": listar_sesiones_agente(nombre)})
 
 
 @app.post("/api/agente/<nombre>/sesiones")
-@login_requerido
-def api_crear_sesion(nombre):
-    _agente_o_404(nombre)
-    datos = request.get_json(silent=True) or {}
-    titulo = (datos.get("titulo") or "").strip()
-    nueva_sesion = crear_sesion_chat(nombre, titulo=titulo if titulo else None)
-    return jsonify(nueva_sesion), 201
+@require_login
+def api_create_agent_session(nombre):
+    """Crea un nuevo hilo de conversación para un agente."""
+    get_agent_or_404(nombre)
+    payload = request.get_json(silent=True) or {}
+    title = (payload.get("titulo") or "").strip()
+    new_session = crear_sesion_chat(nombre, titulo=title if title else None)
+    return jsonify(new_session), 201
 
 
 @app.get("/api/sesion/<int:sesion_id>")
-@login_requerido
-def api_obtener_sesion(sesion_id):
-    sesion = obtener_sesion_chat(sesion_id)
-    if not sesion:
+@require_login
+def api_get_session(sesion_id):
+    """Obtiene una sesión de chat y sus mensajes."""
+    chat_session = obtener_sesion_chat(sesion_id)
+    if not chat_session:
         return jsonify({"error": "Conversación no encontrada."}), 404
-    mensajes = obtener_todos_mensajes_sesion(sesion_id)
-    sesion["mensajes"] = mensajes
-    return jsonify(sesion)
+    messages = obtener_todos_mensajes_sesion(sesion_id)
+    chat_session["mensajes"] = messages
+    return jsonify(chat_session)
 
 
 @app.put("/api/sesion/<int:sesion_id>")
-@login_requerido
-def api_renombrar_sesion(sesion_id):
-    sesion = obtener_sesion_chat(sesion_id)
-    if not sesion:
+@require_login
+def api_rename_session(sesion_id):
+    """Renombra el título de una conversación."""
+    chat_session = obtener_sesion_chat(sesion_id)
+    if not chat_session:
         return jsonify({"error": "Conversación no encontrada."}), 404
-    datos = request.get_json(silent=True) or {}
-    titulo = (datos.get("titulo") or "").strip()
-    if not titulo:
+    payload = request.get_json(silent=True) or {}
+    title = (payload.get("titulo") or "").strip()
+    if not title:
         return jsonify({"error": "El título no puede estar vacío."}), 400
-    renombrar_sesion_chat(sesion_id, titulo)
-    return jsonify({"ok": True, "id": sesion_id, "titulo": titulo})
+    renombrar_sesion_chat(sesion_id, title)
+    return jsonify({"ok": True, "id": sesion_id, "titulo": title})
 
 
 @app.delete("/api/sesion/<int:sesion_id>")
-@login_requerido
-def api_eliminar_sesion(sesion_id):
-    sesion = obtener_sesion_chat(sesion_id)
-    if not sesion:
+@require_login
+def api_delete_session(sesion_id):
+    """Elimina una sesión de chat y sus mensajes asociados."""
+    chat_session = obtener_sesion_chat(sesion_id)
+    if not chat_session:
         return jsonify({"error": "Conversación no encontrada."}), 404
     eliminar_sesion_chat(sesion_id)
     return jsonify({"ok": True})
 
 
 @app.post("/api/sesion/<int:sesion_id>/mensaje")
-@login_requerido
-def api_mensaje_sesion(sesion_id):
-    sesion = obtener_sesion_chat(sesion_id)
-    if not sesion:
+@require_login
+def api_send_session_message(sesion_id):
+    """Envía un mensaje a la sesión de chat y obtiene respuesta de DeepSeek."""
+    chat_session = obtener_sesion_chat(sesion_id)
+    if not chat_session:
         return jsonify({"error": "Conversación no encontrada."}), 404
 
-    nombre = sesion["agente_nombre"]
-    datos = request.get_json(silent=True) or {}
-    mensaje = (datos.get("mensaje") or "").strip()
-    if not mensaje:
+    agent_name = chat_session["agente_nombre"]
+    payload = request.get_json(silent=True) or {}
+    user_message = (payload.get("mensaje") or "").strip()
+    if not user_message:
         return jsonify({"error": "El mensaje no puede estar vacío."}), 400
 
     try:
-        agente = AgenteDB(nombre)
+        agent = AgentDB(agent_name)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
     try:
-        respuesta = agente.preguntar(mensaje, sesion_id=sesion_id)
+        assistant_response = agent.preguntar(user_message, sesion_id=sesion_id)
     except RuntimeError as error:
         return jsonify({"error": str(error)}), 500
 
     try:
-        memorias = agente.actualizar_memoria(mensaje, respuesta)
+        new_memories = agent.actualizar_memoria(user_message, assistant_response)
     except Exception:
-        memorias = []
+        new_memories = []
 
     # Recargar datos actualizados de la sesión
-    sesion_actualizada = obtener_sesion_chat(sesion_id)
+    updated_session = obtener_sesion_chat(sesion_id)
 
     return jsonify(
         {
-            "respuesta": respuesta,
-            "memoria_guardada": bool(memorias),
-            "sesion": sesion_actualizada,
+            "respuesta": assistant_response,
+            "memoria_guardada": bool(new_memories),
+            "sesion": updated_session,
         }
     )
 
 
 # Compatibilidad retroactiva para endpoint de mensaje sin sesion_id explícito
 @app.post("/api/agente/<nombre>/mensaje")
-@login_requerido
-def api_mensaje(nombre):
-    _agente_o_404(nombre)
-    sesion = obtener_o_crear_sesion_activa(nombre)
-    return api_mensaje_sesion(sesion["id"])
+@require_login
+def api_send_agent_message_fallback(nombre):
+    """Envía un mensaje al agente usando su sesión activa por defecto."""
+    get_agent_or_404(nombre)
+    active_session = obtener_o_crear_sesion_activa(nombre)
+    return api_send_session_message(active_session["id"])
 
 
 # ----------------------------------------------------------------------
@@ -791,48 +830,53 @@ def api_mensaje(nombre):
 
 
 @app.get("/api/fuentes")
-def api_listar_fuentes():
+def api_list_sources():
+    """Lista todas las bases de conocimiento."""
     return jsonify({"fuentes": listar_fuentes()})
 
 
 @app.get("/api/fuentes/<int:fuente_id>")
-def api_obtener_fuente(fuente_id):
-    fuente = obtener_fuente(fuente_id)
-    if not fuente:
+def api_get_source(fuente_id):
+    """Obtiene el contenido de una base de conocimiento."""
+    source = obtener_fuente(fuente_id)
+    if not source:
         return jsonify({"error": "Base de conocimiento no encontrada."}), 404
-    return jsonify(fuente)
+    return jsonify(source)
 
 
 @app.post("/api/fuentes")
-def api_crear_fuente():
-    datos = request.get_json(silent=True) or {}
-    nombre = (datos.get("nombre") or "").strip()
-    contenido = (datos.get("contenido") or "").strip()
-    if not nombre:
+def api_create_source():
+    """Crea una nueva base de conocimiento."""
+    payload = request.get_json(silent=True) or {}
+    name = (payload.get("nombre") or "").strip()
+    content = (payload.get("contenido") or "").strip()
+    if not name:
         return jsonify({"error": "Escribe un nombre para la base de conocimiento."}), 400
     try:
-        nuevo_id = crear_fuente(nombre, contenido)
+        new_id = crear_fuente(name, content)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
-    return jsonify({"id": nuevo_id, "nombre": nombre, "contenido": contenido}), 201
+    return jsonify({"id": new_id, "nombre": name, "contenido": content}), 201
 
 
 @app.route("/api/fuentes/<int:fuente_id>", methods=["POST", "PUT"])
-def api_actualizar_fuente(fuente_id):
-    datos = request.get_json(silent=True) or {}
-    nombre = (datos.get("nombre") or "").strip()
-    contenido = (datos.get("contenido") or "").strip()
-    if not nombre:
+def api_update_source(fuente_id):
+    """Actualiza el nombre y contenido de una base de conocimiento."""
+    payload = request.get_json(silent=True) or {}
+    name = (payload.get("nombre") or "").strip()
+    content = (payload.get("contenido") or "").strip()
+    if not name:
         return jsonify({"error": "El nombre de la base de conocimiento no puede estar vacío."}), 400
     try:
-        actualizar_fuente(fuente_id, nombre, contenido)
+        actualizar_fuente(fuente_id, name, content)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
-    return jsonify({"id": fuente_id, "nombre": nombre, "contenido": contenido})
+    return jsonify({"id": fuente_id, "nombre": name, "contenido": content})
 
 
 @app.delete("/api/fuentes/<int:fuente_id>")
-def api_eliminar_fuente(fuente_id):
+def api_delete_source(fuente_id):
+    """Elimina una base de conocimiento."""
     eliminar_fuente(fuente_id)
     return jsonify({"ok": True})
 

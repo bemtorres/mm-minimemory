@@ -18,7 +18,7 @@
 
       <!-- Marca Google / Dashboard -->
       <div class="flex items-center gap-3">
-        <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
+        <img src="{{ url_for('static', filename='img/theythinkai_logo.png') }}" alt="THEYTHINK AI Logo"
           class="h-9 w-9 rounded-xl object-cover shadow-md border border-black/10 dark:border-white/10 shrink-0">
         <div>
           <div class="flex items-center gap-2">
@@ -39,16 +39,106 @@
       <!-- Acciones de Usuario -->
       <div class="flex items-center gap-2.5 sm:gap-3">
 
+        <!-- Selector de Idioma Personalizado (i18n Dropdown) -->
+        <div class="relative inline-block text-left language-dropdown" data-i18n-dropdown>
+          <button type="button"
+            class="language-dropdown-btn inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#1e1f20]/80 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-[#202124] dark:text-white shadow-sm hover:bg-black/5 dark:hover:bg-white/10 transition active:scale-95">
+            <i data-lucide="globe" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0"></i>
+            <span class="language-current-code uppercase font-extrabold text-[10px] px-1.5 py-0.5 rounded-md bg-[#EA4335]/15 text-[#EA4335] dark:bg-[#EA4335]/25 dark:text-[#f28b82]">ES</span>
+            <span class="language-current-name hidden sm:inline text-xs font-semibold text-[#202124] dark:text-[#e3e3e3]">Español</span>
+            <i data-lucide="chevron-down" class="language-dropdown-chevron h-3 w-3 text-[#5f6368] dark:text-[#c4c7c5] transition-transform duration-200"></i>
+          </button>
+          <div
+            class="language-dropdown-menu hidden absolute right-0 mt-2 w-56 rounded-2xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#1e1f20]/95 p-1.5 shadow-2xl backdrop-blur-xl z-50 transition-all duration-150 animate-fade-in">
+            <div class="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5] border-b border-black/5 dark:border-white/5 mb-1"
+              data-i18n="common.selectLanguage">
+              Seleccionar Idioma
+            </div>
+            <button type="button" onclick="window.i18n.setLanguage('es')"
+              class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition bg-black/5 dark:bg-white/10 font-bold"
+              data-lang-code="es">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#EA4335]/15 text-[#EA4335] dark:bg-[#EA4335]/25 dark:text-[#f28b82] font-bold text-[10px]">ES</span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">Español</p>
+                  <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">España / Latinoamérica</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0"></i>
+            </button>
+            <button type="button" onclick="window.i18n.setLanguage('en')"
+              class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+              data-lang-code="en">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#1a73e8]/15 text-[#1a73e8] dark:bg-[#4285F4]/25 dark:text-[#8ab4f8] font-bold text-[10px]">EN</span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">English</p>
+                  <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">United States / Global</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+            </button>
+            <button type="button" onclick="window.i18n.setLanguage('fr')"
+              class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+              data-lang-code="fr">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#a142f4]/15 text-[#a142f4] dark:bg-[#a142f4]/25 dark:text-[#d7aefb] font-bold text-[10px]">FR</span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">Français</p>
+                  <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">France / Europe</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+            </button>
+            <button type="button" onclick="window.i18n.setLanguage('pt')"
+              class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+              data-lang-code="pt">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#34A853]/15 text-[#34A853] dark:bg-[#34A853]/25 dark:text-[#81c995] font-bold text-[10px]">PT</span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">Português</p>
+                  <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">Brasil / Portugal</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+            </button>
+            <button type="button" onclick="window.i18n.setLanguage('ko')"
+              class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+              data-lang-code="ko">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#FBBC04]/20 text-[#b06000] dark:bg-[#FBBC04]/30 dark:text-[#fdd663] font-bold text-[10px]">KO</span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">한국어</p>
+                  <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">대한민국 (Korean)</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+            </button>
+            <button type="button" onclick="window.i18n.setLanguage('zh')"
+              class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+              data-lang-code="zh">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#EA4335]/15 text-[#d93025] dark:bg-[#EA4335]/25 dark:text-[#f28b82] font-bold text-[10px]">ZH</span>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">中文</p>
+                  <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">简体中文 (Chinese)</p>
+                </div>
+              </div>
+              <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+            </button>
+          </div>
+        </div>
+
         <!-- Botón Selector Modo Claro / Oscuro -->
-        <button onclick="alternarTema()" title="Cambiar modo claro / oscuro"
-          class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/10 dark:hover:bg-white/10 hover:text-[#202124] dark:hover:text-white">
+        <button onclick="alternarTema()" title="Cambiar modo claro / oscuro" data-i18n-title="common.switchTheme"
+          class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#1e1f20]/80 backdrop-blur p-2 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/10 hover:text-[#202124] dark:hover:text-white shadow-sm">
           <i data-lucide="sun" class="icono-sol h-4 w-4 hidden"></i>
           <i data-lucide="moon" class="icono-luna h-4 w-4"></i>
         </button>
 
         <a href="/" class="heroui-btn-flat inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold">
           <i data-lucide="external-link" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
-          <span>Inicio Público</span>
+          <span data-i18n="common.publicHome">Inicio Público</span>
         </a>
 
         <!-- Chip de Perfil de Usuario con acceso a Show / Edit Propio -->
@@ -56,11 +146,12 @@
           class="flex items-center gap-2 rounded-full border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3.5 py-1 text-xs transition hover:bg-black/5 dark:hover:bg-[#28292a]">
           <span class="h-2 w-2 rounded-full bg-[#1e8e3e] dark:bg-[#34A853]"></span>
           <span class="font-bold text-[#202124] dark:text-[#e3e3e3]">{{ usuario_actual }}</span>
-          <span class="heroui-chip heroui-chip-primary text-[10px] py-0 px-1.5 uppercase font-bold">ADMIN</span>
+          <span class="heroui-chip heroui-chip-primary text-[10px] py-0 px-1.5 uppercase font-bold" data-i18n="nav.adminBadge">ADMIN</span>
           <i data-lucide="settings" class="h-3 w-3 text-[#5f6368] dark:text-[#c4c7c5]"></i>
         </button>
 
-        <a href="/logout" title="Cerrar sesión" class="rounded-xl border border-[#EA4335]/25 bg-[#EA4335]/10 p-2 text-[#d93025] dark:text-[#f28b82] transition hover:bg-[#EA4335]/20">
+        <a href="/logout" title="Cerrar sesión" data-i18n-title="common.logout"
+          class="rounded-xl border border-[#EA4335]/25 bg-[#EA4335]/10 p-2 text-[#d93025] dark:text-[#f28b82] transition hover:bg-[#EA4335]/20">
           <i data-lucide="log-out" class="h-4 w-4"></i>
         </a>
       </div>
@@ -77,7 +168,7 @@
       <!-- KPI 1: Agentes (Google Blue) -->
       <div class="heroui-card p-4 border-l-4 border-l-[#1a73e8] dark:border-l-[#4285F4]">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]">Agentes</span>
+          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="dashboard.kpiAgents">Agentes</span>
           <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
             <i data-lucide="bot" class="h-3.5 w-3.5"></i>
           </div>
@@ -89,7 +180,7 @@
       <!-- KPI 2: Bases (Google Green) -->
       <div class="heroui-card p-4 border-l-4 border-l-[#1e8e3e] dark:border-l-[#34A853]">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]">Bases</span>
+          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="dashboard.kpiSources">Bases</span>
           <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#1e8e3e]/10 dark:bg-[#34A853]/15 text-[#1e8e3e] dark:text-[#81c995]">
             <i data-lucide="book-open" class="h-3.5 w-3.5"></i>
           </div>
@@ -101,7 +192,7 @@
       <!-- KPI 3: Roles (Google Yellow) -->
       <div class="heroui-card p-4 border-l-4 border-l-[#f9ab00] dark:border-l-[#FBBC04]">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]">Roles</span>
+          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="dashboard.kpiRoles">Roles</span>
           <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#f9ab00]/10 dark:bg-[#FBBC04]/15 text-[#b06000] dark:text-[#fdd663]">
             <i data-lucide="brain" class="h-3.5 w-3.5"></i>
           </div>
@@ -113,7 +204,7 @@
       <!-- KPI 4: Usuarios (Google Red) -->
       <div class="heroui-card p-4 border-l-4 border-l-[#d93025] dark:border-l-[#EA4335]">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]">Usuarios</span>
+          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="dashboard.kpiUsers">Usuarios</span>
           <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#d93025]/10 dark:bg-[#EA4335]/15 text-[#d93025] dark:text-[#f28b82]">
             <i data-lucide="users" class="h-3.5 w-3.5"></i>
           </div>
@@ -125,7 +216,7 @@
       <!-- KPI 5: Conversaciones (Google Purple / Gemini) -->
       <div class="heroui-card p-4 col-span-2 sm:col-span-1 border-l-4 border-l-[#9334e6] dark:border-l-[#a142f4]">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]">Conversaciones</span>
+          <span class="text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="dashboard.kpiMessages">Conversaciones</span>
           <div class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#9334e6]/10 dark:bg-[#a142f4]/15 text-[#9334e6] dark:text-[#d7aefb]">
             <i data-lucide="messages-square" class="h-3.5 w-3.5"></i>
           </div>
@@ -141,27 +232,27 @@
         <button id="btn-tab-dash-agentes" onclick="cambiarTabDashboard('agentes')"
           class="inline-flex items-center gap-2 rounded-xl bg-black/10 dark:bg-white/15 px-3.5 py-1.5 text-xs font-bold text-[#202124] dark:text-white shadow-sm transition">
           <i data-lucide="bot" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i>
-          <span>Agentes ({{ stats.agentes|length }})</span>
+          <span><span data-i18n="dashboard.tabAgents">Agentes</span> ({{ stats.agentes|length }})</span>
         </button>
         <button id="btn-tab-dash-fuentes" onclick="cambiarTabDashboard('fuentes')"
           class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="book-open" class="h-3.5 w-3.5 text-[#1e8e3e] dark:text-[#81c995]"></i>
-          <span>Bases ({{ fuentes|length }})</span>
+          <span><span data-i18n="dashboard.tabSources">Bases</span> ({{ fuentes|length }})</span>
         </button>
         <button id="btn-tab-dash-roles" onclick="cambiarTabDashboard('roles')"
           class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="brain" class="h-3.5 w-3.5 text-[#b06000] dark:text-[#fdd663]"></i>
-          <span>Roles ({{ roles|length }})</span>
+          <span><span data-i18n="dashboard.tabRoles">Roles</span> ({{ roles|length }})</span>
         </button>
         <button id="btn-tab-dash-usuarios" onclick="cambiarTabDashboard('usuarios')"
           class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="users" class="h-3.5 w-3.5 text-[#d93025] dark:text-[#f28b82]"></i>
-          <span>Usuarios ({{ usuarios|length }})</span>
+          <span><span data-i18n="dashboard.tabUsers">Usuarios</span> ({{ usuarios|length }})</span>
         </button>
         <button id="btn-tab-dash-historial" onclick="cambiarTabDashboard('historial')"
           class="inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/5 hover:text-[#202124] dark:hover:text-white">
           <i data-lucide="messages-square" class="h-3.5 w-3.5 text-[#9334e6] dark:text-[#d7aefb]"></i>
-          <span>Historiales</span>
+          <span data-i18n="dashboard.tabConversations">Historiales</span>
         </button>
       </div>
 
@@ -169,7 +260,7 @@
         <button id="btn-accion-crear" onclick="abrirModalCrearAgenteDash()"
           class="inline-flex items-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] px-4.5 py-2 text-xs font-bold text-white shadow-lg shadow-[#1a73e8]/25 transition hover:scale-105 active:scale-95">
           <i data-lucide="plus" class="h-4 w-4"></i>
-          <span>Nuevo Agente</span>
+          <span data-i18n="dashboard.createAgent">Nuevo Agente</span>
         </button>
       </div>
     </div>
@@ -624,7 +715,8 @@
       </div>
 
       <div class="rounded-2xl border border-black/5 dark:border-white/5 bg-black/[0.02] dark:bg-white/[0.02] p-4 text-[#5f6368] dark:text-[#c4c7c5] text-xs leading-relaxed">
-        <p><strong class="text-[#202124] dark:text-white">Permisos de Sistema:</strong> Acceso completo para crear, editar y eliminar agentes, bases temáticas de conocimiento, roles con system prompts dinámicos, usuarios y auditoría de conversaciones.</p>
+        <p><strong class="text-[#202124] dark:text-white">Permisos de Sistema:</strong> Acceso completo para crear, editar y eliminar agentes, bases temáticas de conocimiento, roles con system prompts
+          dinámicos, usuarios y auditoría de conversaciones.</p>
       </div>
     </div>
 
@@ -753,8 +845,8 @@
   <div id="drawer-agente-dash-backdrop" class="fixed inset-0 bg-black/50 dark:bg-[#131314]/80 backdrop-blur-sm transition-opacity duration-300 opacity-0" onclick="cerrarModalAgenteDash()"></div>
   <div class="fixed inset-y-0 right-0 z-50 flex max-w-full pl-6 sm:pl-12 pointer-events-none">
     <div id="drawer-agente-dash-panel"
-         class="pointer-events-auto w-screen max-w-2xl lg:max-w-3xl h-full bg-white dark:bg-[#1e1f20] border-l border-black/10 dark:border-white/10 shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out">
-      
+      class="pointer-events-auto w-screen max-w-2xl lg:max-w-3xl h-full bg-white dark:bg-[#1e1f20] border-l border-black/10 dark:border-white/10 shadow-2xl flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out">
+
       <div class="flex items-center justify-between border-b border-black/10 dark:border-white/10 px-6 py-4.5 bg-white/95 dark:bg-[#1e1f20]/95 backdrop-blur shrink-0">
         <div class="flex items-center gap-3">
           <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#1a73e8]/10 dark:bg-[#4285F4]/15 text-[#1a73e8] dark:text-[#8ab4f8]">
@@ -765,7 +857,8 @@
             <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5]">Configuración de personalidad, bases de conocimiento y rol</p>
           </div>
         </div>
-        <button onclick="cerrarModalAgenteDash()" title="Cerrar panel (Esc)" class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
+        <button onclick="cerrarModalAgenteDash()" title="Cerrar panel (Esc)"
+          class="rounded-xl p-2 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white transition">
           <i data-lucide="x" class="h-5 w-5"></i>
         </button>
       </div>
@@ -854,7 +947,8 @@
         <button type="button" onclick="cerrarModalAgenteDash()" class="heroui-btn-flat px-5 py-2.5 text-xs">
           Cancelar
         </button>
-        <button type="button" onclick="document.getElementById('form-agente-dash').requestSubmit()" id="btn-guardar-agente-dash" class="heroui-btn-primary px-7 py-2.5 text-xs font-bold inline-flex items-center gap-2">
+        <button type="button" onclick="document.getElementById('form-agente-dash').requestSubmit()" id="btn-guardar-agente-dash"
+          class="heroui-btn-primary px-7 py-2.5 text-xs font-bold inline-flex items-center gap-2">
           <i data-lucide="save" class="h-4 w-4"></i>
           <span>Guardar Agente</span>
         </button>

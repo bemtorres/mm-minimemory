@@ -305,3 +305,19 @@
 .animate-fade-in {
   animation: aparecer 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
+
+/* Cursor parpadeante que simula el modo stream (escritura en vivo) */
+.stream-caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  border-radius: 1px;
+  opacity: 0.75;
+  animation: parpadeo-cursor 0.8s steps(1) infinite;
+}
+@keyframes parpadeo-cursor {
+  50% { opacity: 0; }
+}

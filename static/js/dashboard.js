@@ -1,263 +1,286 @@
-// Lógica del Dashboard OpenAI / shadcn UI, Mantenedor de Usuarios, Roles y Conversaciones
+/**
+ * Lógica del Dashboard Administrativo de THEYTHINK AI.
+ * Gestión integral de Agentes, Bases de Conocimiento, Roles, Usuarios y Conversaciones.
+ * Código escrito en inglés con comentarios y docstrings en español.
+ */
 (function () {
   "use strict";
 
-  // Secciones y botones de pestaña
-  var seccionAgentes = document.getElementById("dash-seccion-agentes");
-  var seccionFuentes = document.getElementById("dash-seccion-fuentes");
-  var seccionRoles = document.getElementById("dash-seccion-roles");
-  var seccionUsuarios = document.getElementById("dash-seccion-usuarios");
-  var seccionHistorial = document.getElementById("dash-seccion-historial");
+  // Secciones del Dashboard y botones de pestañas
+  var agentsSection = document.getElementById("dash-seccion-agentes");
+  var sourcesSection = document.getElementById("dash-seccion-fuentes");
+  var rolesSection = document.getElementById("dash-seccion-roles");
+  var usersSection = document.getElementById("dash-seccion-usuarios");
+  var historySection = document.getElementById("dash-seccion-historial");
 
-  var btnTabAgentes = document.getElementById("btn-tab-dash-agentes");
-  var btnTabFuentes = document.getElementById("btn-tab-dash-fuentes");
-  var btnTabRoles = document.getElementById("btn-tab-dash-roles");
-  var btnTabUsuarios = document.getElementById("btn-tab-dash-usuarios");
-  var btnTabHistorial = document.getElementById("btn-tab-dash-historial");
-  var btnAccionCrear = document.getElementById("btn-accion-crear");
+  var tabAgentsButton = document.getElementById("btn-tab-dash-agentes");
+  var tabSourcesButton = document.getElementById("btn-tab-dash-fuentes");
+  var tabRolesButton = document.getElementById("btn-tab-dash-roles");
+  var tabUsersButton = document.getElementById("btn-tab-dash-usuarios");
+  var tabHistoryButton = document.getElementById("btn-tab-dash-historial");
+  var createActionButton = document.getElementById("btn-accion-crear");
 
   // Modal Agente
-  var modalAgente = document.getElementById("modal-agente-dash");
-  var formAgente = document.getElementById("form-agente-dash");
-  var tituloModalAgente = document.getElementById("titulo-modal-agente-dash");
-  var campoAgenteModo = document.getElementById("dash-agente-modo");
-  var campoAgenteNombre = document.getElementById("dash-campo-nombre");
-  var campoAgentePerfil = document.getElementById("dash-campo-perfil");
-  var selectAgenteIdentidad = document.getElementById("dash-select-identidad");
-  var bloqueAgenteCustom = document.getElementById("dash-bloque-personalizada");
-  var campoAgenteCustom = document.getElementById("dash-identidad-custom");
-  var listaAgenteFuentes = document.getElementById("dash-lista-fuentes");
-  var btnGuardarAgente = document.getElementById("btn-guardar-agente-dash");
+  var agentModal = document.getElementById("modal-agente-dash");
+  var agentForm = document.getElementById("form-agente-dash");
+  var agentModalTitle = document.getElementById("titulo-modal-agente-dash");
+  var agentModeInput = document.getElementById("dash-agente-modo");
+  var agentNameInput = document.getElementById("dash-campo-nombre");
+  var agentProfileInput = document.getElementById("dash-campo-perfil");
+  var agentIdentitySelect = document.getElementById("dash-select-identidad");
+  var agentCustomBlock = document.getElementById("dash-bloque-personalizada");
+  var agentCustomPromptInput = document.getElementById("dash-identidad-custom");
+  var agentSourcesList = document.getElementById("dash-lista-fuentes");
+  var agentSaveButton = document.getElementById("btn-guardar-agente-dash");
 
   // Modal Base de Conocimiento
-  var modalFuente = document.getElementById("modal-fuente-dash");
-  var formFuente = document.getElementById("form-fuente-dash");
-  var tituloModalFuente = document.getElementById("titulo-modal-fuente-dash");
-  var campoFuenteId = document.getElementById("dash-fuente-id");
-  var campoFuenteNombre = document.getElementById("dash-fuente-nombre");
-  var campoFuenteContenido = document.getElementById("dash-fuente-contenido");
-  var btnGuardarFuente = document.getElementById("btn-guardar-fuente-dash");
+  var sourceModal = document.getElementById("modal-fuente-dash");
+  var sourceForm = document.getElementById("form-fuente-dash");
+  var sourceModalTitle = document.getElementById("titulo-modal-fuente-dash");
+  var sourceIdInput = document.getElementById("dash-fuente-id");
+  var sourceNameInput = document.getElementById("dash-fuente-nombre");
+  var sourceContentInput = document.getElementById("dash-fuente-contenido");
+  var sourceSaveButton = document.getElementById("btn-guardar-fuente-dash");
 
   // Modal Rol / Identidad
-  var modalRol = document.getElementById("modal-rol-dash");
-  var formRol = document.getElementById("form-rol-dash");
-  var tituloModalRol = document.getElementById("titulo-modal-rol-dash");
-  var campoRolId = document.getElementById("dash-rol-id");
-  var campoRolClave = document.getElementById("dash-rol-clave");
-  var campoRolNombre = document.getElementById("dash-rol-nombre");
-  var campoRolDescripcion = document.getElementById("dash-rol-descripcion");
-  var campoRolPrompt = document.getElementById("dash-rol-prompt");
-  var btnGuardarRol = document.getElementById("btn-guardar-rol-dash");
+  var roleModal = document.getElementById("modal-rol-dash");
+  var roleForm = document.getElementById("form-rol-dash");
+  var roleModalTitle = document.getElementById("titulo-modal-rol-dash");
+  var roleIdInput = document.getElementById("dash-rol-id");
+  var roleKeyInput = document.getElementById("dash-rol-clave");
+  var roleNameInput = document.getElementById("dash-rol-nombre");
+  var roleDescInput = document.getElementById("dash-rol-descripcion");
+  var rolePromptInput = document.getElementById("dash-rol-prompt");
+  var roleSaveButton = document.getElementById("btn-guardar-rol-dash");
 
   // Modales Usuario (Show / Edit / Create)
-  var modalShowUsuario = document.getElementById("modal-show-usuario");
-  var showUsuarioAvatar = document.getElementById("show-usuario-avatar");
-  var showUsuarioNombre = document.getElementById("show-usuario-nombre");
-  var showUsuarioId = document.getElementById("show-usuario-id");
-  var showUsuarioRol = document.getElementById("show-usuario-rol");
-  var showUsuarioFecha = document.getElementById("show-usuario-fecha");
-  var idUsuarioShowActual = null;
+  var showUserModal = document.getElementById("modal-show-usuario");
+  var showUserAvatar = document.getElementById("show-usuario-avatar");
+  var showUserName = document.getElementById("show-usuario-nombre");
+  var showUserId = document.getElementById("show-usuario-id");
+  var showUserRole = document.getElementById("show-usuario-rol");
+  var showUserDate = document.getElementById("show-usuario-fecha");
+  var currentShowUserId = null;
 
-  var modalUsuario = document.getElementById("modal-usuario-dash");
-  var formUsuario = document.getElementById("form-usuario-dash");
-  var tituloModalUsuario = document.getElementById("titulo-modal-usuario-dash");
-  var campoUsuarioId = document.getElementById("dash-usuario-id");
-  var campoUsuarioModo = document.getElementById("dash-usuario-modo");
-  var campoUsuarioNombre = document.getElementById("dash-usuario-nombre");
-  var campoUsuarioRol = document.getElementById("dash-usuario-rol");
-  var campoUsuarioPassword = document.getElementById("dash-usuario-password");
-  var campoUsuarioPwdAyuda = document.getElementById("dash-usuario-pwd-ayuda");
-  var btnGuardarUsuario = document.getElementById("btn-guardar-usuario-dash");
+  var userModal = document.getElementById("modal-usuario-dash");
+  var userForm = document.getElementById("form-usuario-dash");
+  var userModalTitle = document.getElementById("titulo-modal-usuario-dash");
+  var userIdInput = document.getElementById("dash-usuario-id");
+  var userModeInput = document.getElementById("dash-usuario-modo");
+  var userNameInput = document.getElementById("dash-usuario-nombre");
+  var userRoleInput = document.getElementById("dash-usuario-rol");
+  var userPasswordInput = document.getElementById("dash-usuario-password");
+  var userPwdHelp = document.getElementById("dash-usuario-pwd-ayuda");
+  var userSaveButton = document.getElementById("btn-guardar-usuario-dash");
 
   // Modal Mi Perfil
-  var modalMiPerfil = document.getElementById("modal-mi-perfil");
-  var formMiPerfil = document.getElementById("form-mi-perfil");
-  var campoPerfilNombre = document.getElementById("perfil-nombre");
-  var campoPerfilPassword = document.getElementById("perfil-password");
-  var btnGuardarMiPerfil = document.getElementById("btn-guardar-mi-perfil");
+  var myProfileModal = document.getElementById("modal-mi-perfil");
+  var myProfileForm = document.getElementById("form-mi-perfil");
+  var profileNameInput = document.getElementById("perfil-nombre");
+  var profilePasswordInput = document.getElementById("perfil-password");
+  var profileSaveButton = document.getElementById("btn-guardar-mi-perfil");
 
-  // Modal Eliminar
-  var modalEliminar = document.getElementById("modal-eliminar-dash");
-  var tituloEliminar = document.getElementById("titulo-eliminar-dash");
-  var descEliminar = document.getElementById("desc-eliminar-dash");
-  var btnConfirmarEliminar = document.getElementById("btn-confirmar-eliminar-dash");
+  // Modal Confirmación Eliminar
+  var deleteModal = document.getElementById("modal-eliminar-dash");
+  var deleteTitle = document.getElementById("titulo-eliminar-dash");
+  var deleteDesc = document.getElementById("desc-eliminar-dash");
+  var deleteConfirmButton = document.getElementById("btn-confirmar-eliminar-dash");
+  var deleteCallbackAction = null;
 
-  // Visor de transcripción
-  var filtroAgenteConversaciones = document.getElementById("filtro-agente-conversaciones");
-  var contadorMantenedor = document.getElementById("contador-mantenedor-sesiones");
-  var listaHilos = document.getElementById("dash-lista-hilos");
-  var visorTitulo = document.getElementById("visor-titulo-sesion");
-  var visorAgente = document.getElementById("visor-agente-sesion");
-  var visorBadgeAgente = document.getElementById("visor-badge-agente");
-  var visorContenedor = document.getElementById("visor-contenedor-mensajes");
-  var btnEliminarSesionVisor = document.getElementById("btn-eliminar-sesion-visor");
-  var btnAbrirChatVisor = document.getElementById("btn-abrir-chat-visor");
-  var sesionActivaVisorId = null;
-
-  var accionEliminarCallback = null;
+  // Visor de transcripciones
+  var conversationsAgentFilter = document.getElementById("filtro-agente-conversaciones");
+  var sessionsCounter = document.getElementById("contador-mantenedor-sesiones");
+  var threadsList = document.getElementById("dash-lista-hilos");
+  var viewerTitle = document.getElementById("visor-titulo-sesion");
+  var viewerAgent = document.getElementById("visor-agente-sesion");
+  var viewerAgentBadge = document.getElementById("visor-badge-agente");
+  var viewerMessagesContainer = document.getElementById("visor-contenedor-mensajes");
+  var viewerDeleteButton = document.getElementById("btn-eliminar-sesion-visor");
+  var viewerOpenChatButton = document.getElementById("btn-abrir-chat-visor");
+  var activeViewerSessionId = null;
 
   // Toast
-  var toast = document.getElementById("toast");
-  var contenidoToast = document.getElementById("toast-contenido");
-  var iconoToast = document.getElementById("toast-icono");
-  var textoToast = document.getElementById("texto-toast");
+  var toastElement = document.getElementById("toast");
+  var toastContent = document.getElementById("toast-contenido");
+  var toastIcon = document.getElementById("toast-icono");
+  var toastText = document.getElementById("texto-toast");
 
-  function mostrarToast(mensaje, tipo) {
-    var esExito = tipo === "exito";
-    textoToast.textContent = mensaje;
-    contenidoToast.className =
+  /**
+   * Muestra un aviso emergente en la interfaz.
+   * @param {string} message - Texto del aviso.
+   * @param {string} [type='error'] - Tipo ('exito' o 'error').
+   */
+  function showToast(message, type) {
+    var isSuccess = type === "exito" || type === "success";
+    toastText.textContent = message;
+    toastContent.className =
       "flex items-center gap-2.5 rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-2xl " +
-      (esExito ? "bg-[#34A853]" : "bg-[#EA4335]");
-    iconoToast.setAttribute("data-lucide", esExito ? "check-circle-2" : "alert-circle");
-    toast.classList.remove("hidden");
-    clearTimeout(toast._temporizador);
-    toast._temporizador = setTimeout(function () {
-      toast.classList.add("hidden");
+      (isSuccess ? "bg-[#34A853]" : "bg-[#EA4335]");
+    toastIcon.setAttribute("data-lucide", isSuccess ? "check-circle-2" : "alert-circle");
+    toastElement.classList.remove("hidden");
+    clearTimeout(toastElement._timer);
+    toastElement._timer = setTimeout(function () {
+      toastElement.classList.add("hidden");
     }, 4500);
     if (window.lucide) lucide.createIcons();
+  }
+
+  /**
+   * Obtiene texto traducido con i18n o respaldo.
+   */
+  function getI18nText(key, params, fallback) {
+    if (window.i18n && typeof window.i18n.t === "function") {
+      var translated = window.i18n.t(key, params);
+      if (translated && translated !== key) return translated;
+    }
+    return fallback || key;
   }
 
   // ------------------------------------------------------------------
   // Pestañas del Dashboard
   // ------------------------------------------------------------------
-  window.cambiarTabDashboard = function (tab) {
-    seccionAgentes.classList.toggle("hidden", tab !== "agentes");
-    seccionFuentes.classList.toggle("hidden", tab !== "fuentes");
-    if (seccionRoles) seccionRoles.classList.toggle("hidden", tab !== "roles");
-    if (seccionUsuarios) seccionUsuarios.classList.toggle("hidden", tab !== "usuarios");
-    seccionHistorial.classList.toggle("hidden", tab !== "historial");
 
-    var estiloActivo = "inline-flex items-center gap-2 rounded-xl bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition";
-    var estiloInactivo = "inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white";
+  /** Cambia la pestaña activa del dashboard */
+  function switchDashboardTab(tab) {
+    agentsSection.classList.toggle("hidden", tab !== "agentes");
+    sourcesSection.classList.toggle("hidden", tab !== "fuentes");
+    if (rolesSection) rolesSection.classList.toggle("hidden", tab !== "roles");
+    if (usersSection) usersSection.classList.toggle("hidden", tab !== "usuarios");
+    historySection.classList.toggle("hidden", tab !== "historial");
 
-    btnTabAgentes.className = tab === "agentes" ? estiloActivo : estiloInactivo;
-    btnTabFuentes.className = tab === "fuentes" ? estiloActivo : estiloInactivo;
-    if (btnTabRoles) btnTabRoles.className = tab === "roles" ? estiloActivo : estiloInactivo;
-    if (btnTabUsuarios) btnTabUsuarios.className = tab === "usuarios" ? estiloActivo : estiloInactivo;
-    btnTabHistorial.className = tab === "historial" ? estiloActivo : estiloInactivo;
+    var activeClass = "inline-flex items-center gap-2 rounded-xl bg-white/15 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition";
+    var inactiveClass = "inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-semibold text-zinc-400 transition hover:bg-white/5 hover:text-white";
+
+    tabAgentsButton.className = tab === "agentes" ? activeClass : inactiveClass;
+    tabSourcesButton.className = tab === "fuentes" ? activeClass : inactiveClass;
+    if (tabRolesButton) tabRolesButton.className = tab === "roles" ? activeClass : inactiveClass;
+    if (tabUsersButton) tabUsersButton.className = tab === "usuarios" ? activeClass : inactiveClass;
+    tabHistoryButton.className = tab === "historial" ? activeClass : inactiveClass;
 
     if (tab === "agentes") {
-      btnAccionCrear.classList.remove("hidden");
-      btnAccionCrear.onclick = abrirModalCrearAgenteDash;
-      btnAccionCrear.querySelector("span").textContent = "Nuevo Agente";
+      createActionButton.classList.remove("hidden");
+      createActionButton.onclick = openCreateAgentModal;
+      createActionButton.querySelector("span").textContent = getI18nText("dashboard.createAgent", null, "Nuevo Agente");
     } else if (tab === "fuentes") {
-      btnAccionCrear.classList.remove("hidden");
-      btnAccionCrear.onclick = abrirModalCrearFuenteDash;
-      btnAccionCrear.querySelector("span").textContent = "Nueva Base";
+      createActionButton.classList.remove("hidden");
+      createActionButton.onclick = openCreateSourceModal;
+      createActionButton.querySelector("span").textContent = getI18nText("dashboard.createSource", null, "Nueva Base");
     } else if (tab === "roles") {
-      btnAccionCrear.classList.remove("hidden");
-      btnAccionCrear.onclick = abrirModalCrearRolDash;
-      btnAccionCrear.querySelector("span").textContent = "Nuevo Rol";
+      createActionButton.classList.remove("hidden");
+      createActionButton.onclick = openCreateRoleModal;
+      createActionButton.querySelector("span").textContent = getI18nText("dashboard.createRole", null, "Nuevo Rol");
     } else if (tab === "usuarios") {
-      btnAccionCrear.classList.remove("hidden");
-      btnAccionCrear.onclick = abrirModalCrearUsuarioDash;
-      btnAccionCrear.querySelector("span").textContent = "Nuevo Usuario";
+      createActionButton.classList.remove("hidden");
+      createActionButton.onclick = openCreateUserModal;
+      createActionButton.querySelector("span").textContent = getI18nText("dashboard.createUser", null, "Nuevo Usuario");
     } else {
-      btnAccionCrear.classList.add("hidden");
+      createActionButton.classList.add("hidden");
     }
 
     if (window.lucide) lucide.createIcons();
-  };
+  }
 
   // ------------------------------------------------------------------
   // Módulo de Usuarios (Show -> Edit -> Update)
   // ------------------------------------------------------------------
-  window.verDetalleUsuario = function (id) {
-    idUsuarioShowActual = id;
-    fetch("/api/usuario/" + id)
+
+  /** Muestra la ficha detallada de un usuario */
+  function viewUserDetail(userId) {
+    currentShowUserId = userId;
+    fetch("/api/usuario/" + userId)
       .then(function (res) { return res.json(); })
       .then(function (u) {
-        showUsuarioAvatar.textContent = (u.usuario || "US").slice(0, 2).toUpperCase();
-        showUsuarioNombre.textContent = u.usuario;
-        showUsuarioId.textContent = "ID: " + u.id;
-        showUsuarioRol.textContent = u.rol === "admin" ? "Administrador" : "Usuario Estándar";
-        showUsuarioFecha.textContent = u.creado_en ? u.creado_en.slice(0, 16) : "Reciente";
+        showUserAvatar.textContent = (u.usuario || "US").slice(0, 2).toUpperCase();
+        showUserName.textContent = u.usuario;
+        showUserId.textContent = "ID: " + u.id;
+        showUserRole.textContent = u.rol === "admin" ? "Administrador" : "Usuario Estándar";
+        showUserDate.textContent = u.creado_en ? u.creado_en.slice(0, 16) : "Reciente";
 
-        modalShowUsuario.classList.remove("hidden");
-        modalShowUsuario.classList.add("flex");
+        showUserModal.classList.remove("hidden");
+        showUserModal.classList.add("flex");
         if (window.lucide) lucide.createIcons();
       })
       .catch(function () {
-        mostrarToast("No se pudo cargar la ficha del usuario.");
+        showToast("No se pudo cargar la ficha del usuario.");
       });
-  };
+  }
 
-  window.cerrarModalShowUsuario = function () {
-    modalShowUsuario.classList.add("hidden");
-    modalShowUsuario.classList.remove("flex");
-    idUsuarioShowActual = null;
-  };
+  function closeUserDetailModal() {
+    showUserModal.classList.add("hidden");
+    showUserModal.classList.remove("flex");
+    currentShowUserId = null;
+  }
 
-  window.procederEditarDesdeShow = function () {
-    var id = idUsuarioShowActual;
-    cerrarModalShowUsuario();
-    if (id) abrirModalEditarUsuarioDash(id);
-  };
+  function proceedToEditFromShow() {
+    var id = currentShowUserId;
+    closeUserDetailModal();
+    if (id) openEditUserModal(id);
+  }
 
-  window.abrirModalCrearUsuarioDash = function () {
-    campoUsuarioId.value = "";
-    campoUsuarioModo.value = "crear";
-    campoUsuarioNombre.value = "";
-    campoUsuarioRol.value = "usuario";
-    campoUsuarioPassword.value = "";
-    campoUsuarioPassword.required = true;
-    campoUsuarioPwdAyuda.textContent = "(obligatoria)";
-    tituloModalUsuario.textContent = "Nuevo Usuario";
+  function openCreateUserModal() {
+    userIdInput.value = "";
+    userModeInput.value = "crear";
+    userNameInput.value = "";
+    userRoleInput.value = "usuario";
+    userPasswordInput.value = "";
+    userPasswordInput.required = true;
+    userPwdHelp.textContent = "(obligatoria)";
+    userModalTitle.textContent = getI18nText("dashboard.createUser", null, "Nuevo Usuario");
 
-    modalUsuario.classList.remove("hidden");
-    modalUsuario.classList.add("flex");
-    setTimeout(function () { campoUsuarioNombre.focus(); }, 50);
-  };
+    userModal.classList.remove("hidden");
+    userModal.classList.add("flex");
+    setTimeout(function () { userNameInput.focus(); }, 50);
+  }
 
-  window.abrirModalEditarUsuarioDash = function (id) {
-    fetch("/api/usuario/" + id)
+  function openEditUserModal(userId) {
+    fetch("/api/usuario/" + userId)
       .then(function (res) { return res.json(); })
       .then(function (u) {
-        campoUsuarioId.value = u.id;
-        campoUsuarioModo.value = "editar";
-        campoUsuarioNombre.value = u.usuario;
-        campoUsuarioRol.value = u.rol || "usuario";
-        campoUsuarioPassword.value = "";
-        campoUsuarioPassword.required = false;
-        campoUsuarioPwdAyuda.textContent = "(dejar en blanco para mantener la actual)";
-        tituloModalUsuario.textContent = "Editar Usuario: " + u.usuario;
+        userIdInput.value = u.id;
+        userModeInput.value = "editar";
+        userNameInput.value = u.usuario;
+        userRoleInput.value = u.rol || "usuario";
+        userPasswordInput.value = "";
+        userPasswordInput.required = false;
+        userPwdHelp.textContent = "(dejar en blanco para mantener la actual)";
+        userModalTitle.textContent = "Editar Usuario: " + u.usuario;
 
-        modalUsuario.classList.remove("hidden");
-        modalUsuario.classList.add("flex");
+        userModal.classList.remove("hidden");
+        userModal.classList.add("flex");
       })
       .catch(function () {
-        mostrarToast("No se pudo cargar la información del usuario.");
+        showToast("No se pudo cargar la información del usuario.");
       });
-  };
+  }
 
-  window.cerrarModalUsuarioDash = function () {
-    modalUsuario.classList.add("hidden");
-    modalUsuario.classList.remove("flex");
-  };
+  function closeUserModal() {
+    userModal.classList.add("hidden");
+    userModal.classList.remove("flex");
+  }
 
-  formUsuario.addEventListener("submit", function (e) {
+  userForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    btnGuardarUsuario.disabled = true;
+    userSaveButton.disabled = true;
 
-    var modo = campoUsuarioModo.value;
-    var id = campoUsuarioId.value;
-    var nombre = campoUsuarioNombre.value.trim();
-    var rol = campoUsuarioRol.value;
-    var password = campoUsuarioPassword.value.trim();
+    var mode = userModeInput.value;
+    var id = userIdInput.value;
+    var name = userNameInput.value.trim();
+    var role = userRoleInput.value;
+    var password = userPasswordInput.value.trim();
 
-    if (!nombre) {
-      mostrarToast("El nombre de usuario es obligatorio.");
-      btnGuardarUsuario.disabled = false;
+    if (!name) {
+      showToast("El nombre de usuario es obligatorio.");
+      userSaveButton.disabled = false;
       return;
     }
-    if (modo === "crear" && !password) {
-      mostrarToast("La contraseña es obligatoria para un nuevo usuario.");
-      btnGuardarUsuario.disabled = false;
+    if (mode === "crear" && !password) {
+      showToast("La contraseña es obligatoria para un nuevo usuario.");
+      userSaveButton.disabled = false;
       return;
     }
 
-    var url = modo === "crear" ? "/api/usuarios" : "/api/usuario/" + id;
-    var payload = { usuario: nombre, rol: rol };
+    var url = mode === "crear" ? "/api/usuarios" : "/api/usuario/" + id;
+    var payload = { usuario: name, rol: role };
     if (password) payload.password = password;
 
     fetch(url, {
@@ -265,92 +288,92 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, datos: d }; }); })
-      .then(function (resultado) {
-        if (!resultado.ok) throw new Error(resultado.datos.error || "Error al guardar el usuario.");
-        cerrarModalUsuarioDash();
-        mostrarToast(modo === "crear" ? "Usuario creado exitosamente." : "Usuario actualizado (Update).", "exito");
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+      .then(function (result) {
+        if (!result.ok) throw new Error(result.data.error || "Error al guardar el usuario.");
+        closeUserModal();
+        showToast(mode === "crear" ? "Usuario creado exitosamente." : "Usuario actualizado exitosamente.", "exito");
         setTimeout(function () { window.location.reload(); }, 600);
       })
       .catch(function (error) {
-        mostrarToast(error.message);
+        showToast(error.message);
       })
       .finally(function () {
-        btnGuardarUsuario.disabled = false;
+        userSaveButton.disabled = false;
       });
   });
 
-  window.confirmarEliminarUsuarioDash = function (id, nombre) {
-    tituloEliminar.textContent = "¿Eliminar usuario '" + nombre + "'?";
-    descEliminar.textContent = "Se revocarán todos los permisos de acceso para esta cuenta. Esta acción no se puede deshacer.";
-    accionEliminarCallback = function () {
-      fetch("/api/usuario/" + id, { method: "DELETE" })
-        .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, datos: d }; }); })
-        .then(function (resultado) {
-          if (!resultado.ok) throw new Error(resultado.datos.error || "No se pudo eliminar el usuario.");
-          cerrarModalEliminarDash();
-          mostrarToast("Usuario eliminado.", "exito");
+  function confirmDeleteUser(userId, userName) {
+    deleteTitle.textContent = "¿Eliminar usuario '" + userName + "'?";
+    deleteDesc.textContent = "Se revocarán todos los permisos de acceso para esta cuenta. Esta acción no se puede deshacer.";
+    deleteCallbackAction = function () {
+      fetch("/api/usuario/" + userId, { method: "DELETE" })
+        .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+        .then(function (result) {
+          if (!result.ok) throw new Error(result.data.error || "No se pudo eliminar el usuario.");
+          closeDeleteModal();
+          showToast("Usuario eliminado.", "exito");
           setTimeout(function () { window.location.reload(); }, 600);
         })
         .catch(function (error) {
-          mostrarToast(error.message);
+          showToast(error.message);
         });
     };
-    modalEliminar.classList.remove("hidden");
-    modalEliminar.classList.add("flex");
-  };
+    deleteModal.classList.remove("hidden");
+    deleteModal.classList.add("flex");
+  }
 
   // ------------------------------------------------------------------
   // Modal Mi Perfil (Configurar Cuenta en Sesión)
   // ------------------------------------------------------------------
-  window.abrirModalMiPerfil = function () {
-    campoPerfilPassword.value = "";
-    modalMiPerfil.classList.remove("hidden");
-    modalMiPerfil.classList.add("flex");
-  };
+  function openMyProfileModal() {
+    profilePasswordInput.value = "";
+    myProfileModal.classList.remove("hidden");
+    myProfileModal.classList.add("flex");
+  }
 
-  window.cerrarModalMiPerfil = function () {
-    modalMiPerfil.classList.add("hidden");
-    modalMiPerfil.classList.remove("flex");
-  };
+  function closeMyProfileModal() {
+    myProfileModal.classList.add("hidden");
+    myProfileModal.classList.remove("flex");
+  }
 
-  formMiPerfil.addEventListener("submit", function (e) {
+  myProfileForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    btnGuardarMiPerfil.disabled = true;
+    profileSaveButton.disabled = true;
 
-    var nombre = campoPerfilNombre.value.trim();
-    var password = campoPerfilPassword.value.trim();
+    var name = profileNameInput.value.trim();
+    var password = profilePasswordInput.value.trim();
 
     fetch("/api/perfil", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usuario: nombre, password: password }),
+      body: JSON.stringify({ usuario: name, password: password }),
     })
-      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, datos: d }; }); })
-      .then(function (resultado) {
-        if (!resultado.ok) throw new Error(resultado.datos.error || "Error al actualizar perfil.");
-        cerrarModalMiPerfil();
-        mostrarToast("Perfil actualizado correctamente.", "exito");
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+      .then(function (result) {
+        if (!result.ok) throw new Error(result.data.error || "Error al actualizar perfil.");
+        closeMyProfileModal();
+        showToast("Perfil actualizado correctamente.", "exito");
         setTimeout(function () { window.location.reload(); }, 600);
       })
       .catch(function (error) {
-        mostrarToast(error.message);
+        showToast(error.message);
       })
       .finally(function () {
-        btnGuardarMiPerfil.disabled = false;
+        profileSaveButton.disabled = false;
       });
   });
 
   // ------------------------------------------------------------------
   // Manejo de Avatar e Imágenes
   // ------------------------------------------------------------------
-  window.subirAvatarArchivo = function (input, prefijo) {
+  function uploadAvatarFile(input, prefix) {
     if (!input.files || !input.files[0]) return;
     var file = input.files[0];
     var formData = new FormData();
     formData.append("avatar", file);
 
-    mostrarToast("Subiendo imagen…", "exito");
+    showToast("Subiendo imagen…", "exito");
     fetch("/api/upload/avatar", {
       method: "POST",
       body: formData,
@@ -358,27 +381,27 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         if (!d.ok) throw new Error(d.error || "Error al subir imagen.");
-        window.actualizarAvatarUrlInput(d.url, prefijo);
-        mostrarToast("Imagen cargada con éxito.", "exito");
+        updateAvatarUrlInput(d.url, prefix);
+        showToast("Imagen cargada con éxito.", "exito");
       })
       .catch(function (err) {
-        mostrarToast(err.message);
+        showToast(err.message);
       });
-  };
+  }
 
-  window.actualizarAvatarUrlInput = function (url, prefijo) {
-    var urlLimpia = (url || "").trim();
-    var previewImg = document.getElementById(prefijo + "-avatar-preview-img");
-    var previewInitials = document.getElementById(prefijo + "-avatar-preview-initials");
-    var campoUrl = document.getElementById(prefijo + "-campo-avatar-url");
-    var campoInput = document.getElementById(prefijo + "-campo-avatar-url-input");
+  function updateAvatarUrlInput(url, prefix) {
+    var cleanUrl = (url || "").trim();
+    var previewImg = document.getElementById(prefix + "-avatar-preview-img");
+    var previewInitials = document.getElementById(prefix + "-avatar-preview-initials");
+    var urlField = document.getElementById(prefix + "-campo-avatar-url");
+    var urlInputField = document.getElementById(prefix + "-campo-avatar-url-input");
 
-    if (campoUrl) campoUrl.value = urlLimpia;
-    if (campoInput && campoInput.value !== urlLimpia) campoInput.value = urlLimpia;
+    if (urlField) urlField.value = cleanUrl;
+    if (urlInputField && urlInputField.value !== cleanUrl) urlInputField.value = cleanUrl;
 
     if (previewImg && previewInitials) {
-      if (urlLimpia) {
-        previewImg.src = urlLimpia;
+      if (cleanUrl) {
+        previewImg.src = cleanUrl;
         previewImg.classList.remove("hidden");
         previewInitials.classList.add("hidden");
       } else {
@@ -387,34 +410,34 @@
         previewInitials.classList.remove("hidden");
       }
     }
-  };
+  }
 
-  window.limpiarAvatarSeleccionado = function (prefijo) {
-    window.actualizarAvatarUrlInput("", prefijo);
-    var inputFile = document.getElementById(prefijo + "-input-avatar-file");
+  function clearSelectedAvatar(prefix) {
+    updateAvatarUrlInput("", prefix);
+    var inputFile = document.getElementById(prefix + "-input-avatar-file");
     if (inputFile) inputFile.value = "";
-  };
+  }
 
   // ------------------------------------------------------------------
   // Modal Agente (Crear / Editar)
   // ------------------------------------------------------------------
-  window.abrirModalCrearAgenteDash = function () {
-    campoAgenteModo.value = "crear";
-    campoAgenteNombre.value = "";
-    campoAgenteNombre.disabled = false;
-    campoAgentePerfil.value = "";
-    selectAgenteIdentidad.value = "";
-    campoAgenteCustom.value = "";
-    bloqueAgenteCustom.classList.add("hidden");
-    tituloModalAgente.textContent = "Crear Nuevo Agente";
+  function openCreateAgentModal() {
+    agentModeInput.value = "crear";
+    agentNameInput.value = "";
+    agentNameInput.disabled = false;
+    agentProfileInput.value = "";
+    agentIdentitySelect.value = "";
+    agentCustomPromptInput.value = "";
+    agentCustomBlock.classList.add("hidden");
+    agentModalTitle.textContent = getI18nText("dashboard.createAgent", null, "Crear Nuevo Agente");
 
-    window.limpiarAvatarSeleccionado("dash");
+    clearSelectedAvatar("dash");
 
-    listaAgenteFuentes.querySelectorAll("input[type=checkbox]").forEach(function (cb) {
+    agentSourcesList.querySelectorAll("input[type=checkbox]").forEach(function (cb) {
       cb.checked = false;
     });
 
-    modalAgente.classList.remove("hidden");
+    agentModal.classList.remove("hidden");
     var backdrop = document.getElementById("drawer-agente-dash-backdrop");
     var panel = document.getElementById("drawer-agente-dash-panel");
     requestAnimationFrame(function () {
@@ -428,43 +451,43 @@
       }
     });
     if (window.lucide) lucide.createIcons();
-    setTimeout(function () { campoAgenteNombre.focus(); }, 100);
-  };
+    setTimeout(function () { agentNameInput.focus(); }, 100);
+  }
 
-  window.abrirModalEditarAgenteDash = function (nombre) {
-    fetch("/api/agente/" + encodeURIComponent(nombre))
+  function openEditAgentModal(name) {
+    fetch("/api/agente/" + encodeURIComponent(name))
       .then(function (res) { return res.json(); })
-      .then(function (datos) {
-        campoAgenteModo.value = "editar";
-        campoAgenteNombre.value = datos.nombre;
-        campoAgenteNombre.disabled = true;
-        campoAgentePerfil.value = datos.perfil || "";
-        tituloModalAgente.textContent = "Editar Agente: " + datos.nombre;
+      .then(function (data) {
+        agentModeInput.value = "editar";
+        agentNameInput.value = data.nombre;
+        agentNameInput.disabled = true;
+        agentProfileInput.value = data.perfil || "";
+        agentModalTitle.textContent = "Editar Agente: " + data.nombre;
 
-        if (datos.avatar_url) {
-          window.actualizarAvatarUrlInput(datos.avatar_url, "dash");
+        if (data.avatar_url) {
+          updateAvatarUrlInput(data.avatar_url, "dash");
         } else {
-          window.limpiarAvatarSeleccionado("dash");
+          clearSelectedAvatar("dash");
           var initSpan = document.getElementById("dash-avatar-preview-initials");
-          if (initSpan) initSpan.textContent = (datos.nombre || "AG").slice(0, 2).toUpperCase();
+          if (initSpan) initSpan.textContent = (data.nombre || "AG").slice(0, 2).toUpperCase();
         }
 
-        var fuentesIds = (datos.fuentes || []).map(function (f) { return f.id; });
-        listaAgenteFuentes.querySelectorAll("input[type=checkbox]").forEach(function (cb) {
-          cb.checked = fuentesIds.indexOf(parseInt(cb.value, 10)) !== -1;
+        var sourceIds = (data.fuentes || []).map(function (f) { return f.id; });
+        agentSourcesList.querySelectorAll("input[type=checkbox]").forEach(function (cb) {
+          cb.checked = sourceIds.indexOf(parseInt(cb.value, 10)) !== -1;
         });
 
-        if (datos.identidad.personalizada) {
-          selectAgenteIdentidad.value = "personalizada";
-          campoAgenteCustom.value = datos.identidad.prompt || "";
-          bloqueAgenteCustom.classList.remove("hidden");
+        if (data.identidad.personalizada) {
+          agentIdentitySelect.value = "personalizada";
+          agentCustomPromptInput.value = data.identidad.prompt || "";
+          agentCustomBlock.classList.remove("hidden");
         } else {
-          selectAgenteIdentidad.value = datos.identidad.clave || "";
-          campoAgenteCustom.value = "";
-          bloqueAgenteCustom.classList.add("hidden");
+          agentIdentitySelect.value = data.identidad.clave || "";
+          agentCustomPromptInput.value = "";
+          agentCustomBlock.classList.add("hidden");
         }
 
-        modalAgente.classList.remove("hidden");
+        agentModal.classList.remove("hidden");
         var backdrop = document.getElementById("drawer-agente-dash-backdrop");
         var panel = document.getElementById("drawer-agente-dash-panel");
         requestAnimationFrame(function () {
@@ -480,11 +503,11 @@
         if (window.lucide) lucide.createIcons();
       })
       .catch(function () {
-        mostrarToast("No se pudo cargar la información del agente.");
+        showToast("No se pudo cargar la información del agente.");
       });
-  };
+  }
 
-  window.cerrarModalAgenteDash = function () {
+  function closeAgentModal() {
     var backdrop = document.getElementById("drawer-agente-dash-backdrop");
     var panel = document.getElementById("drawer-agente-dash-panel");
     if (backdrop) {
@@ -496,108 +519,108 @@
       panel.classList.add("translate-x-full");
     }
     setTimeout(function () {
-      modalAgente.classList.add("hidden");
+      agentModal.classList.add("hidden");
     }, 300);
-  };
+  }
 
-  selectAgenteIdentidad.addEventListener("change", function () {
-    var esCustom = selectAgenteIdentidad.value === "personalizada";
-    bloqueAgenteCustom.classList.toggle("hidden", !esCustom);
-    if (!esCustom) campoAgenteCustom.value = "";
+  agentIdentitySelect.addEventListener("change", function () {
+    var isCustom = agentIdentitySelect.value === "personalizada";
+    agentCustomBlock.classList.toggle("hidden", !isCustom);
+    if (!isCustom) agentCustomPromptInput.value = "";
   });
 
-  formAgente.addEventListener("submit", function (e) {
+  agentForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    btnGuardarAgente.disabled = true;
+    agentSaveButton.disabled = true;
 
-    var modo = campoAgenteModo.value;
-    var nombre = campoAgenteNombre.value.trim();
-    var perfil = campoAgentePerfil.value.trim();
-    var custom = campoAgenteCustom.value.trim();
-    var clave = selectAgenteIdentidad.value;
+    var mode = agentModeInput.value;
+    var name = agentNameInput.value.trim();
+    var profile = agentProfileInput.value.trim();
+    var custom = agentCustomPromptInput.value.trim();
+    var key = agentIdentitySelect.value;
     var avatarUrl = document.getElementById("dash-campo-avatar-url") ? document.getElementById("dash-campo-avatar-url").value.trim() : "";
 
-    var seleccionadas = [];
-    listaAgenteFuentes.querySelectorAll("input[type=checkbox]:checked").forEach(function (cb) {
-      seleccionadas.push(parseInt(cb.value, 10));
+    var selectedSources = [];
+    agentSourcesList.querySelectorAll("input[type=checkbox]:checked").forEach(function (cb) {
+      selectedSources.push(parseInt(cb.value, 10));
     });
 
-    var url = modo === "crear" ? "/api/agentes" : "/api/agente/" + encodeURIComponent(nombre) + "/editar";
+    var url = mode === "crear" ? "/api/agentes" : "/api/agente/" + encodeURIComponent(name) + "/editar";
     var payload = {
-      nombre: nombre,
-      perfil: perfil,
+      nombre: name,
+      perfil: profile,
       avatar_url: avatarUrl,
-      fuentes: seleccionadas,
+      fuentes: selectedSources,
     };
 
     if (custom) payload.identidad_custom = custom;
-    else if (clave && clave !== "personalizada") payload.identidad = clave;
+    else if (key && key !== "personalizada") payload.identidad = key;
 
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     })
-      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, datos: d }; }); })
-      .then(function (resultado) {
-        if (!resultado.ok) throw new Error(resultado.datos.error || "Error al guardar el agente.");
-        cerrarModalAgenteDash();
-        mostrarToast("Agente guardado exitosamente.", "exito");
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+      .then(function (result) {
+        if (!result.ok) throw new Error(result.data.error || "Error al guardar el agente.");
+        closeAgentModal();
+        showToast("Agente guardado exitosamente.", "exito");
         setTimeout(function () { window.location.reload(); }, 600);
       })
       .catch(function (error) {
-        mostrarToast(error.message);
+        showToast(error.message);
       })
       .finally(function () {
-        btnGuardarAgente.disabled = false;
+        agentSaveButton.disabled = false;
       });
   });
 
   // ------------------------------------------------------------------
   // Modal Base de Conocimiento (Crear / Editar)
   // ------------------------------------------------------------------
-  window.abrirModalCrearFuenteDash = function () {
-    campoFuenteId.value = "";
-    campoFuenteNombre.value = "";
-    campoFuenteContenido.value = "";
-    tituloModalFuente.textContent = "Nueva Base de Conocimiento";
-    modalFuente.classList.remove("hidden");
-    modalFuente.classList.add("flex");
-    setTimeout(function () { campoFuenteNombre.focus(); }, 50);
-  };
+  function openCreateSourceModal() {
+    sourceIdInput.value = "";
+    sourceNameInput.value = "";
+    sourceContentInput.value = "";
+    sourceModalTitle.textContent = getI18nText("dashboard.createSource", null, "Nueva Base de Conocimiento");
+    sourceModal.classList.remove("hidden");
+    sourceModal.classList.add("flex");
+    setTimeout(function () { sourceNameInput.focus(); }, 50);
+  }
 
-  window.abrirModalEditarFuenteDash = function (id) {
+  function openEditSourceModal(id) {
     fetch("/api/fuentes/" + id)
       .then(function (res) { return res.json(); })
-      .then(function (datos) {
-        campoFuenteId.value = datos.id;
-        campoFuenteNombre.value = datos.nombre;
-        campoFuenteContenido.value = datos.contenido || "";
-        tituloModalFuente.textContent = "Editar Base de Conocimiento";
-        modalFuente.classList.remove("hidden");
-        modalFuente.classList.add("flex");
+      .then(function (data) {
+        sourceIdInput.value = data.id;
+        sourceNameInput.value = data.nombre;
+        sourceContentInput.value = data.contenido || "";
+        sourceModalTitle.textContent = "Editar Base de Conocimiento";
+        sourceModal.classList.remove("hidden");
+        sourceModal.classList.add("flex");
       })
       .catch(function () {
-        mostrarToast("No se pudo cargar la base de conocimiento.");
+        showToast("No se pudo cargar la base de conocimiento.");
       });
-  };
+  }
 
-  window.cerrarModalFuenteDash = function () {
-    modalFuente.classList.add("hidden");
-    modalFuente.classList.remove("flex");
-  };
+  function closeSourceModal() {
+    sourceModal.classList.add("hidden");
+    sourceModal.classList.remove("flex");
+  }
 
-  formFuente.addEventListener("submit", function (e) {
+  sourceForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    btnGuardarFuente.disabled = true;
+    sourceSaveButton.disabled = true;
 
-    var id = campoFuenteId.value;
-    var nombre = campoFuenteNombre.value.trim();
-    var contenido = campoFuenteContenido.value.trim();
+    var id = sourceIdInput.value;
+    var name = sourceNameInput.value.trim();
+    var content = sourceContentInput.value.trim();
 
-    if (!nombre) {
-      mostrarToast("Escribe un nombre para la base.");
-      btnGuardarFuente.disabled = false;
+    if (!name) {
+      showToast("Escribe un nombre para la base.");
+      sourceSaveButton.disabled = false;
       return;
     }
 
@@ -606,75 +629,75 @@
     fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre: nombre, contenido: contenido }),
+      body: JSON.stringify({ nombre: name, contenido: content }),
     })
-      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, datos: d }; }); })
-      .then(function (resultado) {
-        if (!resultado.ok) throw new Error(resultado.datos.error || "Error al guardar la base.");
-        cerrarModalFuenteDash();
-        mostrarToast("Base de conocimiento guardada.", "exito");
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+      .then(function (result) {
+        if (!result.ok) throw new Error(result.data.error || "Error al guardar la base.");
+        closeSourceModal();
+        showToast("Base de conocimiento guardada.", "exito");
         setTimeout(function () { window.location.reload(); }, 600);
       })
       .catch(function (error) {
-        mostrarToast(error.message);
+        showToast(error.message);
       })
       .finally(function () {
-        btnGuardarFuente.disabled = false;
+        sourceSaveButton.disabled = false;
       });
   });
 
   // ------------------------------------------------------------------
   // Modal Rol e Identidad (Crear / Editar)
   // ------------------------------------------------------------------
-  window.abrirModalCrearRolDash = function () {
-    campoRolId.value = "";
-    campoRolClave.value = "";
-    campoRolClave.disabled = false;
-    campoRolNombre.value = "";
-    campoRolDescripcion.value = "";
-    campoRolPrompt.value = "";
-    tituloModalRol.textContent = "Nuevo Rol / Identidad";
-    modalRol.classList.remove("hidden");
-    modalRol.classList.add("flex");
-    setTimeout(function () { campoRolClave.focus(); }, 50);
-  };
+  function openCreateRoleModal() {
+    roleIdInput.value = "";
+    roleKeyInput.value = "";
+    roleKeyInput.disabled = false;
+    roleNameInput.value = "";
+    roleDescInput.value = "";
+    rolePromptInput.value = "";
+    roleModalTitle.textContent = getI18nText("dashboard.createRole", null, "Nuevo Rol / Identidad");
+    roleModal.classList.remove("hidden");
+    roleModal.classList.add("flex");
+    setTimeout(function () { roleKeyInput.focus(); }, 50);
+  }
 
-  window.abrirModalEditarRolDash = function (id) {
+  function openEditRoleModal(id) {
     fetch("/api/roles/" + id)
       .then(function (res) { return res.json(); })
-      .then(function (datos) {
-        campoRolId.value = datos.id;
-        campoRolClave.value = datos.clave;
-        campoRolNombre.value = datos.nombre;
-        campoRolDescripcion.value = datos.descripcion || "";
-        campoRolPrompt.value = datos.prompt || "";
-        tituloModalRol.textContent = "Editar Rol: " + datos.nombre;
-        modalRol.classList.remove("hidden");
-        modalRol.classList.add("flex");
+      .then(function (data) {
+        roleIdInput.value = data.id;
+        roleKeyInput.value = data.clave;
+        roleNameInput.value = data.nombre;
+        roleDescInput.value = data.descripcion || "";
+        rolePromptInput.value = data.prompt || "";
+        roleModalTitle.textContent = "Editar Rol: " + data.nombre;
+        roleModal.classList.remove("hidden");
+        roleModal.classList.add("flex");
       })
       .catch(function () {
-        mostrarToast("No se pudo cargar la información del rol.");
+        showToast("No se pudo cargar la información del rol.");
       });
-  };
+  }
 
-  window.cerrarModalRolDash = function () {
-    modalRol.classList.add("hidden");
-    modalRol.classList.remove("flex");
-  };
+  function closeRoleModal() {
+    roleModal.classList.add("hidden");
+    roleModal.classList.remove("flex");
+  }
 
-  formRol.addEventListener("submit", function (e) {
+  roleForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    btnGuardarRol.disabled = true;
+    roleSaveButton.disabled = true;
 
-    var id = campoRolId.value;
-    var clave = campoRolClave.value.trim().toLowerCase();
-    var nombre = campoRolNombre.value.trim();
-    var descripcion = campoRolDescripcion.value.trim();
-    var prompt = campoRolPrompt.value.trim();
+    var id = roleIdInput.value;
+    var key = roleKeyInput.value.trim().toLowerCase();
+    var name = roleNameInput.value.trim();
+    var desc = roleDescInput.value.trim();
+    var prompt = rolePromptInput.value.trim();
 
-    if (!clave || !nombre || !prompt) {
-      mostrarToast("La clave, el nombre y el prompt son obligatorios.");
-      btnGuardarRol.disabled = false;
+    if (!key || !name || !prompt) {
+      showToast("La clave, el nombre y el prompt son obligatorios.");
+      roleSaveButton.disabled = false;
       return;
     }
 
@@ -684,126 +707,126 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        clave: clave,
-        nombre: nombre,
-        descripcion: descripcion,
+        clave: key,
+        nombre: name,
+        descripcion: desc,
         prompt: prompt,
       }),
     })
-      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, datos: d }; }); })
-      .then(function (resultado) {
-        if (!resultado.ok) throw new Error(resultado.datos.error || "Error al guardar el rol.");
-        cerrarModalRolDash();
-        mostrarToast("Rol guardado exitosamente.", "exito");
+      .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+      .then(function (result) {
+        if (!result.ok) throw new Error(result.data.error || "Error al guardar el rol.");
+        closeRoleModal();
+        showToast("Rol guardado exitosamente.", "exito");
         setTimeout(function () { window.location.reload(); }, 600);
       })
       .catch(function (error) {
-        mostrarToast(error.message);
+        showToast(error.message);
       })
       .finally(function () {
-        btnGuardarRol.disabled = false;
+        roleSaveButton.disabled = false;
       });
   });
 
   // ------------------------------------------------------------------
-  // Eliminaciones de Agente, Base, Rol con Confirmación
+  // Confirmaciones de Eliminación
   // ------------------------------------------------------------------
-  window.confirmarEliminarAgenteDash = function (nombre) {
-    tituloEliminar.textContent = "¿Eliminar al agente '" + nombre + "'?";
-    descEliminar.textContent = "Se eliminará toda la memoria, perfil, hilos de chat y mensajes de este agente. Esta acción no se puede deshacer.";
-    accionEliminarCallback = function () {
-      fetch("/api/agente/" + encodeURIComponent(nombre), { method: "DELETE" })
+  function confirmDeleteAgent(name) {
+    deleteTitle.textContent = "¿Eliminar al agente '" + name + "'?";
+    deleteDesc.textContent = "Se eliminará toda la memoria, perfil, hilos de chat y mensajes de este agente. Esta acción no se puede deshacer.";
+    deleteCallbackAction = function () {
+      fetch("/api/agente/" + encodeURIComponent(name), { method: "DELETE" })
         .then(function (r) { return r.json(); })
         .then(function () {
-          cerrarModalEliminarDash();
-          mostrarToast("Agente eliminado.", "exito");
+          closeDeleteModal();
+          showToast("Agente eliminado.", "exito");
           setTimeout(function () { window.location.reload(); }, 600);
         })
         .catch(function () {
-          mostrarToast("No se pudo eliminar el agente.");
+          showToast("No se pudo eliminar el agente.");
         });
     };
-    modalEliminar.classList.remove("hidden");
-    modalEliminar.classList.add("flex");
-  };
+    deleteModal.classList.remove("hidden");
+    deleteModal.classList.add("flex");
+  }
 
-  window.confirmarEliminarFuenteDash = function (id, nombre) {
-    tituloEliminar.textContent = "¿Eliminar base '" + nombre + "'?";
-    descEliminar.textContent = "Se desvinculará de todos los agentes que la utilizan.";
-    accionEliminarCallback = function () {
+  function confirmDeleteSource(id, name) {
+    deleteTitle.textContent = "¿Eliminar base '" + name + "'?";
+    deleteDesc.textContent = "Se desvinculará de todos los agentes que la utilizan.";
+    deleteCallbackAction = function () {
       fetch("/api/fuentes/" + id, { method: "DELETE" })
         .then(function (r) { return r.json(); })
         .then(function () {
-          cerrarModalEliminarDash();
-          mostrarToast("Base de conocimiento eliminada.", "exito");
+          closeDeleteModal();
+          showToast("Base de conocimiento eliminada.", "exito");
           setTimeout(function () { window.location.reload(); }, 600);
         })
         .catch(function () {
-          mostrarToast("No se pudo eliminar la base.");
+          showToast("No se pudo eliminar la base.");
         });
     };
-    modalEliminar.classList.remove("hidden");
-    modalEliminar.classList.add("flex");
-  };
+    deleteModal.classList.remove("hidden");
+    deleteModal.classList.add("flex");
+  }
 
-  window.confirmarEliminarRolDash = function (id, nombre) {
-    tituloEliminar.textContent = "¿Eliminar rol '" + nombre + "'?";
-    descEliminar.textContent = "Los agentes que utilicen este rol se reasignarán automáticamente al rol Básico por defecto.";
-    accionEliminarCallback = function () {
+  function confirmDeleteRole(id, name) {
+    deleteTitle.textContent = "¿Eliminar rol '" + name + "'?";
+    deleteDesc.textContent = "Los agentes que utilicen este rol se reasignarán automáticamente al rol Básico por defecto.";
+    deleteCallbackAction = function () {
       fetch("/api/roles/" + id, { method: "DELETE" })
         .then(function (r) { return r.json(); })
         .then(function () {
-          cerrarModalEliminarDash();
-          mostrarToast("Rol eliminado.", "exito");
+          closeDeleteModal();
+          showToast("Rol eliminado.", "exito");
           setTimeout(function () { window.location.reload(); }, 600);
         })
         .catch(function () {
-          mostrarToast("No se pudo eliminar el rol.");
+          showToast("No se pudo eliminar el rol.");
         });
     };
-    modalEliminar.classList.remove("hidden");
-    modalEliminar.classList.add("flex");
-  };
+    deleteModal.classList.remove("hidden");
+    deleteModal.classList.add("flex");
+  }
 
-  window.cerrarModalEliminarDash = function () {
-    modalEliminar.classList.add("hidden");
-    modalEliminar.classList.remove("flex");
-    accionEliminarCallback = null;
-  };
+  function closeDeleteModal() {
+    deleteModal.classList.add("hidden");
+    deleteModal.classList.remove("flex");
+    deleteCallbackAction = null;
+  }
 
-  btnConfirmarEliminar.addEventListener("click", function () {
-    if (accionEliminarCallback) accionEliminarCallback();
+  deleteConfirmButton.addEventListener("click", function () {
+    if (deleteCallbackAction) deleteCallbackAction();
   });
 
   // ------------------------------------------------------------------
   // Mantenedor de Conversaciones (Filtro, Explorador, Transcripciones)
   // ------------------------------------------------------------------
-  window.verConversacionesAgente = function (nombre) {
-    cambiarTabDashboard("historial");
-    if (filtroAgenteConversaciones) {
-      filtroAgenteConversaciones.value = nombre;
+  function viewAgentConversations(name) {
+    switchDashboardTab("historial");
+    if (conversationsAgentFilter) {
+      conversationsAgentFilter.value = name;
     }
-    filtrarConversacionesPorAgente(nombre);
-  };
+    filterConversationsByAgent(name);
+  }
 
-  window.filtrarConversacionesPorAgente = function (agenteNombre) {
-    var url = agenteNombre ? "/api/sesiones?agente=" + encodeURIComponent(agenteNombre) : "/api/sesiones";
+  function filterConversationsByAgent(agentNameParam) {
+    var url = agentNameParam ? "/api/sesiones?agente=" + encodeURIComponent(agentNameParam) : "/api/sesiones";
     fetch(url)
       .then(function (r) { return r.json(); })
-      .then(function (datos) {
-        var sesiones = datos.sesiones || [];
-        if (contadorMantenedor) {
-          contadorMantenedor.textContent = sesiones.length + " conversaciones";
+      .then(function (data) {
+        var sessions = data.sesiones || [];
+        if (sessionsCounter) {
+          sessionsCounter.textContent = sessions.length + " conversaciones";
         }
-        listaHilos.innerHTML = "";
-        if (!sesiones.length) {
-          listaHilos.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">No hay conversaciones registradas' + (agenteNombre ? ' para ' + agenteNombre : '') + '.</p>';
+        threadsList.innerHTML = "";
+        if (!sessions.length) {
+          threadsList.innerHTML = '<p class="text-center text-xs text-zinc-500 py-12">No hay conversaciones registradas' + (agentNameParam ? ' para ' + agentNameParam : '') + '.</p>';
           return;
         }
 
-        sesiones.forEach(function (ses) {
+        sessions.forEach(function (ses) {
           var btn = document.createElement("button");
-          btn.className = "w-full text-left rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition hover:border-[#006FEE]/40 hover:bg-white/[0.06] focus:border-[#006FEE] focus:bg-white/[0.06]";
+          btn.className = "w-full text-left rounded-2xl border border-white/5 bg-white/[0.02] p-4 transition hover:border-[#1a73e8]/40 hover:bg-white/[0.06] focus:border-[#1a73e8] focus:bg-white/[0.06]";
           btn.innerHTML =
             '<div class="flex items-center justify-between">' +
             '  <span class="heroui-chip heroui-chip-primary text-[10px] py-0.5 px-2 font-bold">' + ses.agente_nombre + '</span>' +
@@ -817,102 +840,134 @@
             '</div>';
 
           btn.addEventListener("click", function () {
-            cargarTranscripcionSesion(ses.id, ses.agente_nombre, ses.titulo);
+            loadSessionTranscript(ses.id, ses.agente_nombre, ses.titulo);
           });
-          listaHilos.appendChild(btn);
+          threadsList.appendChild(btn);
         });
 
         if (window.lucide) lucide.createIcons();
 
-        if (sesiones[0]) {
-          cargarTranscripcionSesion(sesiones[0].id, sesiones[0].agente_nombre, sesiones[0].titulo);
+        if (sessions[0]) {
+          loadSessionTranscript(sessions[0].id, sessions[0].agente_nombre, sessions[0].titulo);
         }
       });
-  };
+  }
 
-  window.cargarTranscripcionSesion = function (sesionId, agenteNombre, titulo) {
-    sesionActivaVisorId = sesionId;
-    visorTitulo.textContent = titulo || "Conversación";
-    visorAgente.textContent = "Historial completo con " + agenteNombre;
+  function loadSessionTranscript(sessionId, agentNameParam, title) {
+    activeViewerSessionId = sessionId;
+    viewerTitle.textContent = title || "Conversación";
+    viewerAgent.textContent = "Historial completo con " + agentNameParam;
     
-    visorBadgeAgente.textContent = agenteNombre;
-    visorBadgeAgente.classList.remove("hidden");
+    viewerAgentBadge.textContent = agentNameParam;
+    viewerAgentBadge.classList.remove("hidden");
     
-    btnEliminarSesionVisor.classList.remove("hidden");
-    btnAbrirChatVisor.classList.remove("hidden");
-    btnAbrirChatVisor.href = "/agente/" + encodeURIComponent(agenteNombre);
+    viewerDeleteButton.classList.remove("hidden");
+    viewerOpenChatButton.classList.remove("hidden");
+    viewerOpenChatButton.href = "/agente/" + encodeURIComponent(agentNameParam);
 
-    visorContenedor.innerHTML = '<div class="py-12 text-center text-xs text-zinc-400">Cargando transcripción…</div>';
+    viewerMessagesContainer.innerHTML = '<div class="py-12 text-center text-xs text-zinc-400">Cargando transcripción…</div>';
 
-    fetch("/api/sesion/" + sesionId)
+    fetch("/api/sesion/" + sessionId)
       .then(function (r) { return r.json(); })
-      .then(function (datos) {
-        var mensajes = datos.mensajes || [];
-        visorContenedor.innerHTML = "";
-        if (!mensajes.length) {
-          visorContenedor.innerHTML = '<div class="py-12 text-center text-xs text-zinc-500">No hay mensajes en esta conversación aún.</div>';
+      .then(function (data) {
+        var messages = data.mensajes || [];
+        viewerMessagesContainer.innerHTML = "";
+        if (!messages.length) {
+          viewerMessagesContainer.innerHTML = '<div class="py-12 text-center text-xs text-zinc-500">No hay mensajes en esta conversación aún.</div>';
           return;
         }
 
-        mensajes.forEach(function (m) {
-          var fila = document.createElement("div");
-          fila.className = "flex " + (m.rol === "user" ? "justify-end" : "justify-start");
+        messages.forEach(function (m) {
+          var row = document.createElement("div");
+          row.className = "flex " + (m.rol === "user" ? "justify-end" : "justify-start");
           
-          var caja = document.createElement("div");
-          caja.className = "max-w-[85%]";
+          var box = document.createElement("div");
+          box.className = "max-w-[85%]";
 
-          var burbuja = document.createElement("div");
+          var bubble = document.createElement("div");
           if (m.rol === "user") {
-            burbuja.className = "rounded-2xl rounded-br-sm bg-[#1a73e8] px-4 py-3 text-xs text-white shadow";
-            burbuja.textContent = m.mensaje;
+            bubble.className = "rounded-2xl rounded-br-sm bg-[#1a73e8] px-4 py-3 text-xs text-white shadow";
+            bubble.textContent = m.mensaje;
           } else {
-            burbuja.className = "rounded-2xl rounded-bl-sm border border-white/10 bg-[#1e1f20] px-4 py-3 text-xs leading-relaxed text-[#e3e3e3] shadow prose-chat";
+            bubble.className = "rounded-2xl rounded-bl-sm border border-white/10 bg-[#1e1f20] px-4 py-3 text-xs leading-relaxed text-[#e3e3e3] shadow prose-chat";
             if (window.marked && window.DOMPurify) {
-              burbuja.innerHTML = DOMPurify.sanitize(marked.parse(m.mensaje, { breaks: true, gfm: true }));
+              bubble.innerHTML = DOMPurify.sanitize(marked.parse(m.mensaje, { breaks: true, gfm: true }));
             } else {
-              burbuja.textContent = m.mensaje;
+              bubble.textContent = m.mensaje;
             }
           }
 
           var meta = document.createElement("div");
           meta.className = "text-[10px] text-[#c4c7c5] mt-1 " + (m.rol === "user" ? "text-right" : "text-left");
-          meta.textContent = (m.rol === "user" ? "Usuario" : agenteNombre) + " · " + (m.fecha || "") + " " + (m.hora || "");
+          meta.textContent = (m.rol === "user" ? "Usuario" : agentNameParam) + " · " + (m.fecha || "") + " " + (m.hora || "");
 
-          caja.appendChild(burbuja);
-          caja.appendChild(meta);
-          fila.appendChild(caja);
-          visorContenedor.appendChild(fila);
+          box.appendChild(bubble);
+          box.appendChild(meta);
+          row.appendChild(box);
+          viewerMessagesContainer.appendChild(row);
         });
 
-        visorContenedor.scrollTop = visorContenedor.scrollHeight;
+        viewerMessagesContainer.scrollTop = viewerMessagesContainer.scrollHeight;
       })
       .catch(function () {
-        visorContenedor.innerHTML = '<div class="py-12 text-center text-xs text-[#f28b82]">Error al cargar la transcripción.</div>';
+        viewerMessagesContainer.innerHTML = '<div class="py-12 text-center text-xs text-[#f28b82]">Error al cargar la transcripción.</div>';
       });
-  };
+  }
 
-  window.eliminarSesionDesdeVisor = function () {
-    if (!sesionActivaVisorId) return;
+  function deleteSessionFromViewer() {
+    if (!activeViewerSessionId) return;
     if (!confirm("¿Deseas eliminar este hilo de conversación del mantenedor?")) return;
 
-    fetch("/api/sesion/" + sesionActivaVisorId, { method: "DELETE" })
+    fetch("/api/sesion/" + activeViewerSessionId, { method: "DELETE" })
       .then(function (r) { return r.json(); })
       .then(function () {
-        mostrarToast("Conversación eliminada del mantenedor.", "exito");
+        showToast("Conversación eliminada del mantenedor.", "exito");
         setTimeout(function () { window.location.reload(); }, 600);
       });
-  };
+  }
+
+  // Exposición de funciones en window para botones HTML
+  window.cambiarTabDashboard = switchDashboardTab;
+  window.verDetalleUsuario = viewUserDetail;
+  window.cerrarModalShowUsuario = closeUserDetailModal;
+  window.procederEditarDesdeShow = proceedToEditFromShow;
+  window.abrirModalCrearUsuarioDash = openCreateUserModal;
+  window.abrirModalEditarUsuarioDash = openEditUserModal;
+  window.cerrarModalUsuarioDash = closeUserModal;
+  window.confirmarEliminarUsuarioDash = confirmDeleteUser;
+  window.abrirModalMiPerfil = openMyProfileModal;
+  window.cerrarModalMiPerfil = closeMyProfileModal;
+  window.subirAvatarArchivo = uploadAvatarFile;
+  window.actualizarAvatarUrlInput = updateAvatarUrlInput;
+  window.limpiarAvatarSeleccionado = clearSelectedAvatar;
+  window.abrirModalCrearAgenteDash = openCreateAgentModal;
+  window.abrirModalEditarAgenteDash = openEditAgentModal;
+  window.cerrarModalAgenteDash = closeAgentModal;
+  window.abrirModalCrearFuenteDash = openCreateSourceModal;
+  window.abrirModalEditarFuenteDash = openEditSourceModal;
+  window.cerrarModalFuenteDash = closeSourceModal;
+  window.abrirModalCrearRolDash = openCreateRoleModal;
+  window.abrirModalEditarRolDash = openEditRoleModal;
+  window.cerrarModalRolDash = closeRoleModal;
+  window.confirmarEliminarAgenteDash = confirmDeleteAgent;
+  window.confirmarEliminarFuenteDash = confirmDeleteSource;
+  window.confirmarEliminarRolDash = confirmDeleteRole;
+  window.cerrarModalEliminarDash = closeDeleteModal;
+  window.verConversacionesAgente = viewAgentConversations;
+  window.filtrarConversacionesPorAgente = filterConversationsByAgent;
+  window.cargarTranscripcionSesion = loadSessionTranscript;
+  window.eliminarSesionDesdeVisor = deleteSessionFromViewer;
 
   // Escape para cerrar modales
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
-      cerrarModalAgenteDash();
-      cerrarModalFuenteDash();
-      if (window.cerrarModalRolDash) cerrarModalRolDash();
-      if (window.cerrarModalShowUsuario) cerrarModalShowUsuario();
-      if (window.cerrarModalUsuarioDash) cerrarModalUsuarioDash();
-      if (window.cerrarModalMiPerfil) cerrarModalMiPerfil();
-      cerrarModalEliminarDash();
+      closeAgentModal();
+      closeSourceModal();
+      closeRoleModal();
+      closeUserDetailModal();
+      closeUserModal();
+      closeMyProfileModal();
+      closeDeleteModal();
     }
   });
 })();

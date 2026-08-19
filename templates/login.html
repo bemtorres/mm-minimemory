@@ -1,13 +1,102 @@
 {% extends "base.html" %}
 
-{% block titulo %}Iniciar Sesión{% endblock %}
+{% block titulo %}Iniciar Sesión · THEYTHINK AI{% endblock %}
 
 {% block contenido %}
 <div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f8f9fa] dark:bg-[#131314] px-4 py-12 text-[#202124] dark:text-[#e3e3e3] transition-colors duration-200">
 
-  <!-- Botón Selector Modo Claro / Oscuro en Esquina Superior Derecha -->
-  <div class="absolute top-4 right-4 z-50">
-    <button onclick="alternarTema()" title="Cambiar modo claro / oscuro"
+  <!-- Selectores de Idioma y Modo Claro / Oscuro en Esquina Superior Derecha -->
+  <div class="absolute top-4 right-4 z-50 flex items-center gap-2">
+    <!-- Selector de Idioma Personalizado (i18n Dropdown) -->
+    <div class="relative inline-block text-left language-dropdown" data-i18n-dropdown>
+      <button type="button"
+        class="language-dropdown-btn inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#1e1f20]/80 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-[#202124] dark:text-white shadow-sm hover:bg-black/5 dark:hover:bg-white/10 transition active:scale-95">
+        <i data-lucide="globe" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0"></i>
+        <span class="language-current-code uppercase font-extrabold text-[10px] px-1.5 py-0.5 rounded-md bg-[#EA4335]/15 text-[#EA4335] dark:bg-[#EA4335]/25 dark:text-[#f28b82]">ES</span>
+        <span class="language-current-name hidden sm:inline text-xs font-semibold text-[#202124] dark:text-[#e3e3e3]">Español</span>
+        <i data-lucide="chevron-down" class="language-dropdown-chevron h-3 w-3 text-[#5f6368] dark:text-[#c4c7c5] transition-transform duration-200"></i>
+      </button>
+      <div
+        class="language-dropdown-menu hidden absolute right-0 mt-2 w-56 rounded-2xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#1e1f20]/95 p-1.5 shadow-2xl backdrop-blur-xl z-50 transition-all duration-150 animate-fade-in">
+        <div class="px-2.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5] border-b border-black/5 dark:border-white/5 mb-1" data-i18n="common.selectLanguage">
+          Seleccionar Idioma
+        </div>
+        <button type="button" onclick="window.i18n.setLanguage('es')"
+          class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition bg-black/5 dark:bg-white/10 font-bold" data-lang-code="es">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#EA4335]/15 text-[#EA4335] dark:bg-[#EA4335]/25 dark:text-[#f28b82] font-bold text-[10px]">ES</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">Español</p>
+              <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">España / Latinoamérica</p>
+            </div>
+          </div>
+          <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0"></i>
+        </button>
+        <button type="button" onclick="window.i18n.setLanguage('en')"
+          class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+          data-lang-code="en">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#1a73e8]/15 text-[#1a73e8] dark:bg-[#4285F4]/25 dark:text-[#8ab4f8] font-bold text-[10px]">EN</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">English</p>
+              <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">United States / Global</p>
+            </div>
+          </div>
+          <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+        </button>
+        <button type="button" onclick="window.i18n.setLanguage('fr')"
+          class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+          data-lang-code="fr">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#a142f4]/15 text-[#a142f4] dark:bg-[#a142f4]/25 dark:text-[#d7aefb] font-bold text-[10px]">FR</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">Français</p>
+              <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">France / Europe</p>
+            </div>
+          </div>
+          <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+        </button>
+        <button type="button" onclick="window.i18n.setLanguage('pt')"
+          class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+          data-lang-code="pt">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#34A853]/15 text-[#34A853] dark:bg-[#34A853]/25 dark:text-[#81c995] font-bold text-[10px]">PT</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">Português</p>
+              <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">Brasil / Portugal</p>
+            </div>
+          </div>
+          <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+        </button>
+        <button type="button" onclick="window.i18n.setLanguage('ko')"
+          class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+          data-lang-code="ko">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#FBBC04]/20 text-[#b06000] dark:bg-[#FBBC04]/30 dark:text-[#fdd663] font-bold text-[10px]">KO</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">한국어</p>
+              <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">대한민국 (Korean)</p>
+            </div>
+          </div>
+          <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+        </button>
+        <button type="button" onclick="window.i18n.setLanguage('zh')"
+          class="language-option-btn w-full flex items-center justify-between gap-2.5 rounded-xl px-2.5 py-2 text-left text-xs transition hover:bg-black/5 dark:hover:bg-white/5 font-medium"
+          data-lang-code="zh">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#EA4335]/15 text-[#d93025] dark:bg-[#EA4335]/25 dark:text-[#f28b82] font-bold text-[10px]">ZH</span>
+            <div class="min-w-0 flex-1">
+              <p class="text-xs text-[#202124] dark:text-white leading-none font-bold">中文</p>
+              <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] mt-0.5 truncate">简体中文 (Chinese)</p>
+            </div>
+          </div>
+          <i data-lucide="check" class="language-check-icon h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0 hidden"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Botón Selector Modo Claro / Oscuro -->
+    <button onclick="alternarTema()" title="Cambiar modo claro / oscuro" data-i18n-title="common.switchTheme"
       class="btn-toggle-tema rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#1e1f20]/80 backdrop-blur p-2.5 text-[#5f6368] dark:text-[#c4c7c5] transition hover:bg-black/5 dark:hover:bg-white/10 hover:text-black dark:hover:text-white shadow-sm">
       <i data-lucide="sun" class="icono-sol h-4 w-4 hidden"></i>
       <i data-lucide="moon" class="icono-luna h-4 w-4"></i>
@@ -36,11 +125,11 @@
       <div class="text-center mt-2">
         <div class="relative mx-auto flex h-16 w-16 items-center justify-center">
           <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] opacity-30 blur-lg"></div>
-          <img src="{{ url_for('static', filename='img/theythinkai_logo.jpg') }}" alt="THEYTHINK AI Logo"
+          <img src="{{ url_for('static', filename='img/theythinkai_logo.png') }}" alt="THEYTHINK AI Logo"
             class="relative h-16 w-16 rounded-2xl object-cover shadow-xl border border-black/10 dark:border-white/10">
         </div>
         <h1 class="mt-4 text-2xl font-bold tracking-tight text-[#202124] dark:text-white">THEYTHINK AI</h1>
-        <p class="mt-1 text-xs text-[#5f6368] dark:text-[#c4c7c5]">Inicia sesión para interactuar con tus agentes y gestionar la plataforma</p>
+        <p class="mt-1 text-xs text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="loginPage.subtitle">Inicia sesión para interactuar con tus agentes y gestionar la plataforma</p>
       </div>
 
       <!-- Alerta de error -->
@@ -56,23 +145,23 @@
         <input type="hidden" name="next" value="{{ next }}">
 
         <div>
-          <label for="usuario" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Usuario</label>
+          <label for="usuario" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="loginPage.userLabel">Usuario</label>
           <div class="relative">
             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#5f6368] dark:text-[#c4c7c5]">
               <i data-lucide="user" class="h-4 w-4"></i>
             </span>
-            <input id="usuario" name="usuario" type="text" required autocomplete="username" value="{{ usuario or 'admin' }}" placeholder="ej. admin"
+            <input id="usuario" name="usuario" type="text" required autocomplete="username" value="{{ usuario or 'admin' }}" placeholder="ej. admin" data-i18n-placeholder="loginPage.userPlaceholder"
               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 py-2.5 pl-10 pr-4 text-sm text-[#202124] dark:text-white outline-none transition placeholder:text-[#5f6368] dark:placeholder:text-[#c4c7c5] focus:border-[#1a73e8] focus:ring-4 focus:ring-[#1a73e8]/20">
           </div>
         </div>
 
         <div>
-          <label for="password" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">Contraseña</label>
+          <label for="password" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]" data-i18n="loginPage.passwordLabel">Contraseña</label>
           <div class="relative">
             <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-[#5f6368] dark:text-[#c4c7c5]">
               <i data-lucide="lock" class="h-4 w-4"></i>
             </span>
-            <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••" value="admin123"
+            <input id="password" name="password" type="password" required autocomplete="current-password" placeholder="••••••••" value="admin123" data-i18n-placeholder="loginPage.passwordPlaceholder"
               class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 py-2.5 pl-10 pr-4 text-sm text-[#202124] dark:text-white outline-none transition placeholder:text-[#5f6368] dark:placeholder:text-[#c4c7c5] focus:border-[#1a73e8] focus:ring-4 focus:ring-[#1a73e8]/20">
           </div>
         </div>
@@ -80,16 +169,18 @@
         <div class="rounded-xl border border-black/5 dark:border-white/5 bg-black/[0.03] dark:bg-white/[0.03] p-3 text-xs text-[#5f6368] dark:text-[#c4c7c5]">
           <div class="flex items-center gap-1.5 font-semibold text-[#202124] dark:text-white">
             <span class="h-1.5 w-1.5 rounded-full bg-[#1e8e3e] dark:bg-[#34A853]"></span>
-            <span>Credenciales por defecto:</span>
+            <span data-i18n="loginPage.defaultCredentialsTitle">Credenciales por defecto:</span>
           </div>
-          <p class="mt-1 text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">Usuario: <code class="rounded bg-black/10 dark:bg-white/10 px-1 py-0.5 font-mono text-[#202124] dark:text-white">admin</code> ·
-            Contraseña: <code class="rounded bg-black/10 dark:bg-white/10 px-1 py-0.5 font-mono text-[#202124] dark:text-white">admin123</code></p>
+          <p class="mt-1 text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">
+            <span data-i18n="loginPage.defaultUser">Usuario:</span> <code class="rounded bg-black/10 dark:bg-white/10 px-1 py-0.5 font-mono text-[#202124] dark:text-white">admin</code> ·
+            <span data-i18n="loginPage.defaultPass">Contraseña:</span> <code class="rounded bg-black/10 dark:bg-white/10 px-1 py-0.5 font-mono text-[#202124] dark:text-white">admin123</code>
+          </p>
         </div>
 
         <button type="submit"
           class="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#1a73e8] hover:bg-[#174ea6] py-3 text-sm font-bold text-white shadow-lg shadow-[#1a73e8]/25 transition active:scale-[0.98]">
           <i data-lucide="log-in" class="h-4 w-4"></i>
-          Ingresar
+          <span data-i18n="loginPage.submitButton">Ingresar</span>
         </button>
       </form>
 
@@ -97,11 +188,14 @@
       <div class="mt-6 text-center space-y-3">
         <a href="/" class="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1a73e8] dark:text-[#8ab4f8] hover:underline">
           <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
-          Volver a la página principal
+          <span data-i18n="loginPage.backToHome">Volver a la página principal</span>
         </a>
         <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5]">
-          Desarrollado por <a href="https://github.com/bemtorres" target="_blank" rel="noopener noreferrer"
-            class="font-semibold text-[#1a73e8] dark:text-[#8ab4f8] hover:underline inline-flex items-center gap-1"><i data-lucide="github" class="h-3 w-3 inline"></i>Bemtorres</a>
+          <span data-i18n="common.developedBy">Desarrollado por</span> <a href="https://github.com/bemtorres" target="_blank" rel="noopener noreferrer"
+            class="font-semibold text-[#1a73e8] dark:text-[#8ab4f8] hover:underline inline-flex items-center gap-1"><svg class="h-3 w-3 inline fill-current" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+            </svg>Bemtorres</a>
         </p>
       </div>
 

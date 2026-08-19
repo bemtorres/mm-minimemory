@@ -1,204 +1,281 @@
-// Lógica del Chat Google AI: Hilos, Memoria, Sugerencias, Gestión y Ergonomía
+/**
+ * Lógica del Chat Interactivo con DeepSeek AI: Hilos, Memoria, Gestión e Internacionalización.
+ * Código escrito en inglés con comentarios descriptivos en español.
+ */
 (function () {
   "use strict";
 
-  var contenedorMensajes = document.getElementById("mensajes");
-  var formMensaje = document.getElementById("form-mensaje");
-  var campoMensaje = document.getElementById("campo-mensaje");
-  var botonEnviar = document.getElementById("boton-enviar");
-  var listaSesionesSidebar = document.getElementById("lista-sesiones-sidebar");
-  var sidebar = document.getElementById("chat-sidebar");
+  // Elementos principales del DOM
+  var messagesContainer = document.getElementById("mensajes");
+  var messageForm = document.getElementById("form-mensaje");
+  var messageInput = document.getElementById("campo-mensaje");
+  var sendButton = document.getElementById("boton-enviar");
+  var sidebarSessionsList = document.getElementById("lista-sesiones-sidebar");
+  var sidebarElement = document.getElementById("chat-sidebar");
 
-  var modalRenombrar = document.getElementById("modal-renombrar-sesion");
-  var campoRenombrarId = document.getElementById("renombrar-sesion-id");
-  var campoRenombrarTitulo = document.getElementById("campo-renombrar-titulo");
+  // Modales
+  var renameModal = document.getElementById("modal-renombrar-sesion");
+  var renameSessionIdInput = document.getElementById("renombrar-sesion-id");
+  var renameTitleInput = document.getElementById("campo-renombrar-titulo");
 
-  var modalLimpiarMemoria = document.getElementById("modal-limpiar-memoria");
-  var modalGestionAgente = document.getElementById("modal-gestion-agente");
-  var formGestionAgente = document.getElementById("form-gestion-agente");
-  var selectIdentidad = document.getElementById("editar-identidad");
-  var bloqueCustom = document.getElementById("bloque-identidad-custom");
+  var clearMemoryModal = document.getElementById("modal-limpiar-memoria");
+  var agentSettingsModal = document.getElementById("modal-gestion-agente");
+  var agentSettingsForm = document.getElementById("form-gestion-agente");
+  var identitySelect = document.getElementById("editar-identidad");
+  var customIdentityBlock = document.getElementById("bloque-identidad-custom");
 
-  var nombreAgente = document.body.dataset.agente;
-  var sesionActivaId = parseInt(document.body.dataset.sesionId, 10) || null;
+  // Identificadores del contexto actual
+  var agentName = document.body.dataset.agente;
+  var activeSessionId = parseInt(document.body.dataset.sesionId, 10) || null;
 
-  // Toast
-  var toast = document.getElementById("toast");
-  var contenidoToast = document.getElementById("toast-contenido");
-  var iconoToast = document.getElementById("toast-icono");
-  var textoToast = document.getElementById("texto-toast");
+  // Notificaciones flotantes (Toast)
+  var toastElement = document.getElementById("toast");
+  var toastContent = document.getElementById("toast-contenido");
+  var toastIcon = document.getElementById("toast-icono");
+  var toastText = document.getElementById("texto-toast");
 
-  function mostrarToast(mensaje, tipo) {
-    var esExito = tipo === "exito";
-    textoToast.textContent = mensaje;
-    contenidoToast.className =
+  /**
+   * Muestra un aviso emergente en la interfaz.
+   * @param {string} message - Mensaje a mostrar.
+   * @param {string} [type='error'] - Tipo de aviso ('exito' o 'error').
+   */
+  function showToast(message, type) {
+    var isSuccess = type === "exito" || type === "success";
+    toastText.textContent = message;
+    toastContent.className =
       "flex items-center gap-2.5 rounded-2xl px-5 py-3 text-sm font-semibold text-white shadow-2xl " +
-      (esExito ? "bg-[#34A853]" : "bg-[#EA4335]");
-    iconoToast.setAttribute("data-lucide", esExito ? "check-circle-2" : "alert-circle");
-    toast.classList.remove("hidden");
-    clearTimeout(toast._temporizador);
-    toast._temporizador = setTimeout(function () {
-      toast.classList.add("hidden");
+      (isSuccess ? "bg-[#34A853]" : "bg-[#EA4335]");
+    toastIcon.setAttribute("data-lucide", isSuccess ? "check-circle-2" : "alert-circle");
+    toastElement.classList.remove("hidden");
+    clearTimeout(toastElement._timer);
+    toastElement._timer = setTimeout(function () {
+      toastElement.classList.add("hidden");
     }, 4000);
     if (window.lucide) lucide.createIcons();
+  }
+
+  /**
+   * Obtiene una traducción a través de i18n con respaldo por defecto.
+   */
+  function getI18nText(key, params, fallback) {
+    if (window.i18n && typeof window.i18n.t === "function") {
+      var translated = window.i18n.t(key, params);
+      if (translated && translated !== key) return translated;
+    }
+    return fallback || key;
   }
 
   // ------------------------------------------------------------------
   // Control de Barra Lateral y Selector de Agente
   // ------------------------------------------------------------------
-  window.toggleSidebarChat = function () {
-    if (sidebar) {
-      sidebar.classList.toggle("hidden");
-    }
-  };
 
-  window.cambiarAgenteActivo = function (nuevoNombre) {
-    if (nuevoNombre && nuevoNombre !== nombreAgente) {
-      window.location.href = "/agente/" + encodeURIComponent(nuevoNombre);
+  /** Alterna la visibilidad del sidebar en pantallas móviles */
+  function toggleSidebar() {
+    if (sidebarElement) {
+      sidebarElement.classList.toggle("hidden");
     }
-  };
+  }
 
-  window.filtrarHilosSidebar = function (query) {
+  /** Cambia el agente activo redirigiendo a su vista correspondiente */
+  function changeActiveAgent(newAgentName) {
+    if (newAgentName && newAgentName !== agentName) {
+      window.location.href = "/agente/" + encodeURIComponent(newAgentName);
+    }
+  }
+
+  /** Filtra los hilos en el sidebar según el texto buscado */
+  function filterSidebarThreads(query) {
     var q = (query || "").toLowerCase().trim();
     document.querySelectorAll("#lista-sesiones-sidebar [data-sesion-item]").forEach(function (el) {
-      var tit = (el.dataset.sesionTitulo || "").toLowerCase();
-      el.classList.toggle("hidden", q !== "" && tit.indexOf(q) === -1);
+      var title = (el.dataset.sesionTitulo || "").toLowerCase();
+      el.classList.toggle("hidden", q !== "" && title.indexOf(q) === -1);
     });
-  };
+  }
 
-  // ------------------------------------------------------------------
-  // Sugerencias de Inicio Rápido
-  // ------------------------------------------------------------------
-  window.usarSugerencia = function (texto) {
-    campoMensaje.value = texto;
-    formMensaje.requestSubmit();
-  };
+  /** Aplica una sugerencia de prompt rápido al campo de mensaje */
+  function useSuggestion(text) {
+    messageInput.value = text;
+    messageForm.requestSubmit();
+  }
 
-  // ------------------------------------------------------------------
-  // Copiar al Portapapeles
-  // ------------------------------------------------------------------
-  window.copiarTexto = function (texto, btn) {
+  /** Copia texto al portapapeles y muestra indicador */
+  function copyToClipboard(text, buttonElement) {
     if (!navigator.clipboard) return;
-    navigator.clipboard.writeText(texto).then(function () {
-      var htmlOriginal = btn.innerHTML;
-      btn.innerHTML = '<i data-lucide="check" class="h-3 w-3 inline text-[#34A853]"></i> <span class="text-[#34A853]">¡Copiado!</span>';
+    navigator.clipboard.writeText(text).then(function () {
+      var originalHtml = buttonElement.innerHTML;
+      var copiedText = getI18nText("chat.copiedToast", null, "¡Copiado!");
+      buttonElement.innerHTML = '<i data-lucide="check" class="h-3 w-3 inline text-[#34A853]"></i> <span class="text-[#34A853]">' + copiedText + '</span>';
       if (window.lucide) lucide.createIcons();
       setTimeout(function () {
-        btn.innerHTML = htmlOriginal;
+        buttonElement.innerHTML = originalHtml;
         if (window.lucide) lucide.createIcons();
       }, 2000);
     });
-  };
+  }
 
   // ------------------------------------------------------------------
   // Carga y Renderizado de Mensajes
   // ------------------------------------------------------------------
-  function cargarMensajesSesion(sesionId) {
-    contenedorMensajes.innerHTML =
+
+  /** Carga los mensajes de la sesión activa desde la API */
+  function loadSessionMessages(sessionId) {
+    var loadingText = getI18nText("common.loading", null, "Cargando conversación…");
+    messagesContainer.innerHTML =
       '<div class="flex h-64 items-center justify-center text-xs text-[#5f6368] dark:text-[#c4c7c5]">' +
-      '  <span class="animate-pulse">Cargando conversación…</span>' +
+      '  <span class="animate-pulse">' + loadingText + '</span>' +
       '</div>';
 
-    fetch("/api/sesion/" + sesionId)
-      .then(function (r) { return r.json(); })
-      .then(function (datos) {
-        contenedorMensajes.innerHTML = "";
-        var mensajes = datos.mensajes || [];
+    fetch("/api/sesion/" + sessionId)
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        messagesContainer.innerHTML = "";
+        var messages = data.mensajes || [];
 
-        if (!mensajes.length) {
-          // Welcome Screen con sugerencias de inicio rápido estilo Google Gemini
-          contenedorMensajes.innerHTML =
-            '<div class="mx-auto max-w-2xl py-10 text-center animate-fade-in">' +
-            '<div class="relative mx-auto flex h-16 w-16 items-center justify-center mb-4">' +
-            '  <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] opacity-30 blur-md"></div>' +
-            '  <img src="/static/img/theythinkai_logo.jpg" alt="THEYTHINK AI" class="relative h-16 w-16 rounded-2xl object-cover shadow-xl border border-black/10 dark:border-white/10">' +
-            '</div>' +
-            '  <h3 class="text-xl font-bold text-[#202124] dark:text-white">¡Hola! Soy ' + nombreAgente + '</h3>' +
-            '  <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-1 max-w-md mx-auto">Pregúntame cualquier duda sobre mis bases de conocimiento o pídemelo en tu estilo preferido.</p>' +
-            '  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left max-w-xl mx-auto">' +
-            '    <button onclick="usarSugerencia(\'¿Qué conocimientos o documentos tienes disponibles?\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
-            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="book-open" class="h-3.5 w-3.5 text-[#1e8e3e] dark:text-[#81c995]"></i> Bases Temáticas</p>' +
-            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">¿Qué conocimientos tienes disponibles?</p>' +
-            '    </button>' +
-            '    <button onclick="usarSugerencia(\'Resume los puntos clave de la información que conoces.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
-            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="file-text" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i> Resumen Rápido</p>' +
-            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">Resume los puntos clave de tus bases.</p>' +
-            '    </button>' +
-            '    <button onclick="usarSugerencia(\'Explícame cómo funciona tu memoria en nuestras conversaciones.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
-            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="database" class="h-3.5 w-3.5 text-[#f9ab00] dark:text-[#fdd663]"></i> Memoria Viva</p>' +
-            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">¿Cómo funciona tu memoria activa?</p>' +
-            '    </button>' +
-            '    <button onclick="usarSugerencia(\'Proponme una idea o desafío para resolver juntos hoy.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
-            '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="lightbulb" class="h-3.5 w-3.5 text-[#d93025] dark:text-[#f28b82]"></i> Pregunta Creativa</p>' +
-            '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">Proponme un desafío para empezar.</p>' +
-            '    </button>' +
-            '  </div>' +
-            '</div>';
-          if (window.lucide) lucide.createIcons();
+        if (!messages.length) {
+          renderWelcomeScreen();
           return;
         }
 
-        mensajes.forEach(function (m) {
-          renderizarMensaje(m.rol, m.mensaje, m.fecha, m.hora);
+        messages.forEach(function (m) {
+          renderMessage(m.rol, m.mensaje, m.fecha, m.hora);
         });
 
-        desplazarAlFinal();
+        scrollToBottom();
       })
       .catch(function () {
-        contenedorMensajes.innerHTML =
-          '<div class="flex h-full items-center justify-center text-xs text-[#d93025] dark:text-[#f28b82]">Error al cargar la conversación.</div>';
+        messagesContainer.innerHTML =
+          '<div class="flex h-full items-center justify-center text-xs text-[#d93025] dark:text-[#f28b82]">' +
+          getI18nText("common.error", null, "Error al cargar la conversación.") +
+          '</div>';
       });
   }
 
-  function renderizarMensaje(rol, texto, fecha, hora) {
-    var esUsuario = rol === "user";
-    var fila = document.createElement("div");
-    fila.className = "flex " + (esUsuario ? "justify-end" : "justify-start") + " animate-fade-in";
+  /** Renderiza la pantalla inicial de bienvenida con sugerencias de preguntas */
+  function renderWelcomeScreen() {
+    messagesContainer.innerHTML =
+      '<div class="mx-auto max-w-2xl py-10 text-center animate-fade-in">' +
+      '<div class="relative mx-auto flex h-16 w-16 items-center justify-center mb-4">' +
+      '  <div class="absolute inset-0 rounded-2xl bg-gradient-to-tr from-[#1a73e8] via-[#a142f4] to-[#ea4335] opacity-30 blur-md"></div>' +
+      '  <img src="/static/img/theythinkai_logo.png" alt="THEYTHINK AI" class="relative h-16 w-16 rounded-2xl object-cover shadow-xl border border-black/10 dark:border-white/10">' +
+      '</div>' +
+      '  <h3 class="text-xl font-bold text-[#202124] dark:text-white">¡Hola! Soy ' + agentName + '</h3>' +
+      '  <p class="text-xs text-[#5f6368] dark:text-[#c4c7c5] mt-1 max-w-md mx-auto">Pregúntame cualquier duda sobre mis bases de conocimiento o pídemelo en tu estilo preferido.</p>' +
+      '  <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left max-w-xl mx-auto">' +
+      '    <button onclick="window.usarSugerencia(\'¿Qué conocimientos o documentos tienes disponibles?\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+      '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="book-open" class="h-3.5 w-3.5 text-[#1e8e3e] dark:text-[#81c995]"></i> Bases Temáticas</p>' +
+      '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">¿Qué conocimientos tienes disponibles?</p>' +
+      '    </button>' +
+      '    <button onclick="window.usarSugerencia(\'Resume los puntos clave de la información que conoces.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+      '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="file-text" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8]"></i> Resumen Rápido</p>' +
+      '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">Resume los puntos clave de tus bases.</p>' +
+      '    </button>' +
+      '    <button onclick="window.usarSugerencia(\'Explícame cómo funciona tu memoria en nuestras conversaciones.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+      '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="database" class="h-3.5 w-3.5 text-[#f9ab00] dark:text-[#fdd663]"></i> Memoria Viva</p>' +
+      '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">¿Cómo funciona tu memoria activa?</p>' +
+      '    </button>' +
+      '    <button onclick="window.usarSugerencia(\'Proponme una idea o desafío para resolver juntos hoy.\')" class="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] hover:border-[#1a73e8] dark:hover:border-[#8ab4f8] p-3.5 text-xs text-[#202124] dark:text-[#e3e3e3] shadow-sm transition hover:scale-[1.02] active:scale-95 text-left">' +
+      '      <p class="font-bold flex items-center gap-1.5"><i data-lucide="lightbulb" class="h-3.5 w-3.5 text-[#d93025] dark:text-[#f28b82]"></i> Pregunta Creativa</p>' +
+      '      <p class="text-[11px] text-[#5f6368] dark:text-[#c4c7c5] mt-1">Proponme un desafío para empezar.</p>' +
+      '    </button>' +
+      '  </div>' +
+      '</div>';
+    if (window.lucide) lucide.createIcons();
+  }
 
-    var caja = document.createElement("div");
-    caja.className = "max-w-[90%] sm:max-w-[80%] lg:max-w-[70%]";
+  /** Renderiza el contenido Markdown de una respuesta del agente */
+  function marcar(texto) {
+    if (window.marked && window.DOMPurify) {
+      return DOMPurify.sanitize(marked.parse(texto, { breaks: true, gfm: true }));
+    }
+    var div = document.createElement("div");
+    div.textContent = texto;
+    return div.innerHTML.replace(/\n/g, "<br>");
+  }
 
-    var burbuja = document.createElement("div");
-    if (esUsuario) {
-      burbuja.className = "rounded-3xl rounded-br-sm bg-[#1a73e8] px-5 py-3.5 text-sm text-white shadow-md";
-      burbuja.textContent = texto;
-    } else {
-      burbuja.className = "rounded-3xl rounded-bl-sm border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-5 py-4 text-sm leading-relaxed text-[#202124] dark:text-[#e3e3e3] shadow-sm prose-chat";
-      if (window.marked && window.DOMPurify) {
-        burbuja.innerHTML = DOMPurify.sanitize(marked.parse(texto, { breaks: true, gfm: true }));
+  /**
+   * Simula el "modo stream" del agente: revela la respuesta progresivamente
+   * (efecto de escritura) en lugar de mostrarla de golpe.
+   * No usa el streaming real de la IA, solo una animación en JS.
+   */
+  function streamAssistantText(bubble, fullText, onComplete) {
+    var length = fullText.length;
+    var index = 0;
+    var chunk = length > 900 ? 8 : 4;
+    var interval = 16;
+
+    function tick() {
+      if (!document.body.contains(bubble)) return;
+      index = Math.min(index + chunk, length);
+      bubble.innerHTML = marcar(fullText.slice(0, index));
+      bubble.insertAdjacentHTML("beforeend", '<span class="stream-caret"></span>');
+      scrollToBottom();
+      if (index < length) {
+        window.setTimeout(tick, interval);
       } else {
-        burbuja.textContent = texto;
+        var caret = bubble.querySelector(".stream-caret");
+        if (caret) caret.remove();
+        if (onComplete) onComplete();
+      }
+    }
+    tick();
+  }
+
+  /** Renderiza una burbuja de mensaje individual */
+  function renderMessage(role, text, date, time, stream, onComplete) {
+    var isUser = role === "user";
+    var row = document.createElement("div");
+    row.className = "flex " + (isUser ? "justify-end" : "justify-start") + " animate-fade-in";
+
+    var box = document.createElement("div");
+    box.className = "max-w-[90%] sm:max-w-[80%] lg:max-w-[70%]";
+
+    var bubble = document.createElement("div");
+    if (isUser) {
+      bubble.className = "rounded-3xl rounded-br-sm bg-[#1a73e8] px-5 py-3.5 text-sm text-white shadow-md";
+      bubble.textContent = text;
+    } else {
+      bubble.className = "rounded-3xl rounded-bl-sm border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-5 py-4 text-sm leading-relaxed text-[#202124] dark:text-[#e3e3e3] shadow-sm prose-chat";
+      if (stream) {
+        bubble.innerHTML = marcar("");
+        streamAssistantText(bubble, text, onComplete);
+      } else {
+        bubble.innerHTML = marcar(text);
       }
     }
 
-    var pie = document.createElement("div");
-    pie.className = "mt-1.5 flex items-center justify-between text-[10px] text-[#5f6368] dark:text-[#c4c7c5] px-1";
-    
-    if (esUsuario) {
-      pie.innerHTML = '<span class="ml-auto">Tú ' + (hora ? '· ' + hora : '') + '</span>';
+    var footer = document.createElement("div");
+    footer.className = "mt-1.5 flex items-center justify-between text-[10px] text-[#5f6368] dark:text-[#c4c7c5] px-1";
+
+    var copyLabel = getI18nText("chat.copyCode", null, "Copiar");
+
+    if (isUser) {
+      footer.innerHTML = '<span class="ml-auto">Tú ' + (time ? '· ' + time : '') + '</span>';
     } else {
-      var safeText = encodeURIComponent(texto);
-      pie.innerHTML =
-        '<span>' + nombreAgente + (hora ? ' · ' + hora : '') + '</span>' +
-        '<button onclick="copiarTexto(decodeURIComponent(\'' + safeText + '\'), this)" class="inline-flex items-center gap-1 text-[11px] text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#1a73e8] dark:hover:text-[#8ab4f8] transition">' +
+      var safeText = encodeURIComponent(text);
+      footer.innerHTML =
+        '<span>' + agentName + (time ? ' · ' + time : '') + '</span>' +
+        '<button onclick="window.copiarTexto(decodeURIComponent(\'' + safeText + '\'), this)" class="inline-flex items-center gap-1 text-[11px] text-[#5f6368] dark:text-[#c4c7c5] hover:text-[#1a73e8] dark:hover:text-[#8ab4f8] transition">' +
         '  <i data-lucide="copy" class="h-3 w-3"></i>' +
-        '  <span>Copiar</span>' +
+        '  <span>' + copyLabel + '</span>' +
         '</button>';
     }
 
-    caja.appendChild(burbuja);
-    caja.appendChild(pie);
-    fila.appendChild(caja);
-    contenedorMensajes.appendChild(fila);
+    box.appendChild(bubble);
+    box.appendChild(footer);
+    row.appendChild(box);
+    messagesContainer.appendChild(row);
 
     if (window.lucide) lucide.createIcons();
   }
 
-  function renderizarBurbujaCargando() {
-    var fila = document.createElement("div");
-    fila.id = "burbuja-cargando";
-    fila.className = "flex justify-start animate-fade-in";
-    fila.innerHTML =
+  /** Renderiza el indicador de carga animado de 4 colores Google */
+  function renderLoadingBubble() {
+    var row = document.createElement("div");
+    row.id = "burbuja-cargando";
+    row.className = "flex justify-start animate-fade-in";
+    var thinkingText = getI18nText("chat.thinking", null, "Generando respuesta…");
+
+    row.innerHTML =
       '<div class="flex items-center gap-2 rounded-3xl rounded-bl-sm border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-5 py-3.5 shadow-sm text-xs text-[#5f6368] dark:text-[#c4c7c5]">' +
       '  <div class="flex items-center gap-1">' +
       '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#4285F4]"></span>' +
@@ -206,229 +283,239 @@
       '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#FBBC04] [animation-delay:0.3s]"></span>' +
       '    <span class="h-2 w-2 animate-bounce rounded-full bg-[#34A853] [animation-delay:0.45s]"></span>' +
       '  </div>' +
-      '  <span>Pensando con DeepSeek…</span>' +
+      '  <span>' + thinkingText + '</span>' +
       '</div>';
-    contenedorMensajes.appendChild(fila);
-    desplazarAlFinal();
+    messagesContainer.appendChild(row);
+    scrollToBottom();
   }
 
-  function quitarBurbujaCargando() {
-    var el = document.getElementById("burbuja-cargando");
-    if (el) el.remove();
+  /** Remueve la burbuja de carga */
+  function removeLoadingBubble() {
+    var element = document.getElementById("burbuja-cargando");
+    if (element) element.remove();
   }
 
-  function desplazarAlFinal() {
-    contenedorMensajes.scrollTop = contenedorMensajes.scrollHeight;
+  /** Desplaza el contenedor de mensajes hasta el final */
+  function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
   // ------------------------------------------------------------------
   // Enviar Mensaje y Auto-Crecimiento de Textarea
   // ------------------------------------------------------------------
-  campoMensaje.addEventListener("input", function () {
+  messageInput.addEventListener("input", function () {
     this.style.height = "auto";
     this.style.height = Math.min(this.scrollHeight, 180) + "px";
   });
 
-  campoMensaje.addEventListener("keydown", function (e) {
+  messageInput.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      formMensaje.requestSubmit();
+      messageForm.requestSubmit();
     }
   });
 
-  formMensaje.addEventListener("submit", function (e) {
+  messageForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    var texto = campoMensaje.value.trim();
-    if (!texto || botonEnviar.disabled) return;
+    var text = messageInput.value.trim();
+    if (!text || sendButton.disabled) return;
 
-    if (!sesionActivaId) {
-      mostrarToast("No hay una conversación activa.");
+    if (!activeSessionId) {
+      showToast(getI18nText("chat.emptyHistory", null, "No hay una conversación activa."));
       return;
     }
 
-    // Limpiar pantalla de bienvenida
-    var bienvenida = contenedorMensajes.querySelector("h3");
-    if (bienvenida && bienvenida.textContent.indexOf("¡Hola!") !== -1) {
-      contenedorMensajes.innerHTML = "";
+    // Limpiar pantalla de bienvenida si estaba activa
+    var welcomeHeader = messagesContainer.querySelector("h3");
+    if (welcomeHeader && welcomeHeader.textContent.indexOf("¡Hola!") !== -1) {
+      messagesContainer.innerHTML = "";
     }
 
-    var ahora = new Date();
-    var hora = ahora.getHours().toString().padStart(2, "0") + ":" + ahora.getMinutes().toString().padStart(2, "0");
-    renderizarMensaje("user", texto, null, hora);
-    desplazarAlFinal();
+    var now = new Date();
+    var time = now.getHours().toString().padStart(2, "0") + ":" + now.getMinutes().toString().padStart(2, "0");
+    renderMessage("user", text, null, time);
+    scrollToBottom();
 
-    campoMensaje.value = "";
-    campoMensaje.style.height = "auto";
-    botonEnviar.disabled = true;
-    renderizarBurbujaCargando();
+    messageInput.value = "";
+    messageInput.style.height = "auto";
+    sendButton.disabled = true;
+    renderLoadingBubble();
 
-    fetch("/api/sesion/" + sesionActivaId + "/mensaje", {
+    fetch("/api/sesion/" + activeSessionId + "/mensaje", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mensaje: texto }),
+      body: JSON.stringify({ mensaje: text }),
     })
-      .then(function (r) {
-        return r.json().then(function (d) { return { ok: r.ok, datos: d }; });
+      .then(function (response) {
+        return response.json().then(function (data) { return { ok: response.ok, data: data }; });
       })
-      .then(function (res) {
-        quitarBurbujaCargando();
-        if (!res.ok) throw new Error(res.datos.error || "Error al comunicarse con DeepSeek.");
+      .then(function (result) {
+        removeLoadingBubble();
+        if (!result.ok) throw new Error(result.data.error || "Error al comunicarse con DeepSeek.");
 
-        renderizarMensaje("assistant", res.datos.respuesta, null, hora);
-        desplazarAlFinal();
+        renderMessage("assistant", result.data.respuesta, null, time, true, function () {
+          if (result.data.memoria_guardada) {
+            showToast(getI18nText("chat.memoryUpdated", null, "Memoria del agente actualizada"), "exito");
+          }
+        });
 
-        if (res.datos.memoria_guardada) {
-          mostrarToast("Hecho relevante aprendido en memoria viva.", "exito");
-        }
-
-        actualizarListaSesionesSidebar();
+        updateSidebarSessions();
       })
       .catch(function (error) {
-        quitarBurbujaCargando();
-        mostrarToast(error.message);
+        removeLoadingBubble();
+        showToast(error.message);
       })
       .finally(function () {
-        botonEnviar.disabled = false;
-        setTimeout(function () { campoMensaje.focus(); }, 50);
+        sendButton.disabled = false;
+        setTimeout(function () { messageInput.focus(); }, 50);
       });
   });
 
   // ------------------------------------------------------------------
   // Gestión de Sesiones (Hilos)
   // ------------------------------------------------------------------
-  window.crearNuevaConversacion = function () {
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/sesiones", {
+
+  /** Crea una nueva sesión de chat y la activa */
+  function createNewConversation() {
+    fetch("/api/agente/" + encodeURIComponent(agentName) + "/sesiones", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({}),
     })
-      .then(function (r) { return r.json(); })
-      .then(function (ses) {
-        sesionActivaId = ses.id;
-        document.body.dataset.sesionId = ses.id;
-        cargarMensajesSesion(ses.id);
-        actualizarListaSesionesSidebar();
-        mostrarToast("Nueva conversación iniciada.", "exito");
-        setTimeout(function () { campoMensaje.focus(); }, 50);
+      .then(function (response) { return response.json(); })
+      .then(function (session) {
+        activeSessionId = session.id;
+        document.body.dataset.sesionId = session.id;
+        loadSessionMessages(session.id);
+        updateSidebarSessions();
+        showToast(getI18nText("chat.newChat", null, "Nueva conversación iniciada."), "exito");
+        setTimeout(function () { messageInput.focus(); }, 50);
       })
       .catch(function () {
-        mostrarToast("No se pudo iniciar una nueva conversación.");
+        showToast("No se pudo iniciar una nueva conversación.");
       });
-  };
+  }
 
-  window.cambiarSesionActiva = function (sesionId) {
-    if (sesionId === sesionActivaId) return;
-    sesionActivaId = sesionId;
-    document.body.dataset.sesionId = sesionId;
-    cargarMensajesSesion(sesionId);
-    actualizarListaSesionesSidebar();
-  };
+  /** Cambia la conversación activa a la sesión especificada */
+  function switchActiveSession(sessionId) {
+    if (sessionId === activeSessionId) return;
+    activeSessionId = sessionId;
+    document.body.dataset.sesionId = sessionId;
+    loadSessionMessages(sessionId);
+    updateSidebarSessions();
+  }
 
-  function actualizarListaSesionesSidebar() {
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/sesiones")
-      .then(function (r) { return r.json(); })
-      .then(function (datos) {
-        var sesiones = datos.sesiones || [];
-        listaSesionesSidebar.innerHTML = "";
+  /** Actualiza la lista de hilos en la barra lateral */
+  function updateSidebarSessions() {
+    fetch("/api/agente/" + encodeURIComponent(agentName) + "/sesiones")
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        var sessions = data.sesiones || [];
+        sidebarSessionsList.innerHTML = "";
 
-        sesiones.forEach(function (s) {
-          var esActiva = s.id === sesionActivaId;
+        sessions.forEach(function (s) {
+          var isActive = s.id === activeSessionId;
           var div = document.createElement("div");
           div.setAttribute("data-sesion-item", s.id);
           div.setAttribute("data-sesion-titulo", s.titulo);
           div.className =
             "group relative flex items-center justify-between rounded-xl border p-2.5 transition " +
-            (esActiva
+            (isActive
               ? "border-[#1a73e8] bg-[#1a73e8]/10 font-bold text-[#1a73e8] dark:text-[#8ab4f8]"
               : "border-transparent hover:bg-black/5 dark:hover:bg-white/5 text-[#202124] dark:text-[#e3e3e3]");
 
           var safeTitle = (s.titulo || "").replace(/'/g, "\\'");
           div.innerHTML =
-            '<button onclick="cambiarSesionActiva(' + s.id + ')" class="min-w-0 flex-1 text-left">' +
+            '<button onclick="window.cambiarSesionActiva(' + s.id + ')" class="min-w-0 flex-1 text-left">' +
             '  <p class="truncate text-xs" title="' + safeTitle + '">' + s.titulo + '</p>' +
             '  <p class="mt-0.5 text-[10px] text-[#5f6368] dark:text-[#c4c7c5] font-normal">' + s.total_mensajes + ' msgs · ' + (s.actualizado_en ? s.actualizado_en.slice(0, 10) : "") + '</p>' +
             '</button>' +
             '<div class="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition">' +
-            '  <button onclick="abrirModalRenombrarSesion(' + s.id + ', \'' + safeTitle + '\')" title="Renombrar" class="rounded-lg p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white"><i data-lucide="pencil" class="h-3 w-3"></i></button>' +
-            '  <button onclick="confirmarEliminarSesion(' + s.id + ')" title="Eliminar" class="rounded-lg p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]"><i data-lucide="trash-2" class="h-3 w-3"></i></button>' +
+            '  <button onclick="window.abrirModalRenombrarSesion(' + s.id + ', \'' + safeTitle + '\')" title="Renombrar" class="rounded-lg p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-black/10 dark:hover:bg-white/10 hover:text-black dark:hover:text-white"><i data-lucide="pencil" class="h-3 w-3"></i></button>' +
+            '  <button onclick="window.confirmarEliminarSesion(' + s.id + ')" title="Eliminar" class="rounded-lg p-1 text-[#5f6368] dark:text-[#c4c7c5] hover:bg-[#EA4335]/20 hover:text-[#d93025] dark:hover:text-[#f28b82]"><i data-lucide="trash-2" class="h-3 w-3"></i></button>' +
             '</div>';
 
-          listaSesionesSidebar.appendChild(div);
+          sidebarSessionsList.appendChild(div);
         });
 
         if (window.lucide) lucide.createIcons();
       });
   }
 
-  window.abrirModalRenombrarSesion = function (sesionId, tituloActual) {
-    campoRenombrarId.value = sesionId;
-    campoRenombrarTitulo.value = tituloActual || "";
-    modalRenombrar.classList.remove("hidden");
-    modalRenombrar.classList.add("flex");
-    setTimeout(function () { campoRenombrarTitulo.focus(); }, 50);
-  };
+  /** Abre el modal para renombrar una sesión */
+  function openRenameModal(sessionId, currentTitle) {
+    renameSessionIdInput.value = sessionId;
+    renameTitleInput.value = currentTitle || "";
+    renameModal.classList.remove("hidden");
+    renameModal.classList.add("flex");
+    setTimeout(function () { renameTitleInput.focus(); }, 50);
+  }
 
-  window.cerrarModalRenombrarSesion = function () {
-    modalRenombrar.classList.add("hidden");
-    modalRenombrar.classList.remove("flex");
-  };
+  /** Cierra el modal de renombrado */
+  function closeRenameModal() {
+    renameModal.classList.add("hidden");
+    renameModal.classList.remove("flex");
+  }
 
-  window.guardarRenombrarSesion = function () {
-    var id = campoRenombrarId.value;
-    var nuevoTitulo = campoRenombrarTitulo.value.trim();
-    if (!nuevoTitulo) {
-      mostrarToast("El título no puede estar vacío.");
+  /** Guarda el nuevo título de la sesión */
+  function saveRenameSession() {
+    var id = renameSessionIdInput.value;
+    var newTitle = renameTitleInput.value.trim();
+    if (!newTitle) {
+      showToast("El título no puede estar vacío.");
       return;
     }
 
     fetch("/api/sesion/" + id, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ titulo: nuevoTitulo }),
+      body: JSON.stringify({ titulo: newTitle }),
     })
-      .then(function (r) { return r.json(); })
+      .then(function (response) { return response.json(); })
       .then(function () {
-        cerrarModalRenombrarSesion();
-        mostrarToast("Conversación renombrada.", "exito");
-        actualizarListaSesionesSidebar();
+        closeRenameModal();
+        showToast(getI18nText("chat.sessionRenamed", null, "Conversación renombrada"), "exito");
+        updateSidebarSessions();
       })
       .catch(function () {
-        mostrarToast("Error al renombrar la conversación.");
+        showToast("Error al renombrar la conversación.");
       });
-  };
+  }
 
-  window.confirmarEliminarSesion = function (sesionId) {
-    if (!confirm("¿Deseas eliminar este hilo de conversación y sus mensajes?")) return;
+  /** Confirma y ejecuta la eliminación de una sesión */
+  function confirmDeleteSession(sessionId) {
+    var confirmMessage = getI18nText("chat.deleteChatConfirm", null, "¿Estás seguro de eliminar este hilo de conversación?");
+    if (!confirm(confirmMessage)) return;
 
-    fetch("/api/sesion/" + sesionId, { method: "DELETE" })
-      .then(function (r) { return r.json(); })
+    fetch("/api/sesion/" + sessionId, { method: "DELETE" })
+      .then(function (response) { return response.json(); })
       .then(function () {
-        mostrarToast("Conversación eliminada.", "exito");
-        if (sesionId === sesionActivaId) {
-          fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/sesiones")
+        showToast(getI18nText("chat.sessionDeleted", null, "Conversación eliminada"), "exito");
+        if (sessionId === activeSessionId) {
+          fetch("/api/agente/" + encodeURIComponent(agentName) + "/sesiones")
             .then(function (res) { return res.json(); })
             .then(function (d) {
               if (d.sesiones && d.sesiones.length) {
-                cambiarSesionActiva(d.sesiones[0].id);
+                switchActiveSession(d.sesiones[0].id);
               } else {
-                crearNuevaConversacion();
+                createNewConversation();
               }
             });
         } else {
-          actualizarListaSesionesSidebar();
+          updateSidebarSessions();
         }
       })
       .catch(function () {
-        mostrarToast("Error al eliminar la conversación.");
+        showToast("Error al eliminar la conversación.");
       });
-  };
+  }
 
   // ------------------------------------------------------------------
   // Drawer de Gestión Integral del Agente (Slide-Over Panel)
   // ------------------------------------------------------------------
-  window.abrirModalGestionAgente = function () {
-    if (!modalGestionAgente) return;
-    modalGestionAgente.classList.remove("hidden");
+  function openAgentSettings() {
+    if (!agentSettingsModal) return;
+    agentSettingsModal.classList.remove("hidden");
     var backdrop = document.getElementById("drawer-agente-backdrop");
     var panel = document.getElementById("drawer-agente-panel");
     requestAnimationFrame(function () {
@@ -442,10 +529,10 @@
       }
     });
     if (window.lucide) lucide.createIcons();
-  };
+  }
 
-  window.cerrarModalGestionAgente = function () {
-    if (!modalGestionAgente) return;
+  function closeAgentSettings() {
+    if (!agentSettingsModal) return;
     var backdrop = document.getElementById("drawer-agente-backdrop");
     var panel = document.getElementById("drawer-agente-panel");
     if (backdrop) {
@@ -457,69 +544,73 @@
       panel.classList.add("translate-x-full");
     }
     setTimeout(function () {
-      modalGestionAgente.classList.add("hidden");
+      agentSettingsModal.classList.add("hidden");
     }, 300);
-  };
+  }
 
-  window.cambiarTabModalGestion = function (tab) {
+  function switchSettingsTab(tabName) {
     var tabs = ["perfil", "fuentes", "rol", "memoria"];
     tabs.forEach(function (t) {
-      var seccion = document.getElementById("tab-gestion-" + t);
-      var btn = document.getElementById("btn-tab-modal-" + t);
-      if (seccion) seccion.classList.toggle("hidden", t !== tab);
-      if (btn) {
-        if (t === tab) {
-          btn.className = "px-4 py-2 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white transition shrink-0";
+      var section = document.getElementById("tab-gestion-" + t);
+      var button = document.getElementById("btn-tab-modal-" + t);
+      if (section) section.classList.toggle("hidden", t !== tabName);
+      if (button) {
+        if (t === tabName) {
+          button.className = "px-4 py-2 rounded-xl font-bold bg-black/10 dark:bg-white/15 text-[#202124] dark:text-white transition shrink-0";
         } else {
-          btn.className = "px-4 py-2 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white transition shrink-0";
+          button.className = "px-4 py-2 rounded-xl font-semibold text-[#5f6368] dark:text-[#c4c7c5] hover:text-black dark:hover:text-white transition shrink-0";
         }
       }
     });
     if (window.lucide) lucide.createIcons();
-  };
+  }
 
-  selectIdentidad.addEventListener("change", function () {
-    bloqueCustom.classList.toggle("hidden", selectIdentidad.value !== "personalizada");
-  });
+  if (identitySelect) {
+    identitySelect.addEventListener("change", function () {
+      if (customIdentityBlock) {
+        customIdentityBlock.classList.toggle("hidden", identitySelect.value !== "personalizada");
+      }
+    });
+  }
 
   // ------------------------------------------------------------------
   // Manejo de Avatar e Imágenes en Chat
   // ------------------------------------------------------------------
-  window.subirAvatarArchivo = function (input, prefijo) {
+  function uploadAvatarFile(input, prefix) {
     if (!input.files || !input.files[0]) return;
     var file = input.files[0];
     var formData = new FormData();
     formData.append("avatar", file);
 
-    mostrarToast("Subiendo imagen…", "exito");
+    showToast("Subiendo imagen…", "exito");
     fetch("/api/upload/avatar", {
       method: "POST",
       body: formData,
     })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d.ok) throw new Error(d.error || "Error al subir imagen.");
-        window.actualizarAvatarUrlInput(d.url, prefijo);
-        mostrarToast("Imagen cargada con éxito.", "exito");
+      .then(function (response) { return response.json(); })
+      .then(function (data) {
+        if (!data.ok) throw new Error(data.error || "Error al subir imagen.");
+        updateAvatarUrlInput(data.url, prefix);
+        showToast("Imagen cargada con éxito.", "exito");
       })
       .catch(function (err) {
-        mostrarToast(err.message);
+        showToast(err.message);
       });
-  };
+  }
 
-  window.actualizarAvatarUrlInput = function (url, prefijo) {
-    var urlLimpia = (url || "").trim();
-    var previewImg = document.getElementById(prefijo + "-avatar-preview-img");
-    var previewInitials = document.getElementById(prefijo + "-avatar-preview-initials");
-    var campoUrl = document.getElementById(prefijo + "-campo-avatar-url");
-    var campoInput = document.getElementById(prefijo + "-campo-avatar-url-input");
+  function updateAvatarUrlInput(url, prefix) {
+    var cleanUrl = (url || "").trim();
+    var previewImg = document.getElementById(prefix + "-avatar-preview-img");
+    var previewInitials = document.getElementById(prefix + "-avatar-preview-initials");
+    var urlField = document.getElementById(prefix + "-campo-avatar-url");
+    var urlInputField = document.getElementById(prefix + "-campo-avatar-url-input");
 
-    if (campoUrl) campoUrl.value = urlLimpia;
-    if (campoInput && campoInput.value !== urlLimpia) campoInput.value = urlLimpia;
+    if (urlField) urlField.value = cleanUrl;
+    if (urlInputField && urlInputField.value !== cleanUrl) urlInputField.value = cleanUrl;
 
     if (previewImg && previewInitials) {
-      if (urlLimpia) {
-        previewImg.src = urlLimpia;
+      if (cleanUrl) {
+        previewImg.src = cleanUrl;
         previewImg.classList.remove("hidden");
         previewInitials.classList.add("hidden");
       } else {
@@ -528,80 +619,107 @@
         previewInitials.classList.remove("hidden");
       }
     }
-  };
+  }
 
-  window.limpiarAvatarSeleccionado = function (prefijo) {
-    window.actualizarAvatarUrlInput("", prefijo);
-    var inputFile = document.getElementById(prefijo + "-input-avatar-file");
+  function clearSelectedAvatar(prefix) {
+    updateAvatarUrlInput("", prefix);
+    var inputFile = document.getElementById(prefix + "-input-avatar-file");
     if (inputFile) inputFile.value = "";
-  };
+  }
 
-  formGestionAgente.addEventListener("submit", function (e) {
-    e.preventDefault();
-    var perfil = document.getElementById("editar-perfil").value.trim();
-    var custom = document.getElementById("editar-identidad-custom").value.trim();
-    var clave = selectIdentidad.value;
-    var avatarUrl = document.getElementById("chat-campo-avatar-url") ? document.getElementById("chat-campo-avatar-url").value.trim() : "";
+  if (agentSettingsForm) {
+    agentSettingsForm.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var profile = document.getElementById("editar-perfil").value.trim();
+      var customPrompt = document.getElementById("editar-identidad-custom").value.trim();
+      var roleKey = identitySelect.value;
+      var avatarUrl = document.getElementById("chat-campo-avatar-url") ? document.getElementById("chat-campo-avatar-url").value.trim() : "";
 
-    var seleccionadas = [];
-    document.querySelectorAll("input[name=editar_fuentes]:checked").forEach(function (cb) {
-      seleccionadas.push(parseInt(cb.value, 10));
-    });
+      var selectedSources = [];
+      document.querySelectorAll("input[name=editar_fuentes]:checked").forEach(function (cb) {
+        selectedSources.push(parseInt(cb.value, 10));
+      });
 
-    var payload = { perfil: perfil, avatar_url: avatarUrl, fuentes: seleccionadas };
-    if (clave === "personalizada") payload.identidad_custom = custom;
-    else payload.identidad = clave;
+      var payload = { perfil: profile, avatar_url: avatarUrl, fuentes: selectedSources };
+      if (roleKey === "personalizada") payload.identidad_custom = customPrompt;
+      else payload.identidad = roleKey;
 
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/editar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    })
-      .then(function (r) { return r.json(); })
-      .then(function () {
-        cerrarModalGestionAgente();
-        mostrarToast("Agente actualizado correctamente.", "exito");
-        setTimeout(function () { window.location.reload(); }, 500);
+      fetch("/api/agente/" + encodeURIComponent(agentName) + "/editar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       })
-      .catch(function () {
-        mostrarToast("Error al actualizar el agente.");
-      });
-  });
+        .then(function (response) { return response.json(); })
+        .then(function () {
+          closeAgentSettings();
+          showToast(getI18nText("chat.agentUpdated", null, "Agente actualizado exitosamente"), "exito");
+          setTimeout(function () { window.location.reload(); }, 500);
+        })
+        .catch(function () {
+          showToast("Error al actualizar el agente.");
+        });
+    });
+  }
 
-  window.abrirModalLimpiarMemoria = function () {
-    modalLimpiarMemoria.classList.remove("hidden");
-    modalLimpiarMemoria.classList.add("flex");
-  };
+  // ------------------------------------------------------------------
+  // Limpieza de Memoria
+  // ------------------------------------------------------------------
+  function openClearMemoryModal() {
+    clearMemoryModal.classList.remove("hidden");
+    clearMemoryModal.classList.add("flex");
+  }
 
-  window.cerrarModalLimpiarMemoria = function () {
-    modalLimpiarMemoria.classList.add("hidden");
-    modalLimpiarMemoria.classList.remove("flex");
-  };
+  function closeClearMemoryModal() {
+    clearMemoryModal.classList.add("hidden");
+    clearMemoryModal.classList.remove("flex");
+  }
 
-  window.ejecutarLimpiarMemoria = function () {
-    fetch("/api/agente/" + encodeURIComponent(nombreAgente) + "/limpiar", { method: "POST" })
-      .then(function (r) { return r.json(); })
+  function executeClearMemory() {
+    fetch("/api/agente/" + encodeURIComponent(agentName) + "/limpiar", { method: "POST" })
+      .then(function (response) { return response.json(); })
       .then(function () {
-        cerrarModalLimpiarMemoria();
-        if (modalGestionAgente) cerrarModalGestionAgente();
-        mostrarToast("Memoria viva del agente limpiada.", "exito");
+        closeClearMemoryModal();
+        if (agentSettingsModal) closeAgentSettings();
+        showToast(getI18nText("chat.memoryCleared", null, "Memoria eliminada correctamente"), "exito");
         setTimeout(function () { window.location.reload(); }, 500);
       });
-  };
+  }
 
-  // Carga inicial
-  if (sesionActivaId) {
-    cargarMensajesSesion(sesionActivaId);
+  // Exposición de funciones en window para compatibilidad hacia atrás
+  window.toggleSidebarChat = toggleSidebar;
+  window.cambiarAgenteActivo = changeActiveAgent;
+  window.filtrarHilosSidebar = filterSidebarThreads;
+  window.usarSugerencia = useSuggestion;
+  window.copiarTexto = copyToClipboard;
+  window.crearNuevaConversacion = createNewConversation;
+  window.cambiarSesionActiva = switchActiveSession;
+  window.abrirModalRenombrarSesion = openRenameModal;
+  window.cerrarModalRenombrarSesion = closeRenameModal;
+  window.guardarRenombrarSesion = saveRenameSession;
+  window.confirmarEliminarSesion = confirmDeleteSession;
+  window.abrirModalGestionAgente = openAgentSettings;
+  window.cerrarModalGestionAgente = closeAgentSettings;
+  window.cambiarTabModalGestion = switchSettingsTab;
+  window.subirAvatarArchivo = uploadAvatarFile;
+  window.actualizarAvatarUrlInput = updateAvatarUrlInput;
+  window.limpiarAvatarSeleccionado = clearSelectedAvatar;
+  window.abrirModalLimpiarMemoria = openClearMemoryModal;
+  window.cerrarModalLimpiarMemoria = closeClearMemoryModal;
+  window.ejecutarLimpiarMemoria = executeClearMemory;
+
+  // Carga inicial de mensajes
+  if (activeSessionId) {
+    loadSessionMessages(activeSessionId);
   } else {
-    crearNuevaConversacion();
+    createNewConversation();
   }
 
   // Tecla Escape para modales
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
-      cerrarModalGestionAgente();
-      cerrarModalLimpiarMemoria();
-      cerrarModalRenombrarSesion();
+      closeAgentSettings();
+      closeClearMemoryModal();
+      closeRenameModal();
     }
   });
 })();

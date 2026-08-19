@@ -1,13 +1,12 @@
-"""Definición de los prompts utilizados por el agente.
+"""Definición de las plantillas y generadores de prompts para los agentes.
 
-Aquí viven las plantillas de texto que se envían a DeepSeek.
-La identidad, el perfil, el conocimiento y la memoria se inyectan de
-forma dinámica: nunca están escritos directamente dentro de este archivo.
+Este módulo construye de manera dinámica los System Prompts inyectando la
+identidad del rol, el perfil de la persona, las bases de conocimiento y la
+memoria continua, además del prompt para evaluar y consolidar nuevos recuerdos.
 """
 
-# Plantilla del prompt de memoria: decide si una conversación aporta
-# información nueva que valga la pena recordar.
-PLANTILLA_MEMORIA = """Analiza la conversación.
+# Plantilla para evaluar si una interacción contiene datos relevantes para recordar
+MEMORY_PROMPT_TEMPLATE = """Analiza la conversación.
 
 Determina si apareció información NUEVA y RELEVANTE
 que debería recordarse para futuras conversaciones.
@@ -26,51 +25,67 @@ Si existe información nueva, devuelve únicamente
 los recuerdos que deberían almacenarse.
 
 MEMORIA ACTUAL:
-{memoria}
+{memory}
 
 CONVERSACIÓN:
-{conversacion}"""
+{conversation}"""
 
-# Marcadores dentro de los prompts de identidad.
-MARCA_NOMBRE = "[____]"
-MARCA_DOCUMENTO = "[información del documento]"
+# Marcadores dinámicos dentro de las identidades de rol
+NAME_MARKER = "[____]"
+DOCUMENT_MARKER = "[información del documento]"
+NO_MEMORY_TOKEN = "NO_MEMORIA"
 
 
-def procesar_identidad(prompt_identidad, nombre_persona):
-    """Reemplaza los marcadores del prompt de identidad.
+def process_identity(identity_prompt: str, person_name: str) -> str:
+    """Procesa los marcadores en el prompt del rol.
 
-    - [____] -> nombre de la persona representada.
-    - [información del documento] -> referencia a la base de conocimiento.
+    Reemplaza [____] por el nombre de la persona o tema, y [información del documento]
+    por la referencia a las bases de conocimiento asociadas.
     """
-    nombre = nombre_persona.strip() or "el tema de conversación"
-    prompt = prompt_identidad.replace(MARCA_NOMBRE, nombre)
-    prompt = prompt.replace(
-        MARCA_DOCUMENTO, "la información disponible en la base de conocimiento"
+    name = person_name.strip() or "el tema de conversación"
+    processed = identity_prompt.replace(NAME_MARKER, name)
+    processed = processed.replace(
+        DOCUMENT_MARKER, "la información disponible en la base de conocimiento"
     )
-    return prompt
+    return processed
 
 
-def construir_system_prompt(rol, perfil, conocimiento, memoria):
-    """Construye el System Prompt final.
+def build_system_prompt(role_prompt: str, profile: str, knowledge: str, memory: str) -> str:
+    """Construye el System Prompt completo para DeepSeek.
 
-    `rol` es el prompt de identidad ya procesado (ver procesar_identidad).
-    Luego se agregan las secciones de perfil, conocimiento y memoria.
+    Ensambla el rol procesado junto con el perfil detallado, el contenido
+    de las bases de conocimiento y los hechos almacenados en la memoria activa.
     """
-    return f"""{rol}
+    knowledge_text = knowledge.strip() if knowledge.strip() else "(sin conocimientos previos)"
+    memory_text = memory.strip() if memory.strip() else "(sin memorias almacenadas)"
+
+    return f"""{role_prompt}
 
 PERFIL:
-{perfil.strip()}
+{profile.strip()}
 
 BASE DE CONOCIMIENTO:
-{conocimiento.strip() if conocimiento.strip() else "(sin conocimientos previos)"}
+{knowledge_text}
 
 MEMORIA:
-{memoria.strip() if memoria.strip() else "(sin memorias almacenadas)"}"""
+{memory_text}"""
 
 
-def construir_prompt_memoria(memoria, conversacion):
-    """Construye el prompt que decide qué información recordar."""
-    return PLANTILLA_MEMORIA.format(
-        memoria=memoria.strip() if memoria.strip() else "(sin memorias almacenadas)",
-        conversacion=conversacion.strip(),
+def build_memory_prompt(memory: str, conversation: str) -> str:
+    """Construye el prompt de evaluación de memoria para identificar nuevos hechos."""
+    memory_text = memory.strip() if memory.strip() else "(sin memorias almacenadas)"
+    return MEMORY_PROMPT_TEMPLATE.format(
+        memory=memory_text,
+        conversation=conversation.strip(),
     )
+
+
+# ----------------------------------------------------------------------
+# Alias en español para compatibilidad hacia atrás
+# ----------------------------------------------------------------------
+PLANTILLA_MEMORIA = MEMORY_PROMPT_TEMPLATE
+MARCA_NOMBRE = NAME_MARKER
+MARCA_DOCUMENTO = DOCUMENT_MARKER
+procesar_identidad = process_identity
+construir_system_prompt = build_system_prompt
+construir_prompt_memoria = build_memory_prompt
