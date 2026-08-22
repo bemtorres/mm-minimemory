@@ -274,6 +274,7 @@ class Agente:
             respuesta = self.client.chat.completions.create(
                 model=MODELO,
                 messages=mensajes,
+                max_tokens=400,
             )
         except openai.AuthenticationError as error:
             raise RuntimeError(

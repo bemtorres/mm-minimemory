@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{{ agente.persona }} · Telegram</title>
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" type="image/svg+xml">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            tg: {
+              blue: "#2481cc",
+              blueDark: "#17212b",
+              headerLight: "#517da2",
+              headerDark: "#212d3b",
+              bgLight: "#8eaec4",
+              bgDark: "#0e1621",
+              bubbleInLight: "#ffffff",
+              bubbleInDark: "#182533",
+              bubbleOutLight: "#effedd",
+              bubbleOutDark: "#2b5278",
+              textLight: "#222222",
+              textDark: "#f5f5f5",
+              accent: "#5288c1",
+            }
+          },
+          fontFamily: {
+            sans: ["'Roboto'", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Helvetica Neue", "Arial", "sans-serif"],
+            mono: ["'JetBrains Mono'", "Consolas", "monospace"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
+
+  <style>
+    /* Permite seleccionar y copiar texto libremente */
+    .selectable-text {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+    }
+
+    /* Fondo con textura sutil de Telegram */
+    .tg-chat-bg-light {
+      background-color: #799bbb;
+      background-image: radial-gradient(#6c8da8 1px, transparent 1px), radial-gradient(#6c8da8 1px, #799bbb 1px);
+      background-size: 28px 28px;
+      background-position: 0 0, 14px 14px;
+    }
+    .tg-chat-bg-dark {
+      background-color: #0e1621;
+      background-image: radial-gradient(#182533 1.5px, transparent 1.5px), radial-gradient(#182533 1.5px, #0e1621 1.5px);
+      background-size: 32px 32px;
+      background-position: 0 0, 16px 16px;
+    }
+
+    /* Markdown dentro de las burbujas Telegram */
+    .prose-tg p { margin-bottom: 0.35rem; }
+    .prose-tg p:last-child { margin-bottom: 0; }
+    .prose-tg code {
+      font-family: 'JetBrains Mono', Consolas, monospace;
+      background: rgba(0,0,0,0.08);
+      padding: 0.12rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .dark .prose-tg code {
+      background: rgba(255,255,255,0.12);
+    }
+    .prose-tg pre {
+      background: rgba(0,0,0,0.15);
+      padding: 0.5rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      margin: 0.4rem 0;
+      font-size: 0.82em;
+    }
+    .dark .prose-tg pre {
+      background: #0f1822;
+    }
+    .prose-tg ul, .prose-tg ol { padding-left: 1.2rem; margin: 0.3rem 0; }
+    .prose-tg strong { font-weight: 700; }
+
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+    /* Animaciones suaves */
+    @keyframes msgTgIn {
+      from { opacity: 0; transform: translateY(8px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .anim-tg { animation: msgTgIn 0.2s cubic-bezier(0.1, 0.9, 0.2, 1); }
+
+    @keyframes tgWave {
+      0%, 100% { opacity: 0.3; transform: scaleY(0.6); }
+      50% { opacity: 1; transform: scaleY(1.3); }
+    }
+    .tg-bar-1 { animation: tgWave 0.8s infinite 0.0s; }
+    .tg-bar-2 { animation: tgWave 0.8s infinite 0.15s; }
+    .tg-bar-3 { animation: tgWave 0.8s infinite 0.3s; }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-0 sm:p-4 overflow-x-hidden font-sans"
+      data-agente="{{ agente.nombre }}"
+      data-sesion-id="{{ sesion_activa.id }}">
+
+  <!-- Toast Notificación de Copiado Telegram -->
+  <div id="tg-toast" class="hidden fixed top-6 z-[99] bg-sky-600 text-white font-semibold px-4 py-2 rounded-full shadow-2xl flex items-center gap-2 text-xs transition-all duration-300 transform -translate-y-2 opacity-0 select-none">
+    <i class="fa-solid fa-check-circle text-sm"></i>
+    <span id="tg-toast-text">¡Mensaje copiado al portapapeles!</span>
+  </div>
+
+  <!-- Botones Superiores Flotantes de Navegación & Control de Modo -->
+  <div class="fixed top-3 right-3 z-50 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/60 shadow-xl text-xs select-none">
+    <!-- Switcher de Tema Claro/Oscuro -->
+    <button onclick="toggleTema()" title="Cambiar Tema Telegram" class="text-slate-300 hover:text-sky-400 p-1 transition">
+      <i id="theme-icon" class="fa-solid fa-moon"></i>
+    </button>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Cambiar a WhatsApp -->
+    <a href="/agente/{{ agente.nombre }}/whatsaap" title="Abrir en estilo WhatsApp" class="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold transition px-1">
+      <i class="fa-brands fa-whatsapp"></i> <span class="hidden sm:inline">WhatsApp</span>
+    </a>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Cambiar a Vista Web Standard -->
+    <a href="/agente/{{ agente.nombre }}" title="Abrir vista web normal" class="text-slate-300 hover:text-white transition px-1">
+      <i class="fa-solid fa-desktop"></i> <span class="hidden sm:inline">Web</span>
+    </a>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Toggle Marco Móvil / Pantalla Completa en Desktop -->
+    <button onclick="toggleMarco()" title="Alternar Marco Móvil / Pantalla Completa" class="text-slate-300 hover:text-sky-400 p-1 transition">
+      <i id="frame-icon" class="fa-solid fa-mobile-screen"></i>
+    </button>
+  </div>
+
+  <!-- Contenedor del Smartphone / Vista Móvil Telegram -->
+  <div id="phone-wrapper" class="w-full sm:w-[410px] h-[100dvh] sm:h-[840px] sm:max-h-[92vh] bg-slate-950 sm:rounded-[44px] sm:ring-[10px] sm:ring-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden relative transition-all duration-300">
+
+    <!-- Notch / Dynamic Island del Teléfono -->
+    <div id="phone-notch" class="hidden sm:flex items-center justify-between px-7 pt-3 pb-1 bg-tg-headerLight dark:bg-tg-headerDark text-white text-[11px] font-semibold shrink-0 z-40 select-none">
+      <span id="live-clock">10:45</span>
+      <div class="w-20 h-4 bg-black/40 rounded-full flex items-center justify-center">
+        <div class="w-2 h-2 rounded-full bg-black/80 ring-1 ring-white/10 mr-2"></div>
+        <div class="w-1.5 h-1.5 rounded-full bg-sky-400/80"></div>
+      </div>
+      <div class="flex items-center gap-1.5 text-[10px]">
+        <i class="fa-solid fa-signal"></i>
+        <span class="text-[10px] font-bold">5G</span>
+        <i class="fa-solid fa-battery-full"></i>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         HEADER TELEGRAM
+         ============================================================ -->
+    <header class="bg-tg-headerLight dark:bg-tg-headerDark text-white px-3 py-2 flex items-center justify-between shadow-md shrink-0 z-30 transition-colors select-none">
+      <div class="flex items-center gap-2.5 min-w-0 flex-1">
+        <!-- Botón Volver -->
+        <a href="{{ volver_url or '/admin/telegram' }}" title="Volver a la lista de bots" class="p-1 text-white/90 hover:text-white active:scale-95 transition">
+          <i class="fa-solid fa-arrow-left text-base"></i>
+        </a>
+
+        <!-- Avatar del Bot/Contacto -->
+        <div onclick="abrirPerfilModal()" class="relative cursor-pointer shrink-0 active:scale-95 transition">
+          {% if agente.avatar_url %}
+          <img src="{{ agente.avatar_url }}" alt="{{ agente.persona }}" class="w-9 h-9 rounded-full object-cover border border-white/20">
+          {% else %}
+          <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow">
+            {{ agente.persona[:2].upper() }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Info del Contacto -->
+        <div onclick="abrirPerfilModal()" class="min-w-0 flex-1 cursor-pointer">
+          <h1 class="text-sm font-semibold truncate leading-tight text-white flex items-center gap-1.5">
+            {{ agente.persona }}
+            <span class="bg-white/20 text-[9px] px-1.5 py-0.2 rounded font-normal uppercase">bot</span>
+          </h1>
+          <p id="tg-status-text" class="text-[11px] text-sky-200 dark:text-sky-400 truncate leading-tight">en línea</p>
+        </div>
+      </div>
+
+      <!-- Iconos de Acción del Header -->
+      <div class="flex items-center gap-3 text-white/90 pr-1">
+        <button onclick="copiarTodoElChat()" title="Copiar conversación completa" class="hover:text-white active:scale-90 transition p-1">
+          <i class="fa-regular fa-copy text-sm"></i>
+        </button>
+        <button onclick="simularBuscar()" title="Buscar en mensajes" class="hover:text-white active:scale-90 transition p-1">
+          <i class="fa-solid fa-magnifying-glass text-sm"></i>
+        </button>
+        <button onclick="toggleMenuHeader()" title="Opciones" class="hover:text-white active:scale-90 transition p-1 relative">
+          <i class="fa-solid fa-ellipsis-vertical text-sm"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Menú Desplegable de 3 Puntos Telegram -->
+    <div id="tg-dropdown-menu" class="hidden absolute top-14 right-4 bg-white dark:bg-tg-headerDark text-slate-800 dark:text-slate-100 rounded-xl shadow-2xl py-2 w-52 border border-black/10 dark:border-white/10 z-50 text-xs anim-tg select-none">
+      <button onclick="copiarTodoElChat(); toggleMenuHeader();" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 text-sky-500 font-semibold">
+        <i class="fa-regular fa-copy w-4"></i> Copiar chat completo
+      </button>
+      <button onclick="abrirPerfilModal(); toggleMenuHeader();" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2">
+        <i class="fa-regular fa-id-badge text-sky-500 w-4"></i> Información del Bot
+      </button>
+      <button onclick="enviarComando('/start'); toggleMenuHeader();" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2">
+        <i class="fa-solid fa-rotate-right text-emerald-500 w-4"></i> Reiniciar Bot (/start)
+      </button>
+      <button onclick="limpiarChatVisual(); toggleMenuHeader();" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2">
+        <i class="fa-regular fa-trash-can text-red-500 w-4"></i> Limpiar historial
+      </button>
+      <div class="h-px bg-black/10 dark:bg-white/10 my-1"></div>
+      <a href="/admin/telegram" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 text-sky-500 font-semibold">
+        <i class="fa-solid fa-robot w-4"></i> Todos los Bots
+      </a>
+      <a href="/agente/{{ agente.nombre }}/whatsaap" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 text-emerald-500 font-semibold">
+        <i class="fa-brands fa-whatsapp w-4"></i> Abrir en WhatsApp
+      </a>
+      <a href="/agente/{{ agente.nombre }}" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 text-sky-500 font-semibold">
+        <i class="fa-solid fa-arrow-up-right-from-square w-4"></i> Versión Web Chat
+      </a>
+    </div>
+
+    <!-- ============================================================
+         CANVAS DE MENSAJES (ESTILO TELEGRAM)
+         ============================================================ -->
+    <main id="chat-messages-container" class="flex-1 overflow-y-auto px-3 py-3 space-y-2.5 tg-chat-bg-light dark:tg-chat-bg-dark transition-colors relative">
+      
+      <!-- Tarjeta Informativa del Bot Telegram -->
+      <div class="flex justify-center my-1 select-none">
+        <div class="bg-white/90 dark:bg-[#182533]/90 backdrop-blur-sm border border-black/5 dark:border-white/5 text-slate-800 dark:text-slate-200 text-xs p-3.5 rounded-2xl max-w-[92%] shadow-md text-center space-y-2">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 text-white flex items-center justify-center mx-auto shadow font-bold text-sm">
+            {{ agente.persona[:2].upper() }}
+          </div>
+          <h3 class="font-bold text-slate-900 dark:text-white">¿Qué puede hacer este bot?</h3>
+          <p class="text-[11.5px] text-slate-600 dark:text-slate-300 leading-relaxed">{{ agente.perfil[:140] }}...</p>
+          <div class="pt-1">
+            <button onclick="enviarComando('/start')" class="bg-sky-500 hover:bg-sky-600 active:scale-95 text-white font-bold text-[11px] px-4 py-1.5 rounded-xl shadow transition">
+              INICIAR (/start)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pastilla de Fecha Telegram -->
+      <div class="flex justify-center my-2 select-none">
+        <span class="bg-black/30 dark:bg-black/40 text-white text-[10.5px] font-medium px-3 py-0.5 rounded-full shadow-sm">
+          Hoy
+        </span>
+      </div>
+
+      <!-- Mensajes Iniciales / Renderizados -->
+      <div id="messages-list" class="space-y-2.5">
+        {% if mensajes %}
+          {% for m in mensajes %}
+            {% if m.rol == 'user' %}
+            <!-- Mensaje Saliente (Usuario) -->
+            <div class="flex justify-end anim-tg group">
+              <div class="relative max-w-[85%] bg-tg-bubbleOutLight dark:bg-tg-bubbleOutDark text-slate-900 dark:text-slate-100 rounded-2xl rounded-br-sm px-3.5 py-2 shadow-sm">
+                
+                <!-- Botón Flotante de Copiar Mensaje -->
+                <button onclick="copiarTextoMensaje(this)" title="Copiar texto" class="opacity-0 group-hover:opacity-100 focus:opacity-100 transition absolute -left-7 top-1 text-slate-400 hover:text-sky-400 p-1 text-xs">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+
+                <div class="text-[13px] leading-relaxed break-words selectable-text">{{ m.mensaje }}</div>
+                <div class="flex items-center justify-end gap-1 text-[10px] text-slate-500 dark:text-sky-200/70 mt-0.5 select-none">
+                  <span>{{ m.hora if m.hora else '10:45' }}</span>
+                  <i class="fa-solid fa-check-double text-sky-400 text-[10px]"></i>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <!-- Mensaje Entrante (Agente Bot) -->
+            <div class="flex justify-start items-end gap-1.5 anim-tg group">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mb-0.5 select-none">
+                {{ agente.persona[:1].upper() }}
+              </div>
+              <div class="relative max-w-[85%] bg-tg-bubbleInLight dark:bg-tg-bubbleInDark text-slate-900 dark:text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2 shadow-sm">
+                
+                <!-- Botón Flotante de Copiar Mensaje -->
+                <button onclick="copiarTextoMensaje(this)" title="Copiar texto" class="opacity-0 group-hover:opacity-100 focus:opacity-100 transition absolute -right-7 top-1 text-slate-400 hover:text-sky-400 p-1 text-xs">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+
+                <div class="text-[13px] leading-relaxed break-words prose-tg markdown-content selectable-text">{{ m.mensaje }}</div>
+                <div class="flex items-center justify-end gap-1 text-[10px] text-slate-400 dark:text-slate-400 mt-0.5 select-none">
+                  <span>{{ m.hora if m.hora else '10:45' }}</span>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <!-- Mensaje de bienvenida inicial -->
+          <div class="flex justify-start items-end gap-1.5 anim-tg group">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mb-0.5 select-none">
+              {{ agente.persona[:1].upper() }}
+            </div>
+            <div class="relative max-w-[85%] bg-tg-bubbleInLight dark:bg-tg-bubbleInDark text-slate-900 dark:text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2 shadow-sm">
+              
+              <button onclick="copiarTextoMensaje(this)" title="Copiar texto" class="opacity-0 group-hover:opacity-100 focus:opacity-100 transition absolute -right-7 top-1 text-slate-400 hover:text-sky-400 p-1 text-xs">
+                <i class="fa-regular fa-copy"></i>
+              </button>
+
+              <div class="text-[13px] leading-relaxed break-words prose-tg selectable-text">
+                👋 ¡Bienvenido! Soy <strong>{{ agente.persona }}</strong> en Telegram. Puedes escribirme cualquier pregunta o usar los comandos del menú inferior.
+              </div>
+              <div class="flex items-center justify-end gap-1 text-[10px] text-slate-400 mt-0.5 select-none">
+                <span>10:45</span>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Indicador "Escribiendo..." / Typing Telegram -->
+      <div id="tg-typing-bubble" class="hidden flex justify-start items-end gap-1.5 anim-tg select-none">
+        <div class="w-6 h-6 rounded-full bg-sky-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mb-0.5">
+          {{ agente.persona[:1].upper() }}
+        </div>
+        <div class="relative bg-tg-bubbleInLight dark:bg-tg-bubbleInDark rounded-2xl rounded-bl-sm px-4 py-2.5 shadow-sm flex items-center gap-1.5">
+          <span class="w-1.5 h-3 bg-sky-500 rounded-full tg-bar-1"></span>
+          <span class="w-1.5 h-3 bg-sky-500 rounded-full tg-bar-2"></span>
+          <span class="w-1.5 h-3 bg-sky-500 rounded-full tg-bar-3"></span>
+          <span class="text-[11.5px] text-slate-500 dark:text-slate-400 font-medium ml-1.5">escribiendo...</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bot Keyboard / Comandos Rápidos Telegram -->
+    <div class="bg-white/80 dark:bg-tg-headerDark/80 backdrop-blur-md px-3 py-1.5 border-t border-black/5 dark:border-white/5 flex items-center gap-1.5 overflow-x-auto shrink-0 z-20 text-[11.5px] select-none">
+      <button onclick="enviarComando('/start')" class="shrink-0 bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-300 hover:bg-sky-500 hover:text-white px-2.5 py-1 rounded-lg font-semibold transition active:scale-95">
+        /start
+      </button>
+      <button onclick="enviarComando('¿Cuáles son tus bases de conocimiento?')" class="shrink-0 bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-sky-500 hover:text-white px-2.5 py-1 rounded-lg font-medium transition active:scale-95">
+        📚 /bases
+      </button>
+      <button onclick="enviarComando('Hazme un resumen de tu contenido.')" class="shrink-0 bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-sky-500 hover:text-white px-2.5 py-1 rounded-lg font-medium transition active:scale-95">
+        📝 /resumen
+      </button>
+      <button onclick="enviarComando('¿Qué hechos recuerdas de mí en tu memoria?')" class="shrink-0 bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-200 hover:bg-sky-500 hover:text-white px-2.5 py-1 rounded-lg font-medium transition active:scale-95">
+        🧠 /memoria
+      </button>
+    </div>
+
+    <!-- ============================================================
+         BARRA DE ENTRADA TELEGRAM
+         ============================================================ -->
+    <footer class="bg-white dark:bg-tg-headerDark px-2 py-2 flex items-center gap-2 shrink-0 z-30 border-t border-black/5 dark:border-white/5 select-none">
+      
+      <!-- Botón Clip Adjunto -->
+      <button onclick="insertarComandoPrompt()" title="Adjuntar" class="p-2 text-slate-400 hover:text-sky-500 active:scale-90 transition">
+        <i class="fa-solid fa-paperclip text-lg"></i>
+      </button>
+
+      <!-- Input de Mensaje -->
+      <form id="tg-form" onsubmit="enviarMensaje(event)" class="flex-1 flex items-center">
+        <input id="tg-input" type="text" placeholder="Mensaje..." autocomplete="off"
+               oninput="onInputChange(this.value)"
+               class="w-full bg-transparent text-slate-900 dark:text-slate-100 placeholder-slate-400 text-[13.5px] px-2 py-1.5 outline-none">
+      </form>
+
+      <!-- Botón Emoji / Stickers -->
+      <button onclick="insertarEmoji('🚀')" title="Stickers / Emojis" class="p-2 text-slate-400 hover:text-sky-500 active:scale-90 transition">
+        <i class="fa-regular fa-face-smile text-lg"></i>
+      </button>
+
+      <!-- Botón Enviar Telegram -->
+      <button id="tg-btn-send" onclick="enviarMensajeClick()" title="Enviar"
+              class="w-9 h-9 rounded-full bg-tg-blue hover:bg-sky-600 text-white flex items-center justify-center shadow-md active:scale-90 transition">
+        <i class="fa-solid fa-paper-plane text-xs ml-0.5"></i>
+      </button>
+    </footer>
+
+    <!-- Home Bar Móvil -->
+    <div class="h-3 bg-white dark:bg-tg-headerDark flex items-center justify-center shrink-0">
+      <div class="w-28 h-1 bg-slate-400/40 dark:bg-white/20 rounded-full"></div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       MODAL: INFO DE BOT / PERFIL TELEGRAM
+       ============================================================ -->
+  <div id="tg-modal-perfil" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-tg-headerDark text-slate-900 dark:text-slate-100 rounded-3xl w-full max-w-sm max-h-[85vh] overflow-y-auto shadow-2xl border border-black/10 dark:border-white/10 p-5 anim-tg relative">
+      <button onclick="cerrarPerfilModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-white p-1">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+
+      <div class="text-center pt-2 pb-4 border-b border-black/10 dark:border-white/10 select-none">
+        {% if agente.avatar_url %}
+        <img src="{{ agente.avatar_url }}" alt="{{ agente.persona }}" class="w-20 h-20 rounded-full object-cover mx-auto shadow-lg border-2 border-sky-500">
+        {% else %}
+        <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 text-white font-bold text-2xl flex items-center justify-center mx-auto shadow-lg">
+          {{ agente.persona[:2].upper() }}
+        </div>
+        {% endif %}
+        <h2 class="text-base font-bold mt-3">{{ agente.persona }}</h2>
+        <p class="text-xs text-sky-500 dark:text-sky-400 font-semibold mt-0.5">@{{ agente.nombre }}_bot</p>
+      </div>
+
+      <div class="py-3 border-b border-black/10 dark:border-white/10 space-y-1">
+        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider select-none">Bio / Perfil</h3>
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line selectable-text">{{ agente.perfil }}</p>
+      </div>
+
+      <div class="py-3 border-b border-black/10 dark:border-white/10 space-y-1">
+        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider select-none">Rol Activo</h3>
+        <span class="inline-block bg-sky-500/10 dark:bg-sky-500/20 text-sky-600 dark:text-sky-300 text-xs px-2.5 py-1 rounded-md font-semibold">
+          {{ agente.identidad.nombre }}
+        </span>
+      </div>
+
+      <div class="pt-3 space-y-2">
+        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider select-none">Bases Conectadas</h3>
+        <div class="flex flex-wrap gap-1.5">
+          {% for f in agente.fuentes %}
+          <span class="text-[11px] bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-300 px-2.5 py-0.5 rounded-full">
+            📖 {{ f.nombre }}
+          </span>
+          {% else %}
+          <span class="text-xs text-slate-400 italic">Sin bases vinculadas.</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCRIPTS JAVASCRIPT TELEGRAM
+       ============================================================ -->
+  <script>
+    const agentName = document.body.dataset.agente;
+    const sessionId = document.body.dataset.sesionId;
+    const messagesContainer = document.getElementById("chat-messages-container");
+    const messagesList = document.getElementById("messages-list");
+    const tgInput = document.getElementById("tg-input");
+    const typingBubble = document.getElementById("tg-typing-bubble");
+    const statusText = document.getElementById("tg-status-text");
+
+    // Reloj dinámico
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const clockEl = document.getElementById("live-clock");
+      if (clockEl) clockEl.textContent = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Markdown render de mensajes existentes
+    document.querySelectorAll(".markdown-content").forEach(el => {
+      if (window.marked && window.DOMPurify) {
+        el.innerHTML = DOMPurify.sanitize(marked.parse(el.textContent, { breaks: true, gfm: true }));
+      }
+    });
+
+    // Auto scroll al fondo
+    function scrollToBottom() {
+      setTimeout(() => {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 50);
+    }
+    scrollToBottom();
+
+    // Notificación Toast Telegram
+    function showToast(text) {
+      const toast = document.getElementById("tg-toast");
+      const toastText = document.getElementById("tg-toast-text");
+      toastText.textContent = text || "¡Mensaje copiado al portapapeles!";
+      toast.classList.remove("hidden");
+      setTimeout(() => {
+        toast.classList.remove("opacity-0", "-translate-y-2");
+        toast.classList.add("opacity-100", "translate-y-0");
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.remove("opacity-100", "translate-y-0");
+        toast.classList.add("opacity-0", "-translate-y-2");
+        setTimeout(() => toast.classList.add("hidden"), 300);
+      }, 2500);
+    }
+
+    // Copiar mensaje individual
+    window.copiarTextoMensaje = function(btn) {
+      const bubble = btn.closest(".group");
+      if (!bubble) return;
+      const textContainer = bubble.querySelector(".selectable-text");
+      const textToCopy = textContainer ? textContainer.innerText.trim() : "";
+      if (!textToCopy) return;
+
+      copiarAlPortapapeles(textToCopy);
+      
+      const icon = btn.querySelector("i");
+      if (icon) {
+        icon.className = "fa-solid fa-check text-sky-400";
+        setTimeout(() => { icon.className = "fa-regular fa-copy"; }, 2000);
+      }
+      showToast("¡Mensaje copiado al portapapeles!");
+    };
+
+    // Copiar toda la conversación
+    window.copiarTodoElChat = function() {
+      const messages = [];
+      document.querySelectorAll("#messages-list .group").forEach(el => {
+        const isUser = el.classList.contains("justify-end");
+        const sender = isUser ? "Tú" : agentName;
+        const textEl = el.querySelector(".selectable-text");
+        if (textEl) {
+          messages.push(`[${sender}]: ${textEl.innerText.trim()}`);
+        }
+      });
+
+      if (messages.length === 0) {
+        showToast("No hay mensajes para copiar.");
+        return;
+      }
+
+      const fullTranscript = messages.join("\n\n");
+      copiarAlPortapapeles(fullTranscript);
+      showToast("¡Conversación completa copiada!");
+    };
+
+    function copiarAlPortapapeles(texto) {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(texto).catch(() => fallbackCopy(texto));
+      } else {
+        fallbackCopy(texto);
+      }
+    }
+
+    function fallbackCopy(texto) {
+      const textArea = document.createElement("textarea");
+      textArea.value = texto;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
+
+    // Toggle Tema
+    function toggleTema() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      document.getElementById("theme-icon").className = isDark ? "fa-solid fa-moon" : "fa-solid fa-sun";
+      localStorage.setItem("theythink_tg_theme", isDark ? "dark" : "light");
+    }
+
+    // Toggle Marco Móvil / Pantalla completa
+    function toggleMarco() {
+      const wrapper = document.getElementById("phone-wrapper");
+      const notch = document.getElementById("phone-notch");
+      const frameIcon = document.getElementById("frame-icon");
+      if (wrapper.classList.contains("sm:w-[410px]")) {
+        wrapper.classList.remove("sm:w-[410px]", "sm:h-[840px]", "sm:rounded-[44px]", "sm:ring-[10px]");
+        wrapper.classList.add("sm:w-full", "sm:h-screen");
+        notch.classList.add("hidden");
+        frameIcon.className = "fa-solid fa-compress";
+      } else {
+        wrapper.classList.add("sm:w-[410px]", "sm:h-[840px]", "sm:rounded-[44px]", "sm:ring-[10px]");
+        wrapper.classList.remove("sm:w-full", "sm:h-screen");
+        notch.classList.remove("hidden");
+        frameIcon.className = "fa-solid fa-mobile-screen";
+      }
+    }
+
+    function toggleMenuHeader() {
+      document.getElementById("tg-dropdown-menu").classList.toggle("hidden");
+    }
+
+    function abrirPerfilModal() {
+      document.getElementById("tg-modal-perfil").classList.remove("hidden");
+    }
+    function cerrarPerfilModal() {
+      document.getElementById("tg-modal-perfil").classList.add("hidden");
+    }
+
+    function simularBuscar() {
+      const q = prompt("Buscar mensaje en este chat de Telegram:");
+      if (q) {
+        alert(`Búsqueda simulada para: "${q}"`);
+      }
+    }
+
+    function insertarEmoji(emoji) {
+      tgInput.value += emoji;
+      tgInput.focus();
+    }
+
+    function insertarComandoPrompt() {
+      tgInput.value = "/ayuda ";
+      tgInput.focus();
+    }
+
+    function enviarComando(cmd) {
+      tgInput.value = cmd;
+      enviarMensajeClick();
+    }
+
+    function limpiarChatVisual() {
+      if (confirm("¿Deseas vaciar los mensajes visibles de este chat?")) {
+        messagesList.innerHTML = "";
+      }
+    }
+
+    function onInputChange(val) {}
+
+    // Envío de Mensaje al Backend Flask
+    function enviarMensajeClick() {
+      const text = tgInput.value.trim();
+      if (!text) return;
+
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      // 1. Agregar burbuja de usuario
+      const userBubble = document.createElement("div");
+      userBubble.className = "flex justify-end anim-tg group";
+      userBubble.innerHTML = `
+        <div class="relative max-w-[85%] bg-tg-bubbleOutLight dark:bg-tg-bubbleOutDark text-slate-900 dark:text-slate-100 rounded-2xl rounded-br-sm px-3.5 py-2 shadow-sm">
+          
+          <button onclick="copiarTextoMensaje(this)" title="Copiar texto" class="opacity-0 group-hover:opacity-100 focus:opacity-100 transition absolute -left-7 top-1 text-slate-400 hover:text-sky-400 p-1 text-xs">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+
+          <div class="text-[13px] leading-relaxed break-words selectable-text">${escapeHTML(text)}</div>
+          <div class="flex items-center justify-end gap-1 text-[10px] text-slate-500 dark:text-sky-200/70 mt-0.5 select-none">
+            <span>${timeStr}</span>
+            <i class="fa-solid fa-check text-slate-400 text-[10px]"></i>
+          </div>
+        </div>
+      `;
+      messagesList.appendChild(userBubble);
+      tgInput.value = "";
+      scrollToBottom();
+
+      // 2. Activar indicador escribiendo
+      typingBubble.classList.remove("hidden");
+      statusText.textContent = "escribiendo...";
+      scrollToBottom();
+
+      // 3. Petición al servidor Flask
+      fetch(`/api/sesion/${sessionId}/mensaje`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje: text })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Error al responder");
+        return res.json();
+      })
+      .then(data => {
+        typingBubble.classList.add("hidden");
+        statusText.textContent = "en línea";
+
+        // Marcar doble check en mensaje saliente
+        const lastCheck = userBubble.querySelector("i.fa-check");
+        if (lastCheck) {
+          lastCheck.className = "fa-solid fa-check-double text-sky-400 text-[10px]";
+        }
+
+        const agentText = data.respuesta || "No se pudo generar respuesta.";
+        const renderedHtml = window.marked && window.DOMPurify
+          ? DOMPurify.sanitize(marked.parse(agentText, { breaks: true, gfm: true }))
+          : escapeHTML(agentText).replace(/\n/g, "<br>");
+
+        const agentBubble = document.createElement("div");
+        agentBubble.className = "flex justify-start items-end gap-1.5 anim-tg group";
+        agentBubble.innerHTML = `
+          <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0 mb-0.5 select-none">
+            ${agentName.slice(0, 1).toUpperCase()}
+          </div>
+          <div class="relative max-w-[85%] bg-tg-bubbleInLight dark:bg-tg-bubbleInDark text-slate-900 dark:text-slate-100 rounded-2xl rounded-bl-sm px-3.5 py-2 shadow-sm">
+            
+            <button onclick="copiarTextoMensaje(this)" title="Copiar texto" class="opacity-0 group-hover:opacity-100 focus:opacity-100 transition absolute -right-7 top-1 text-slate-400 hover:text-sky-400 p-1 text-xs">
+              <i class="fa-regular fa-copy"></i>
+            </button>
+
+            <div class="text-[13px] leading-relaxed break-words prose-tg selectable-text">${renderedHtml}</div>
+            <div class="flex items-center justify-end gap-1 text-[10px] text-slate-400 mt-0.5 select-none">
+              <span>${timeStr}</span>
+            </div>
+          </div>
+        `;
+        messagesList.appendChild(agentBubble);
+        scrollToBottom();
+      })
+      .catch(err => {
+        typingBubble.classList.add("hidden");
+        statusText.textContent = "en línea";
+        const errBubble = document.createElement("div");
+        errBubble.className = "flex justify-start anim-tg";
+        errBubble.innerHTML = `
+          <div class="relative max-w-[85%] bg-red-100 dark:bg-red-950/80 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-300 rounded-2xl px-3.5 py-2 shadow-sm text-xs">
+            ⚠️ Ocurrió un problema al conectar con DeepSeek API. Verifica tu clave en .env.
+          </div>
+        `;
+        messagesList.appendChild(errBubble);
+        scrollToBottom();
+      });
+    }
+
+    function enviarMensaje(e) {
+      e.preventDefault();
+      enviarMensajeClick();
+    }
+
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        "'": '&#39;',
+        '"': '&quot;'
+      }[tag] || tag));
+    }
+  </script>
+
+  <!-- Modal Global de Términos y Condiciones -->
+  {% include "terminos_modal.html" %}
+</body>
+</html>

@@ -1504,12 +1504,19 @@ class AgenteDB:
             base_url="https://api.deepseek.com",
         )
 
-    def _enviar(self, mensajes):
-        """Realiza una llamada a la API de DeepSeek con manejo estructurado de errores."""
+    def _enviar(self, mensajes, max_tokens=400):
+        """Realiza una llamada a la API de DeepSeek con límite optimizado de tokens.
+
+        Rangos recomendados de max_tokens:
+        - Respuesta ultra corta: 100–150
+        - Chat normal (por defecto): 250–400
+        - Explicación técnica: 500–800
+        """
         try:
             respuesta = self.client.chat.completions.create(
                 model=MODELO,
                 messages=mensajes,
+                max_tokens=max_tokens if max_tokens else 400,
             )
         except openai.AuthenticationError as error:
             raise RuntimeError(
@@ -1597,7 +1604,7 @@ class AgenteDB:
     def obtener_historial(self, cantidad=HISTORIAL_RECIENTE, sesion_id=None):
         return obtener_historial(self.nombre, cantidad, sesion_id=sesion_id)
 
-    def preguntar(self, mensaje, sesion_id=None):
+    def preguntar(self, mensaje, sesion_id=None, max_tokens=400):
         self.guardar_conversacion("user", mensaje, sesion_id=sesion_id)
         historial = self.obtener_historial(sesion_id=sesion_id)
 
@@ -1606,7 +1613,7 @@ class AgenteDB:
             if contenido:
                 mensajes.append({"role": rol, "content": contenido})
 
-        respuesta = self._enviar(mensajes)
+        respuesta = self._enviar(mensajes, max_tokens=max_tokens)
 
         if not respuesta:
             raise RuntimeError("DeepSeek devolvió una respuesta vacía.")
@@ -1618,7 +1625,7 @@ class AgenteDB:
         conversacion = f"Usuario: {mensaje_usuario}\nAgente: {respuesta}"
         prompt = construir_prompt_memoria(self.memoria, conversacion)
         try:
-            contenido = self._enviar([{"role": "user", "content": prompt}])
+            contenido = self._enviar([{"role": "user", "content": prompt}], max_tokens=150)
         except RuntimeError:
             return []
         if not contenido or SIN_MEMORIA in contenido.upper():

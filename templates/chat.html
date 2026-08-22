@@ -106,22 +106,90 @@
           <i data-lucide="panel-left" class="h-4 w-4"></i>
         </button>
 
-        <!-- Selector Rápido de Agente -->
-        <div class="flex items-center gap-2 rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-[#1e1f20] px-3 py-1.5 shadow-sm">
-          {% if agente.avatar_url %}
-          <img src="{{ agente.avatar_url }}" alt="{{ agente.nombre }}"
-               class="h-6 w-6 shrink-0 rounded-lg object-cover">
-          {% else %}
-          <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-[#1a73e8] text-white font-bold text-[10px]">
-            {{ agente.nombre[:2].upper() }}
+        <!-- Selector Personalizado y Buscador de Agente (Mismo diseño que Language Dropdown) -->
+        <div class="relative inline-block text-left agent-dropdown" id="dropdown-agentes-header">
+          <button type="button" onclick="toggleAgentDropdown(event)" id="btn-agent-dropdown"
+                  class="inline-flex items-center gap-2 rounded-xl border border-black/10 dark:border-white/10 bg-white/80 dark:bg-[#1e1f20]/80 backdrop-blur-md px-3 py-1.5 text-xs font-semibold text-[#202124] dark:text-white shadow-sm hover:bg-black/5 dark:hover:bg-white/10 transition active:scale-95">
+            {% if agente.avatar_url %}
+            <img src="{{ agente.avatar_url }}" alt="{{ agente.nombre }}"
+                 class="h-6 w-6 shrink-0 rounded-lg object-cover">
+            {% else %}
+            <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-[10px]">
+              {{ agente.iniciales }}
+            </div>
+            {% endif %}
+            <span class="max-w-[110px] sm:max-w-[170px] truncate font-bold leading-tight text-[#202124] dark:text-white">{{ agente.persona }}</span>
+            <i data-lucide="chevron-down" id="chevron-agent-dropdown" class="h-3 w-3 text-[#5f6368] dark:text-[#c4c7c5] transition-transform duration-200"></i>
+          </button>
+
+          <!-- Menú Flotante con Buscador de Agentes -->
+          <div id="menu-agentes-dropdown"
+               class="hidden absolute left-0 mt-2 w-72 sm:w-80 rounded-2xl border border-black/10 dark:border-white/10 bg-white/95 dark:bg-[#1e1f20]/95 p-2 shadow-2xl backdrop-blur-xl z-50 transition-all duration-150 animate-fade-in">
+            
+            <!-- Cabecera del Dropdown -->
+            <div class="flex items-center justify-between px-2.5 py-1.5 border-b border-black/5 dark:border-white/5 mb-1.5">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-[#5f6368] dark:text-[#c4c7c5]">
+                Seleccionar Agente
+              </span>
+              <span class="text-[10px] bg-black/5 dark:bg-white/10 text-slate-600 dark:text-slate-300 px-2 py-0.2 rounded-full font-bold">
+                {{ todos_los_agentes_info|length }}
+              </span>
+            </div>
+
+            <!-- Buscador Pequeño Integrado -->
+            <div class="relative mb-2 px-1">
+              <i data-lucide="search" class="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"></i>
+              <input type="text" id="input-buscar-agente-header" placeholder="Buscar por nombre o rol..."
+                     oninput="filtrarAgentesHeader(this.value)"
+                     class="w-full rounded-xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 py-1.5 pl-8 pr-3 text-xs text-[#202124] dark:text-white outline-none focus:border-[#1a73e8] focus:bg-white dark:focus:bg-[#131314] transition">
+            </div>
+
+            <!-- Lista Scrollable de Agentes -->
+            <div class="max-h-60 overflow-y-auto space-y-1 pr-1" id="lista-agentes-header">
+              {% for ag_info in todos_los_agentes_info %}
+              <button type="button" onclick="cambiarAgenteActivo('{{ ag_info.nombre }}')"
+                      data-agente-item="{{ ag_info.nombre|lower }}"
+                      data-agente-persona="{{ ag_info.persona|lower }}"
+                      data-agente-rol="{{ ag_info.identidad.nombre|lower }}"
+                      class="agente-header-opcion w-full flex items-center justify-between gap-2 rounded-xl px-2.5 py-2 text-left text-xs transition {{ 'bg-black/5 dark:bg-white/10 font-bold' if ag_info.nombre == agente.nombre else 'hover:bg-black/5 dark:hover:bg-white/5 text-[#202124] dark:text-[#e3e3e3]' }}">
+                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                  {% if ag_info.avatar_url %}
+                  <img src="{{ ag_info.avatar_url }}" alt="{{ ag_info.nombre }}" class="h-7 w-7 shrink-0 rounded-lg object-cover">
+                  {% else %}
+                  <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-tr from-[#1a73e8] to-[#a142f4] text-white font-bold text-[10px]">
+                    {{ ag_info.iniciales }}
+                  </div>
+                  {% endif %}
+                  <div class="min-w-0 flex-1">
+                    <p class="text-xs font-bold leading-tight truncate text-[#202124] dark:text-white">{{ ag_info.persona }}</p>
+                    <p class="text-[10px] text-[#5f6368] dark:text-[#c4c7c5] truncate mt-0.5">{{ ag_info.identidad.nombre }}</p>
+                  </div>
+                </div>
+                {% if ag_info.nombre == agente.nombre %}
+                <i data-lucide="check" class="h-3.5 w-3.5 text-[#1a73e8] dark:text-[#8ab4f8] shrink-0"></i>
+                {% endif %}
+              </button>
+              {% endfor %}
+            </div>
+
+            <div id="no-agentes-header-msg" class="hidden p-4 text-center text-xs text-[#5f6368] dark:text-[#c4c7c5]">
+              No se encontraron agentes.
+            </div>
+
+            <!-- Footer del Dropdown con accesos directos -->
+            <div class="mt-1.5 pt-1.5 border-t border-black/5 dark:border-white/5 px-2 flex items-center justify-between text-[10px] text-[#5f6368] dark:text-[#c4c7c5]">
+              <a href="/admin/whatsaap" class="text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 font-semibold">
+                <i class="fa-brands fa-whatsapp text-xs"></i> WhatsApp
+              </a>
+              <a href="/admin/telegram" class="text-sky-600 dark:text-sky-400 hover:underline flex items-center gap-1 font-semibold">
+                <i class="fa-brands fa-telegram text-xs"></i> Telegram
+              </a>
+              <a href="/dashboard" class="text-[#1a73e8] dark:text-[#8ab4f8] hover:underline flex items-center gap-1 font-semibold">
+                <i data-lucide="layout-dashboard" class="h-3 w-3"></i> Dashboard
+              </a>
+            </div>
+
           </div>
-          {% endif %}
-          <select id="selector-cambio-agente" onchange="cambiarAgenteActivo(this.value)"
-                  class="bg-transparent text-xs font-bold text-[#202124] dark:text-white outline-none cursor-pointer">
-            {% for ag_nombre in todos_los_agentes %}
-            <option value="{{ ag_nombre }}" {{ 'selected' if ag_nombre == agente.nombre }}>{{ ag_nombre }}</option>
-            {% endfor %}
-          </select>
         </div>
       </div>
 
@@ -215,6 +283,20 @@
           </span>
           <i data-lucide="sliders-horizontal" class="h-3 w-3 text-[#5f6368] dark:text-[#c4c7c5]"></i>
         </button>
+
+        <!-- Botón Vista WhatsApp Móvil -->
+        <a href="/agente/{{ agente.nombre }}/whatsaap" title="Ver en estilo WhatsApp Móvil"
+           class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-2.5 py-1.5 text-xs font-bold transition active:scale-95 shadow-sm">
+          <i class="fa-brands fa-whatsapp text-sm text-emerald-500"></i>
+          <span class="hidden xl:inline">WhatsApp</span>
+        </a>
+
+        <!-- Botón Vista Telegram Móvil -->
+        <a href="/agente/{{ agente.nombre }}/telegram" title="Ver en estilo Telegram Móvil"
+           class="inline-flex items-center gap-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-600 dark:text-sky-400 border border-sky-500/20 px-2.5 py-1.5 text-xs font-bold transition active:scale-95 shadow-sm">
+          <i class="fa-brands fa-telegram text-sm text-sky-500"></i>
+          <span class="hidden xl:inline">Telegram</span>
+        </a>
 
         <!-- Botón Selector Modo Claro / Oscuro -->
         <button onclick="alternarTema()" title="Cambiar modo claro / oscuro" data-i18n-title="common.switchTheme"

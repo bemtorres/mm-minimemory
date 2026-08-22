@@ -651,9 +651,50 @@
       });
   }
 
+  /** Alterna la apertura/cierre del dropdown de selección de agente */
+  function toggleAgentDropdown(e) {
+    if (e) e.stopPropagation();
+    var menu = document.getElementById("menu-agentes-dropdown");
+    var chevron = document.getElementById("chevron-agent-dropdown");
+    if (!menu) return;
+    var isOpen = !menu.classList.contains("hidden");
+    if (isOpen) {
+      menu.classList.add("hidden");
+      if (chevron) chevron.style.transform = "rotate(0deg)";
+    } else {
+      menu.classList.remove("hidden");
+      if (chevron) chevron.style.transform = "rotate(180deg)";
+      var searchInput = document.getElementById("input-buscar-agente-header");
+      if (searchInput) {
+        searchInput.value = "";
+        filterHeaderAgents("");
+        setTimeout(function () { searchInput.focus(); }, 50);
+      }
+    }
+  }
+
+  /** Filtra los agentes en el dropdown del header en tiempo real */
+  function filterHeaderAgents(query) {
+    var q = (query || "").toLowerCase().trim();
+    var items = document.querySelectorAll(".agente-header-opcion");
+    var visibleCount = 0;
+    items.forEach(function (el) {
+      var nom = (el.dataset.agenteItem || "").toLowerCase();
+      var per = (el.dataset.agentePersona || "").toLowerCase();
+      var rol = (el.dataset.agenteRol || "").toLowerCase();
+      var match = nom.indexOf(q) !== -1 || per.indexOf(q) !== -1 || rol.indexOf(q) !== -1;
+      el.classList.toggle("hidden", !match);
+      if (match) visibleCount++;
+    });
+    var noMsg = document.getElementById("no-agentes-header-msg");
+    if (noMsg) noMsg.classList.toggle("hidden", visibleCount > 0);
+  }
+
   // Exposición de funciones en window para compatibilidad hacia atrás
   window.toggleSidebarChat = toggleSidebar;
   window.cambiarAgenteActivo = changeActiveAgent;
+  window.toggleAgentDropdown = toggleAgentDropdown;
+  window.filtrarAgentesHeader = filterHeaderAgents;
   window.filtrarHilosSidebar = filterSidebarThreads;
   window.usarSugerencia = useSuggestion;
   window.copiarTexto = copyToClipboard;
@@ -680,9 +721,26 @@
     createNewConversation();
   }
 
-  // Tecla Escape para modales
+  // Cierre al hacer clic fuera del dropdown de agentes
+  document.addEventListener("click", function (e) {
+    var dropdown = document.getElementById("dropdown-agentes-header");
+    var menu = document.getElementById("menu-agentes-dropdown");
+    var chevron = document.getElementById("chevron-agent-dropdown");
+    if (dropdown && menu && !dropdown.contains(e.target)) {
+      menu.classList.add("hidden");
+      if (chevron) chevron.style.transform = "rotate(0deg)";
+    }
+  });
+
+  // Tecla Escape para modales y dropdowns
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
+      var menu = document.getElementById("menu-agentes-dropdown");
+      var chevron = document.getElementById("chevron-agent-dropdown");
+      if (menu) {
+        menu.classList.add("hidden");
+        if (chevron) chevron.style.transform = "rotate(0deg)";
+      }
       closeAgentSettings();
       closeClearMemoryModal();
       closeRenameModal();

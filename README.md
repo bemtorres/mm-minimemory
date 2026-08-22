@@ -1,277 +1,253 @@
-# THEYTHINK AI — Intelligent Multi-Agent AI Platform
+# THEYTHINK AI: A Modular Cognitive Agent Architecture with Persistent Active Memory, Decoupled Knowledge Retrieval, and Multi-Channel Simulation
 
 <p align="center">
   <img src="theythinkai_logo.png" alt="THEYTHINK AI Logo" width="160" style="border-radius: 24px;" />
 </p>
 
 <p align="center">
-  <strong>Autonomous, Modular, Multi-Persona Conversational Platform powered by DeepSeek AI</strong><br>
-  <em>Persistent Active Memory · Decoupled Knowledge Bases · Dynamic Role Engine · Ergonomic Multi-Thread Chat</em>
+  <strong>Autonomous, Modular, Multi-Persona Cognitive Platform powered by DeepSeek AI</strong><br>
+  <em>Persistent Episodic Memory · Decoupled Knowledge Base Architecture · Dynamic Role Synthesis · Multi-Interface Simulation (Web, WhatsApp, Telegram)</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?style=flat&logo=python&logoColor=white" alt="Python Version" />
-  <img src="https://img.shields.io/badge/Framework-Flask-000000?style=flat&logo=flask&logoColor=white" alt="Flask" />
-  <img src="https://img.shields.io/badge/Database-SQLite-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite" />
-  <img src="https://img.shields.io/badge/LLM-DeepSeek_Chat-4D6BFE?style=flat" alt="DeepSeek AI" />
-  <img src="https://img.shields.io/badge/Design-Google_Material_%2F_HeroUI-4285F4?style=flat" alt="Design" />
+  <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat&logo=python&logoColor=white" alt="Python Version" /></a>
+  <a href="https://flask.palletsprojects.com/"><img src="https://img.shields.io/badge/Framework-Flask-000000?style=flat&logo=flask&logoColor=white" alt="Flask" /></a>
+  <a href="https://www.sqlite.org/"><img src="https://img.shields.io/badge/Database-SQLite3-003B57?style=flat&logo=sqlite&logoColor=white" alt="SQLite" /></a>
+  <a href="https://platform.deepseek.com/"><img src="https://img.shields.io/badge/LLM-DeepSeek_Chat-4D6BFE?style=flat" alt="DeepSeek AI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat" alt="License: MIT" /></a>
 </p>
 
 ---
 
-## 🌐 Language Navigation
-- [English Documentation](#-english-documentation)
-- [Documentación en Español](#-documentación-en-español)
+## 🌐 Language Selection
+- **[English Documentation (Current)](README.md)**
+- **[Documentación en Español](README.es.md)**
 
 ---
 
-# 🇺🇸 English Documentation
-
-## 🌟 Overview
-
-**THEYTHINK** is a state-of-the-art web platform engineered in Python (Flask) with an embedded SQLite persistence engine, designed to create, orchestrate, customize, and converse with autonomous AI agents powered by the **DeepSeek API**.
-
-Featuring **live persistent memory**, **decoupled multi-source knowledge bases**, **dynamic system prompt and role engineering**, **avatar/image asset uploads**, and an ergonomic **Material You / HeroUI** design with seamless **Dark / Light theme toggling**.
-
----
-
-## ✨ Key Features
-
-### 1. 💬 Ergonomic Multi-Thread Chat Interface
-- **Multiple Chat Threads per Agent**: Spawn parallel conversations without cluttering or overflowing the LLM context.
-- **Collapsible Sidebar with Live Search**: Filter, rename, and delete conversation threads in real time.
-- **Quick Agent Switcher**: Seamlessly toggle between characters directly in the chat header.
-- **Contextual One-Click Suggestions**: Start engaging immediately with tailored prompt cards.
-- **Instant Response Copy**: One-click markdown copy to clipboard with visual feedback.
-- **Hot-Settings Modal**: Inspect and modify persona traits, linked knowledge bases, and memory facts without leaving the chat room.
-
-### 2. 📊 Comprehensive Administrative Dashboard
-- **Real-Time KPI Metrics**: Live counters for total agents, knowledge bases, custom roles, registered users, and messages.
-- **Agent Manager**: Create and refine agents with full profile customization, avatar preview, and $N:M$ knowledge base assignment.
-- **Decoupled Knowledge Bases**: Independent topic sources reusable across multiple agents.
-- **Role & System Prompt Engineering**: In-browser CRUD to polish identity prompts and personality directives.
-- **User Administration (Show $\rightarrow$ Edit $\rightarrow$ Update)**: Detailed user profile cards, role hierarchy, and secure credential resets.
-- **Conversation Audit Explorer**: Global timeline view of all chats and messages across the platform.
-
-### 3. 🌓 Universal Light & Dark Mode
-- Global ☀️ / 🌙 theme switch persisted in `localStorage`.
-- Zero-flicker inline script ensuring smooth initial renders.
-- Tailored color palette inspired by Google Gemini & Material Design (`#1a73e8`, `#ea4335`, `#fbbc04`, `#34a853`).
-
-### 4. 🖼️ Avatar & Image Management
-- Secure local image uploads (`PNG`, `JPG`, `WEBP`, `GIF`, `SVG`) via `/api/upload/avatar`.
-- Remote image URL support with real-time preview in modals, catalog cards, and chat headers.
-
-### 5. 🧠 Persistent Active Memory
-- Evaluates dialogue turn-by-turn and extracts key facts and user preferences into SQLite, automatically de-duplicating memories.
-- Review and clear memory at any time through the agent configuration modal.
-
-### 6. 🎭 Preconfigured Personas & Canonical Figures
-Out of the box, **THEYTHINK** includes rich, authentic characters with verified knowledge sources:
-- **🌟 The Little Prince (`el_principito`)**: Philosophical, pure, and poetic voice from Asteroid B-612.
-- **🔍 Sherlock Holmes (`sherlock_holmes`)**: Razor-sharp Victorian deduction master from 221B Baker Street.
-- **⚔️ Don Quixote (`don_quijote`)**: Chivalrous Golden Age defender of justice and noble ideals.
-- **🏛️ Socrates (`socrates`)**: Socratic dialogue master and moral inquisitor of the Athenian Agora.
-- **⚡ Nikola Tesla (`nikola_tesla`)**: Visionary of alternating current, electromagnetism, and wireless energy.
-- **⚽ Colo-Colo Fan (`hincha_colocolo`)**: Passionate Chilean football fan, 1991 Copa Libertadores and club history expert.
-- **🦉 Universidad de Chile Fan (`hincha_udechile`)**: Unconditional *Romántico Viajero* fan, Ballet Azul and 2011 Copa Sudamericana expert.
-- **🧢 Chilean Urban Character (`el_flaite_chileno`)**: Authentic Chilean street slang (*coa*), urban culture, and neighborhood wisdom.
-- **👨‍🏫 Benjamin (`benjamin`)**, **🚀 Elon Musk (`elon_musk`)**, and **⚛️ Albert Einstein (`albert_einstein`)**.
+## 📑 Table of Contents
+1. [Abstract & Theoretical Framework](#-abstract--theoretical-framework)
+2. [System Architecture](#-system-architecture)
+3. [Core Technical Components](#-core-technical-components)
+4. [Token Conservation & Inference Optimization](#-token-conservation--inference-optimization)
+5. [Multi-Channel Interface Simulation](#-multi-channel-interface-simulation)
+6. [Database Schema & Persistence Topology](#-database-schema--persistence-topology)
+7. [Research & Future Development Vectors](#-research--future-development-vectors)
+8. [Installation & Deployment](#-installation--deployment)
+9. [License & Ethical Disclaimer](#-license--ethical-disclaimer)
 
 ---
 
-## 🏗️ Project Architecture
+## 🔬 Abstract & Theoretical Framework
+
+Conversational Large Language Models (LLMs) fundamentally operate as stateless autoregressive transformers. In vanilla execution environments, they suffer from three chronic architectural limitations:
+1. **Context Window Saturation & Drift:** Multi-turn dialogue rapidly exceeds attention bounds or dilutes system constraints.
+2. **Knowledge Coupling:** Domain-specific knowledge is traditionally hardcoded into monolithic system prompts or fine-tuned weights, preventing dynamic multi-tenant knowledge sharing.
+3. **Episodic Amnesia:** Models cannot retain facts across independent chat sessions without expensive retraining or complex vector infrastructure.
+
+**THEYTHINK AI** introduces a lightweight, deterministic cognitive middleware engineered in Python and SQLite that decouples **Identity Roles**, **Static Knowledge Bases**, and **Dynamic Episodic Memory**. By running real-time fact extraction loops and enforcing token budgeting algorithms, the platform maintains longitudinal agent coherence while minimizing inference overhead against the **DeepSeek API**.
 
 ```
-agente_deepseek/
-├── app.py                  -> Main Flask web server, REST API, auth decorators & routes.
-├── basededatos.py          -> SQLite layer (agentes.db), AgenteDB engine, schema migrations & seeders.
-├── identidades.py          -> System prompt templates, identity processors & role catalog.
-├── prompt.py               -> Dynamic prompt compiler & memory extraction builder.
-├── seed.py                 -> Standalone database seeder with personas & starter dialogues.
-├── requirements.txt        -> Python package requirements.
-├── .env.example            -> Environment variables template.
-├── templates/              -> Jinja2 HTML templates:
-│   ├── base.html           -> Root layout (themes, toast alerts, modals, Lucide icons).
-│   ├── index.html          -> Public landing page & visual agent showcase.
-│   ├── dashboard.html      -> Admin control suite (Agents, Bases, Roles, Users, History).
-│   ├── chat.html           -> Workspace chat room with sidebar, thread manager & live settings.
-│   └── login.html          -> Authentication portal.
-├── static/
-│   ├── css/
-│   │   └── app.css         -> Design system tokens, light/dark themes & micro-animations.
-│   ├── js/
-│   │   ├── dashboard.js    -> Dashboard state management, avatar uploads & CRUD handlers.
-│   │   └── chat.js         -> Real-time chat client, streaming UI, markdown & clipboard.
-│   └── uploads/
-│       └── avatars/        -> Directory for uploaded agent profile pictures.
-└── __old__/                -> Archived legacy CLI scripts (main.py, memoria.py, agents/).
+ +-------------------------------------------------------------------------+
+ |                            USER INTERFACES                              |
+ |   +--------------------+  +--------------------+  +-----------------+   |
+ |   | Material Web UI    |  | WhatsApp Simulator |  | Telegram Sim    |   |
+ |   +--------------------+  +--------------------+  +-----------------+   |
+ +------------------------------------+------------------------------------+
+                                      | HTTP / REST API
+ +------------------------------------v------------------------------------+
+ |                     CORE APPLICATION CONTROLLER                         |
+ |                       (Flask / Authentication)                          |
+ +------------------+-----------------------------------+------------------+
+                    |                                   |
+ +------------------v------------------+ +--------------v------------------+
+ |     PROMPT SYNTHESIS PIPELINE       | |    ACTIVE MEMORY EVALUATOR      |
+ |  - Marker Substitution ([____])     | |  - Turn-by-Turn Fact Extractor  |
+ |  - Conciseness Directive Enforcer   | |  - De-duplication Sanitizer     |
+ +------------------+------------------+ +--------------+------------------+
+                    |                                   |
+ +------------------v-----------------------------------v------------------+
+ |                       PERSISTENCE ENGINE (SQLite)                       |
+ |    [Agents]   [Knowledge Bases]   [Roles]   [Users]   [Sessions]        |
+ +------------------------------------+------------------------------------+
+                                      | HTTPS (Payload + Token Bound)
+ +------------------------------------v------------------------------------+
+ |                       DEEPSEEK INFERENCE ENGINE                         |
+ +-------------------------------------------------------------------------+
 ```
 
 ---
 
-## 🚀 Quickstart Guide
+## 🏛️ System Architecture
 
-### 1. Clone Repository
-```bash
-git clone <repository-url>
-cd agente_deepseek
-```
+THEYTHINK AI follows a layered, modular architecture:
 
-### 2. Set Up Virtual Environment
+### 1. Presentation & Multi-Channel Layer
+- **Responsive Web Workspace:** Built with Tailwind CSS and Google Material You / HeroUI aesthetics, featuring zero-flicker dark/light themes and collapsible multi-thread navigation.
+- **WhatsApp Mobile Simulator (`/admin/whatsaap`):** High-fidelity mobile canvas featuring real-time typing indicators, read receipts (`✓✓`), audio note waveforms, and contact management.
+- **Telegram Mobile Simulator (`/admin/telegram`):** Bot-centric mobile view with `/start` command cards, quick bot keyboards, drawer menus, and inline copy shortcuts.
 
-**Windows (PowerShell):**
-```powershell
-python -m venv venv
-.\venv\Scripts\activate
-```
+### 2. Cognitive Orchestration Layer (`app.py`, `basededatos.py`)
+- Manages secure user authentication, role-based access control (RBAC), and session multi-threading.
+- Coordinates between user queries, context retrieval, API calls, and background memory synthesis.
 
-**Linux / macOS:**
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
+### 3. Dynamic Prompt Synthesis Engine (`prompt.py`, `identidades.py`)
+- Dynamically compiles composite System Prompts by merging:
+  $$\text{SystemPrompt} = \mathcal{T}_{\text{tokens}}\Big( \mathcal{R}(\text{Role}, \text{EntityName}) \oplus \text{Profile} \oplus \sum \text{KnowledgeSources} \oplus \text{ActiveMemory} \Big)$$
+- Injects universal conciseness directives that force concise, highly factual outputs.
 
-### 3. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 4. Configure Environment Variables
-Copy `.env.example` to `.env`:
-```bash
-# Windows
-copy .env.example .env
-
-# Linux / macOS
-cp .env.example .env
-```
-
-Set your DeepSeek API key:
-```env
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-FLASK_SECRET_KEY=custom_session_secret_key_here
-```
-
-### 5. Seed the Database (Optional)
-Populate sample agents, knowledge bases, and dialogue history:
-```bash
-python seed.py
-```
-*(Use `python seed.py --force` to reset the database at any time).*
-
-### 6. Launch the Server
-```bash
-python app.py
-```
-
-Navigate to:
-👉 **[http://localhost:5000](http://localhost:5000)**
+### 4. Episodic Memory Consolidation Loop
+- At the conclusion of each dialogue turn, an asynchronous evaluation prompt inspects the exchange for novel persistent facts, updating the agent's SQLite memory table without duplicate redundancy.
 
 ---
 
-## 🔑 Default Credentials
+## ⚡ Token Conservation & Inference Optimization
 
-- **Username:** `admin`
-- **Password:** `admin123`
+To maximize inference velocity and minimize operational API expenditure, THEYTHINK AI enforces deterministic token boundaries across three operational tiers:
 
-*(Can be updated anytime from the Admin Dashboard $\rightarrow$ My Account).*
+| Response Tier | Recommended `max_tokens` | Algorithmic Application |
+| :--- | :---: | :--- |
+| **Ultra-Short / Memory Evaluation** | `100 – 150` | Background fact extraction and memory consolidation (`actualizar_memoria`). |
+| **Standard Conversational Turn** | `250 – 400` | Default interactive chat threshold (`preguntar`, WhatsApp & Telegram messaging). |
+| **Technical / In-Depth Synthesis** | `500 – 800` | Analytical explanations and code synthesis upon explicit parameter invocation. |
+
+### Universal Behavioral Directive
+Every System Prompt synthesized by `prompt.py` includes mandatory conciseness constraints:
+- Deliver direct, clear, and focused responses.
+- Utilize only the necessary information to resolve the prompt.
+- Never repeat or rephrase the user's question.
+- Omit conversational filler, unsolicited introductions, and redundant conclusions.
+- Prioritize concise density (2 to 5 targeted sentences).
 
 ---
 
-## 📡 REST API Reference
+## 📱 Multi-Channel Interface Simulation
 
-| Method | Endpoint | Description |
+| Route | Interface Mode | Architectural Capabilities |
 | :--- | :--- | :--- |
-| `POST` | `/login` | User session authentication. |
-| `GET` | `/logout` | Terminate session. |
-| `GET` | `/api/agentes` | List all registered agents. |
-| `POST` | `/api/agentes` | Create a new agent. |
-| `GET` | `/api/agente/<nombre>` | Retrieve agent details, profile, role, and linked bases. |
-| `POST` | `/api/agente/<nombre>/editar` | Update agent configuration, profile, avatar, or sources. |
-| `DELETE` | `/api/agente/<nombre>` | Delete agent and associated history. |
-| `POST` | `/api/agente/<nombre>/chat` | Send message to DeepSeek and trigger active memory. |
-| `POST` | `/api/agente/<nombre>/sesiones` | Spawn a new conversation thread. |
-| `PUT` | `/api/sesion/<id>` | Rename conversation thread title. |
-| `DELETE` | `/api/sesion/<id>` | Delete conversation thread. |
-| `GET` | `/api/fuentes` | List decoupled knowledge bases. |
-| `POST` | `/api/fuentes` | Create a knowledge base. |
-| `POST` | `/api/upload/avatar` | Upload agent profile picture. |
-| `GET` | `/api/roles` | List available system and custom roles. |
-| `POST` | `/api/roles` | Register a new role / system prompt. |
-
----
----
-
-# 🇪🇸 Documentación en Español
-
-## 🌟 Descripción General
-
-**THEYTHINK** es una plataforma web desarrollada en **Python (Flask)** con base de datos **SQLite**, diseñada para crear, personalizar y conversar con agentes inteligentes respaldados por el modelo **DeepSeek**, con **memoria viva persistente**, **bases de conocimiento desacopladas**, **roles dinámicos**, **avatares personalizados** y una interfaz moderna con **Modo Claro / Modo Oscuro** inspirada en **Google Gemini** y **HeroUI**.
+| `/agente/<name>` | **Desktop Web Canvas** | Multi-thread sidebar, hot-settings modal, language switcher (6 locales), live audit logs. |
+| `/admin/whatsaap` | **WhatsApp Directory** | Mobile contact index, search filter, status stories carousel, unread badge indicators. |
+| `/admin/whatsaap/<name>` | **WhatsApp Chat** | Smartphone viewport, typing simulator, message-level 1-click clipboard copy, audio note simulation. |
+| `/admin/telegram` | **Telegram Directory** | Bot catalog, sliding navigation drawer, category tabs, real-time query filter. |
+| `/admin/telegram/<name>` | **Telegram Chat** | Bot command keyboard (`/start`, `/bases`, `/resumen`, `/memoria`), inline message actions. |
 
 ---
 
-## ✨ Funcionalidades Destacadas
+## 🗄️ Database Schema & Persistence Topology
 
-### 1. 💬 Sala de Chat Multihilo y Ergonómica
-- **Múltiples hilos de chat** por agente para organizar conversaciones por tema.
-- **Barra lateral colapsable** con buscador en tiempo real y gestión de hilos.
-- **Selector rápido** de agente en la cabecera sin salir del chat.
-- **Preguntas sugeridas** de un clic para iniciar de forma ágil.
-- **Botón de copiado** con feedback visual instantáneo.
-- **Modal de ajustes en caliente** para calibrar perfil, rol, bases y memoria en vivo.
+The persistence layer is managed within SQLite (`agentes.db`):
 
-### 2. 📊 Dashboard Administrativo Completo
-- **Tarjetas KPI** con métricas en tiempo real de agentes, bases, roles, usuarios y mensajes.
-- **Gestión de Agentes**: Creación y edición con previsualización de avatar y asociación $N:M$ de bases de conocimiento.
-- **Bases de Conocimiento Desacopladas**: Fuentes reutilizables entre múltiples agentes.
-- **Mantenedor de Roles**: Creación y edición de System Prompts personalizados directamente desde la web.
-- **Administración de Usuarios (Show $\rightarrow$ Edit $\rightarrow$ Update)**: Fichas de detalle y actualización de credenciales.
-- **Explorador de Historiales**: Auditoría global de conversaciones y mensajes.
+```sql
+-- Core Agent Entity
+CREATE TABLE agentes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT UNIQUE NOT NULL,
+    perfil TEXT NOT NULL,
+    conocimiento TEXT DEFAULT '',
+    memoria TEXT DEFAULT '',
+    identidad_clave TEXT DEFAULT '',
+    identidad_custom TEXT DEFAULT '',
+    avatar_url TEXT DEFAULT '',
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-### 3. 🌓 Modo Claro y Modo Oscuro
-- Conmutador universal Sol ☀️ / Luna 🌙 con persistencia en `localStorage`.
-- Script anti-parpadeo inline para carga instantánea sin saltos de color.
-- Paleta Google Material You (`#1a73e8`, `#ea4335`, `#fbbc04`, `#34a853`).
+-- Decoupled Knowledge Bases
+CREATE TABLE fuentes_conocimiento (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nombre TEXT UNIQUE NOT NULL,
+    contenido TEXT NOT NULL,
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-### 4. 🖼️ Soporte de Imágenes y Avatares
-- Carga de imágenes locales (`PNG`, `JPG`, `WEBP`, `GIF`, `SVG`) mediante `/api/upload/avatar`.
-- URLs externas con previsualización inmediata.
+-- N:M Association Matrix (Agents <-> Knowledge Bases)
+CREATE TABLE agente_fuentes (
+    agente_id INTEGER REFERENCES agentes(id) ON DELETE CASCADE,
+    fuente_id INTEGER REFERENCES fuentes_conocimiento(id) ON DELETE CASCADE,
+    PRIMARY KEY (agente_id, fuente_id)
+);
 
-### 5. 🧠 Memoria Viva Inteligente
-- Extracción y consolidación automática de hechos aprendidos durante las conversaciones, evitando duplicados.
+-- Dynamic System Roles & Personas
+CREATE TABLE roles (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    clave TEXT UNIQUE NOT NULL,
+    nombre TEXT NOT NULL,
+    descripcion TEXT DEFAULT '',
+    prompt TEXT NOT NULL,
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
-### 6. 🎭 Catálogo de Personajes
-- **El Principito (`el_principito`)**, **Sherlock Holmes (`sherlock_holmes`)**, **Don Quijote (`don_quijote`)**, **Sócrates (`socrates`)**, **Nikola Tesla (`nikola_tesla`)**, **Hincha de Colo-Colo (`hincha_colocolo`)**, **Hincha de la U (`hincha_udechile`)**, **Flaite Chileno (`el_flaite_chileno`)**, **Benjamin (`benjamin`)**, **Elon Musk (`elon_musk`)** y **Albert Einstein (`albert_einstein`)**.
+-- Multi-Thread Chat Sessions & Transcripts
+CREATE TABLE sesiones_chat (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agente_nombre TEXT REFERENCES agentes(nombre) ON DELETE CASCADE,
+    titulo TEXT NOT NULL,
+    creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+    actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP
+);
 
----
-
-## 🚀 Instalación y Uso Rápido
-
-```bash
-# 1. Crear y activar entorno virtual
-python -m venv venv
-.\venv\Scripts\activate      # Windows
-source venv/bin/activate    # Linux / macOS
-
-# 2. Instalar dependencias
-pip install -r requirements.txt
-
-# 3. Configurar variables de entorno
-cp .env.example .env        # Configura tu DEEPSEEK_API_KEY
-
-# 4. Poblar datos iniciales (opcional)
-python seed.py
-
-# 5. Iniciar la plataforma
-python app.py
+CREATE TABLE conversaciones (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    agente_nombre TEXT NOT NULL,
+    sesion_id INTEGER REFERENCES sesiones_chat(id) ON DELETE CASCADE,
+    fecha TEXT NOT NULL,
+    hora TEXT NOT NULL,
+    rol TEXT NOT NULL,
+    mensaje TEXT NOT NULL
+);
 ```
 
-Abre en tu navegador: **[http://localhost:5000](http://localhost:5000)**
+---
+
+## 🚀 Research & Future Development Vectors
+
+The modular architecture of THEYTHINK AI provides a foundation for academic research and advanced engineering extensions:
+
+1. **Multi-Agent Deliberation Networks:** Implementing consensus protocols where multiple agents (e.g., *Albert Einstein*, *Socrates*, and *Nikola Tesla*) engage in structured inter-agent debate rounds.
+2. **Hybrid Dense/Sparse Vector RAG:** Integrating local SQLite vector extensions (`sqlite-vss` or ChromaDB) alongside the existing decoupled knowledge base engine.
+3. **Autonomous Tool Augmentation (Function Calling):** Equipping agents with deterministic tool sandboxes for live web searching, Python code execution, and database querying.
+4. **Speech-to-Speech Streaming Pipelines:** Connecting Whisper/WebAudio streaming input directly to low-latency neural TTS synthesis for native voice interaction in the mobile simulators.
 
 ---
 
-## 🔑 Credenciales por Defecto
+## 📦 Installation & Deployment
 
-- **Usuario:** `admin`
-- **Contraseña:** `admin123`
+Consult **[INSTALL.md](INSTALL.md)** for exhaustive deployment documentation.
+
+### Rapid Setup (Windows 1-Click)
+1. Run the automated installer:
+   ```cmd
+   install.bat
+   ```
+2. Start the platform anytime via:
+   ```cmd
+   iniciar.bat
+   ```
+
+### Manual Installation (All Platforms)
+```bash
+# 1. Initialize virtual environment
+python -m venv venv
+source venv/bin/activate       # Linux/macOS
+.\venv\Scripts\activate        # Windows
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Configure environment credentials
+cp .env.example .env           # Provide your DEEPSEEK_API_KEY in .env
+
+# 4. Seed database with canonical agents and roles
+python seed.py
+
+# 5. Launch application server
+python app.py
+```
+Open **[http://localhost:5000](http://localhost:5000)** in your browser. Default credentials: `admin` / `admin123`.
+
+---
+
+## ⚖️ License & Ethical Disclaimer
+
+This project is licensed under the **[MIT License](LICENSE)**.
+
+> **AI Disclaimer:** Responses generated by agents are produced automatically by large language models (DeepSeek API). The development team and the THEYTHINK initiative assume no responsibility for the veracity, factual accuracy, or potential hallucinations of generated outputs. Users are explicitly warned **not to input real, sensitive, confidential, or proprietary personal data** into conversational streams or knowledge bases.

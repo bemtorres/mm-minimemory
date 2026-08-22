@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Telegram · Bots & Contactos</title>
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" type="image/svg+xml">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            tg: {
+              blue: "#2481cc",
+              blueDark: "#17212b",
+              headerLight: "#517da2",
+              headerDark: "#212d3b",
+              bgLight: "#ffffff",
+              bgDark: "#0e1621",
+              itemHoverLight: "#f4f4f5",
+              itemHoverDark: "#182533",
+              accent: "#5288c1",
+            }
+          },
+          fontFamily: {
+            sans: ["'Roboto'", "-apple-system", "BlinkMacSystemFont", "'Segoe UI'", "Helvetica Neue", "Arial", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* Scrollbar personalizada */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-fade { animation: fadeIn 0.18s ease-out; }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-0 sm:p-4 overflow-x-hidden select-none font-sans">
+
+  <!-- Controles Superiores Flotantes (Desktop) -->
+  <div class="fixed top-3 right-3 z-50 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/60 shadow-xl text-xs">
+    <!-- Switcher de Tema Claro/Oscuro -->
+    <button onclick="toggleTema()" title="Cambiar Tema Telegram" class="text-slate-300 hover:text-sky-400 p-1 transition">
+      <i id="theme-icon" class="fa-solid fa-moon"></i>
+    </button>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Cambiar a WhatsApp Lista -->
+    <a href="/admin/whatsaap" title="Abrir lista en estilo WhatsApp" class="flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold transition px-1">
+      <i class="fa-brands fa-whatsapp"></i> <span class="hidden sm:inline">WhatsApp</span>
+    </a>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Volver al Dashboard -->
+    <a href="/dashboard" title="Ir al Dashboard de Administración" class="text-slate-300 hover:text-white transition px-1 flex items-center gap-1">
+      <i class="fa-solid fa-gauge-high"></i> <span class="hidden sm:inline">Dashboard</span>
+    </a>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Toggle Marco Móvil -->
+    <button onclick="toggleMarco()" title="Alternar Marco Móvil / Pantalla Completa" class="text-slate-300 hover:text-sky-400 p-1 transition">
+      <i id="frame-icon" class="fa-solid fa-mobile-screen"></i>
+    </button>
+  </div>
+
+  <!-- Contenedor del Smartphone / Vista Móvil Telegram -->
+  <div id="phone-wrapper" class="w-full sm:w-[410px] h-[100dvh] sm:h-[840px] sm:max-h-[92vh] bg-white dark:bg-tg-bgDark text-slate-900 dark:text-slate-100 sm:rounded-[44px] sm:ring-[10px] sm:ring-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden relative transition-all duration-300">
+
+    <!-- Notch / Dynamic Island -->
+    <div id="phone-notch" class="hidden sm:flex items-center justify-between px-7 pt-3 pb-1 bg-tg-headerLight dark:bg-tg-headerDark text-white text-[11px] font-semibold shrink-0 z-40 select-none">
+      <span id="live-clock">10:45</span>
+      <div class="w-20 h-4 bg-black/40 rounded-full flex items-center justify-center">
+        <div class="w-2 h-2 rounded-full bg-black/80 ring-1 ring-white/10 mr-2"></div>
+        <div class="w-1.5 h-1.5 rounded-full bg-sky-400"></div>
+      </div>
+      <div class="flex items-center gap-1.5 text-[10px]">
+        <i class="fa-solid fa-signal"></i>
+        <span class="text-[10px] font-bold">5G</span>
+        <i class="fa-solid fa-battery-full"></i>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         HEADER PRINCIPAL TELEGRAM
+         ============================================================ -->
+    <header class="bg-tg-headerLight dark:bg-tg-headerDark text-white px-3.5 py-3 shrink-0 z-30 shadow-md transition-colors">
+      <div class="flex items-center justify-between">
+        <!-- Menú Hamburguesa -->
+        <div class="flex items-center gap-3.5">
+          <button onclick="toggleDrawer()" title="Abrir Menú" class="p-1 text-white/90 hover:text-white transition active:scale-95">
+            <i class="fa-solid fa-bars text-lg"></i>
+          </button>
+          <h1 class="text-lg font-bold tracking-wide">Telegram</h1>
+        </div>
+
+        <!-- Botón de Búsqueda -->
+        <button onclick="activarBuscador()" title="Buscar bots" class="p-1 text-white/90 hover:text-white transition">
+          <i class="fa-solid fa-magnifying-glass text-base"></i>
+        </button>
+      </div>
+
+      <!-- Barra de Filtros / Carpetas Telegram -->
+      <div class="flex items-center gap-4 mt-3 overflow-x-auto pb-0.5 text-xs select-none border-t border-white/10 pt-2">
+        <button onclick="filtrarCategoria('todos')" id="tg-filter-todos" class="tg-tab text-white font-bold pb-1 border-b-2 border-white transition flex items-center gap-1">
+          <span>Todos</span>
+          <span class="bg-white/20 text-[10px] px-1.5 py-0.2 rounded-full">{{ agentes|length }}</span>
+        </button>
+        <button onclick="filtrarCategoria('bots')" id="tg-filter-bots" class="tg-tab text-white/70 hover:text-white pb-1 transition">
+          Bots IA
+        </button>
+        <button onclick="filtrarCategoria('canales')" id="tg-filter-canales" class="tg-tab text-white/70 hover:text-white pb-1 transition">
+          Canales
+        </button>
+      </div>
+    </header>
+
+    <!-- Barra de Búsqueda Integrada -->
+    <div id="tg-search-bar" class="hidden p-2.5 bg-slate-100 dark:bg-tg-bgDark border-b border-black/5 dark:border-white/5 shrink-0 anim-fade">
+      <div class="relative flex items-center">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs"></i>
+        <input id="tg-search-input" type="text" placeholder="Buscar bot o mensaje…"
+               oninput="buscarBots(this.value)"
+               class="w-full bg-white dark:bg-tg-headerDark text-slate-900 dark:text-slate-100 placeholder-slate-400 text-xs pl-8 pr-8 py-2 rounded-xl outline-none focus:ring-1 focus:ring-sky-500 shadow-sm transition">
+        <button onclick="desactivarBuscador()" class="absolute right-3 text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Historias / Contactos Superiores Telegram -->
+    <div class="px-3 py-2.5 border-b border-black/5 dark:border-white/5 bg-slate-50/60 dark:bg-tg-bgDark/60 shrink-0">
+      <div class="flex items-center gap-3.5 overflow-x-auto pb-1 select-none">
+        {% for ag in agentes %}
+        <a href="/admin/telegram/{{ ag.nombre }}" class="flex flex-col items-center gap-1 shrink-0 group">
+          <div class="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-sky-500 to-indigo-500 group-hover:scale-105 transition shadow">
+            {% if ag.avatar_url %}
+            <img src="{{ ag.avatar_url }}" alt="{{ ag.persona }}" class="w-full h-full rounded-full object-cover border border-white dark:border-tg-bgDark">
+            {% else %}
+            <div class="w-full h-full rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs">
+              {{ ag.persona[:2].upper() }}
+            </div>
+            {% endif %}
+          </div>
+          <span class="text-[10px] text-slate-700 dark:text-slate-300 truncate max-w-[55px] font-medium">{{ ag.persona.split()[0] }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ============================================================
+         LISTA DE CHATS DE BOTS / AGENTES TELEGRAM
+         ============================================================ -->
+    <main class="flex-1 overflow-y-auto divide-y divide-black/5 dark:divide-white/5" id="lista-bots">
+      {% for ag in agentes %}
+      <a href="/admin/telegram/{{ ag.nombre }}"
+         data-nombre="{{ ag.nombre|lower }}"
+         data-persona="{{ ag.persona|lower }}"
+         data-perfil="{{ ag.perfil|lower }}"
+         class="bot-item flex items-center gap-3 px-3.5 py-3 hover:bg-tg-itemHoverLight dark:hover:bg-tg-itemHoverDark transition active:bg-black/10 dark:active:bg-white/10">
+        
+        <!-- Avatar Telegram con Gradiente -->
+        <div class="relative shrink-0">
+          {% if ag.avatar_url %}
+          <img src="{{ ag.avatar_url }}" alt="{{ ag.persona }}" class="w-12 h-12 rounded-full object-cover shadow-sm">
+          {% else %}
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white font-bold text-base flex items-center justify-center shadow-sm">
+            {{ ag.persona[:2].upper() }}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Info Principal del Bot -->
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold truncate text-slate-900 dark:text-white flex items-center gap-1.5">
+              {{ ag.persona }}
+              <span class="bg-sky-500/15 text-sky-600 dark:text-sky-400 text-[9px] px-1 py-0.2 rounded font-semibold uppercase">bot</span>
+            </h2>
+            <span class="text-[11px] text-slate-400 dark:text-slate-400 shrink-0">{{ ag.ultima_hora }}</span>
+          </div>
+
+          <div class="flex items-center justify-between mt-0.5">
+            <p class="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[82%]">
+              {{ ag.ultimo_mensaje }}
+            </p>
+
+            <!-- Badge de Identidad -->
+            <span class="bg-sky-500/20 text-sky-700 dark:text-sky-300 text-[10px] font-semibold px-1.5 py-0.5 rounded-full shrink-0">
+              {{ ag.identidad.nombre }}
+            </span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+
+      <!-- Mensaje cuando no hay resultados de búsqueda -->
+      <div id="no-bots-msg" class="hidden p-8 text-center text-slate-400 text-xs">
+        <i class="fa-solid fa-robot text-2xl mb-2 text-slate-500"></i>
+        <p>No se encontraron bots o agentes con ese criterio.</p>
+      </div>
+    </main>
+
+    <!-- Botón Flotante de Nuevo Mensaje (FAB) -->
+    <a href="/agente/albert_einstein/telegram" title="Nuevo chat con bot"
+       class="absolute bottom-6 right-4 w-12 h-12 rounded-full bg-tg-blue hover:bg-sky-600 text-white flex items-center justify-center shadow-2xl active:scale-95 transition z-30">
+      <i class="fa-solid fa-pencil text-base"></i>
+    </a>
+
+    <!-- Home Bar Móvil -->
+    <div class="h-3 bg-white dark:bg-tg-bgDark flex items-center justify-center shrink-0">
+      <div class="w-28 h-1 bg-slate-400/40 dark:bg-white/20 rounded-full"></div>
+    </div>
+
+    <!-- ============================================================
+         DRAWER / MENÚ LATERAL DESPLEGABLE TELEGRAM
+         ============================================================ -->
+    <div id="tg-drawer" class="hidden absolute inset-0 bg-black/60 backdrop-blur-sm z-50 flex">
+      <div class="w-72 bg-white dark:bg-tg-headerDark h-full shadow-2xl flex flex-col justify-between anim-fade text-xs">
+        <!-- Cabecera del Drawer con Usuario -->
+        <div class="bg-tg-headerLight dark:bg-tg-bgDark p-4 text-white space-y-2">
+          <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-sky-400 to-indigo-500 text-white font-bold text-xl flex items-center justify-center shadow-md">
+            {{ usuario_actual[:2].upper() if usuario_actual else 'AD' }}
+          </div>
+          <div>
+            <h3 class="font-bold text-sm leading-tight">{{ usuario_actual or 'Administrador' }}</h3>
+            <p class="text-[11px] text-sky-200">+56 9 1234 5678 · @deepseek_admin</p>
+          </div>
+        </div>
+
+        <!-- Lista de Enlaces del Drawer -->
+        <div class="flex-1 py-3 overflow-y-auto divide-y divide-black/5 dark:divide-white/5">
+          <div class="py-1">
+            <a href="/admin/whatsapp" class="px-4 py-2.5 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-3 text-emerald-600 dark:text-emerald-400 font-semibold">
+              <i class="fa-brands fa-whatsapp text-base w-5 text-emerald-500"></i> Ver en WhatsApp
+            </a>
+            <a href="/dashboard" class="px-4 py-2.5 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-3 text-slate-700 dark:text-slate-200">
+              <i class="fa-solid fa-gauge-high text-base w-5 text-sky-500"></i> Dashboard Completo
+            </a>
+            <a href="/" class="px-4 py-2.5 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-3 text-slate-700 dark:text-slate-200">
+              <i class="fa-solid fa-house text-base w-5 text-amber-500"></i> Inicio Web
+            </a>
+          </div>
+
+          <div class="py-1">
+            <button onclick="toggleTema()" class="w-full text-left px-4 py-2.5 hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-between text-slate-700 dark:text-slate-200">
+              <span class="flex items-center gap-3">
+                <i class="fa-solid fa-moon text-base w-5 text-indigo-400"></i> Modo Noche
+              </span>
+              <i class="fa-solid fa-toggle-on text-sky-500 text-base"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pie del Drawer -->
+        <div class="p-3 border-t border-black/5 dark:border-white/5 text-center text-[10px] text-slate-400">
+          THEYTHINK AI · Telegram Mobile Simulator
+        </div>
+      </div>
+
+      <!-- Backdrop click para cerrar -->
+      <div class="flex-1" onclick="toggleDrawer()"></div>
+    </div>
+
+  </div>
+
+  <!-- Scripts Telegram Contact List -->
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const clockEl = document.getElementById("live-clock");
+      if (clockEl) clockEl.textContent = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function toggleTema() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      document.getElementById("theme-icon").className = isDark ? "fa-solid fa-moon" : "fa-solid fa-sun";
+      localStorage.setItem("theythink_tg_theme", isDark ? "dark" : "light");
+    }
+
+    function toggleMarco() {
+      const wrapper = document.getElementById("phone-wrapper");
+      const notch = document.getElementById("phone-notch");
+      const frameIcon = document.getElementById("frame-icon");
+      if (wrapper.classList.contains("sm:w-[410px]")) {
+        wrapper.classList.remove("sm:w-[410px]", "sm:h-[840px]", "sm:rounded-[44px]", "sm:ring-[10px]");
+        wrapper.classList.add("sm:w-full", "sm:h-screen");
+        notch.classList.add("hidden");
+        frameIcon.className = "fa-solid fa-compress";
+      } else {
+        wrapper.classList.add("sm:w-[410px]", "sm:h-[840px]", "sm:rounded-[44px]", "sm:ring-[10px]");
+        wrapper.classList.remove("sm:w-full", "sm:h-screen");
+        notch.classList.remove("hidden");
+        frameIcon.className = "fa-solid fa-mobile-screen";
+      }
+    }
+
+    function toggleDrawer() {
+      document.getElementById("tg-drawer").classList.toggle("hidden");
+    }
+
+    function activarBuscador() {
+      const bar = document.getElementById("tg-search-bar");
+      bar.classList.remove("hidden");
+      document.getElementById("tg-search-input").focus();
+    }
+
+    function desactivarBuscador() {
+      document.getElementById("tg-search-bar").classList.add("hidden");
+      document.getElementById("tg-search-input").value = "";
+      buscarBots("");
+    }
+
+    function buscarBots(query) {
+      const q = (query || "").toLowerCase().trim();
+      let visibleCount = 0;
+      document.querySelectorAll(".bot-item").forEach(el => {
+        const nom = el.dataset.nombre || "";
+        const per = el.dataset.persona || "";
+        const desc = el.dataset.perfil || "";
+        const match = nom.includes(q) || per.includes(q) || desc.includes(q);
+        el.classList.toggle("hidden", !match);
+        if (match) visibleCount++;
+      });
+
+      const noRes = document.getElementById("no-bots-msg");
+      if (noRes) noRes.classList.toggle("hidden", visibleCount > 0);
+    }
+
+    function filtrarCategoria(cat) {
+      document.querySelectorAll(".tg-tab").forEach(btn => {
+        btn.className = "tg-tab text-white/70 hover:text-white pb-1 transition";
+      });
+      const activeBtn = document.getElementById(`tg-filter-${cat}`);
+      if (activeBtn) {
+        activeBtn.className = "tg-tab text-white font-bold pb-1 border-b-2 border-white transition flex items-center gap-1";
+      }
+    }
+  </script>
+
+  <!-- Modal Global de Términos y Condiciones -->
+  {% include "terminos_modal.html" %}
+</body>
+</html>

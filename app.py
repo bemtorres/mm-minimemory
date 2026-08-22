@@ -242,6 +242,7 @@ def chat_view(nombre):
     active_session = obtener_o_crear_sesion_activa(nombre)
     roles = listar_roles()
     all_agents = listar_agentes()
+    all_agents_info = [load_agent_data(name) for name in all_agents]
     return render_template(
         "chat.html",
         agente=agent_data,
@@ -249,10 +250,135 @@ def chat_view(nombre):
         sesiones=listar_sesiones_agente(nombre),
         roles=roles,
         todos_los_agentes=all_agents,
+        todos_los_agentes_info=all_agents_info,
         identidades=IDENTIDADES,
         tiene_api_key=has_api_key(),
         usuario_actual=session.get("usuario"),
     )
+
+
+@app.get("/agente/<nombre>/whatsaap", endpoint="pagina_chat_whatsaap")
+@app.get("/agente/<nombre>/whatsapp", endpoint="pagina_chat_whatsapp")
+@require_login
+def whatsapp_view(nombre):
+    """Vista con interfaz móvil simulada estilo WhatsApp."""
+    get_agent_or_404(nombre)
+    agent_data = load_agent_data(nombre)
+    active_session = obtener_o_crear_sesion_activa(nombre)
+    messages = obtener_todos_mensajes_sesion(active_session["id"])
+    return render_template(
+        "whatsapp.html",
+        agente=agent_data,
+        sesion_activa=active_session,
+        mensajes=messages,
+        tiene_api_key=has_api_key(),
+        usuario_actual=session.get("usuario"),
+        volver_url="/admin/whatsaap",
+    )
+
+
+@app.get("/admin/whatsaap", endpoint="admin_whatsapp_lista_alt")
+@app.get("/admin/whatsapp", endpoint="admin_whatsapp_lista")
+@require_login
+def admin_whatsapp_list_view():
+    """Lista de contactos y chats estilo WhatsApp."""
+    agents = [load_agent_data(name) for name in listar_agentes()]
+    for ag in agents:
+        sessions = ag.get("sesiones") or []
+        if sessions:
+            ag["ultimo_mensaje"] = sessions[0].get("titulo") or "Conversación iniciada"
+            ag["ultima_hora"] = sessions[0].get("actualizado_en", "")[11:16] or "10:42"
+        else:
+            first_line = (ag.get("perfil") or "").splitlines()
+            ag["ultimo_mensaje"] = first_line[0] if first_line else "Disponible"
+            ag["ultima_hora"] = "10:00"
+    return render_template(
+        "whatsapp_list.html",
+        agentes=agents,
+        usuario_actual=session.get("usuario"),
+        tiene_api_key=has_api_key(),
+    )
+
+
+@app.get("/admin/whatsaap/<nombre>", endpoint="admin_whatsapp_chat_alt")
+@app.get("/admin/whatsapp/<nombre>", endpoint="admin_whatsapp_chat")
+@require_login
+def admin_whatsapp_chat_view(nombre):
+    """Chat con un agente específico dentro de /admin/whatsapp."""
+    get_agent_or_404(nombre)
+    agent_data = load_agent_data(nombre)
+    active_session = obtener_o_crear_sesion_activa(nombre)
+    messages = obtener_todos_mensajes_sesion(active_session["id"])
+    return render_template(
+        "whatsapp.html",
+        agente=agent_data,
+        sesion_activa=active_session,
+        mensajes=messages,
+        tiene_api_key=has_api_key(),
+        usuario_actual=session.get("usuario"),
+        volver_url="/admin/whatsaap",
+    )
+
+
+@app.get("/agente/<nombre>/telegram", endpoint="pagina_chat_telegram")
+@require_login
+def telegram_view(nombre):
+    """Vista con interfaz móvil simulada estilo Telegram."""
+    get_agent_or_404(nombre)
+    agent_data = load_agent_data(nombre)
+    active_session = obtener_o_crear_sesion_activa(nombre)
+    messages = obtener_todos_mensajes_sesion(active_session["id"])
+    return render_template(
+        "telegram.html",
+        agente=agent_data,
+        sesion_activa=active_session,
+        mensajes=messages,
+        tiene_api_key=has_api_key(),
+        usuario_actual=session.get("usuario"),
+        volver_url="/admin/telegram",
+    )
+
+
+@app.get("/admin/telegram", endpoint="admin_telegram_lista")
+@require_login
+def admin_telegram_list_view():
+    """Lista de contactos y bots estilo Telegram."""
+    agents = [load_agent_data(name) for name in listar_agentes()]
+    for ag in agents:
+        sessions = ag.get("sesiones") or []
+        if sessions:
+            ag["ultimo_mensaje"] = sessions[0].get("titulo") or "Conversación iniciada"
+            ag["ultima_hora"] = sessions[0].get("actualizado_en", "")[11:16] or "10:42"
+        else:
+            first_line = (ag.get("perfil") or "").splitlines()
+            ag["ultimo_mensaje"] = first_line[0] if first_line else "Bot activo"
+            ag["ultima_hora"] = "10:00"
+    return render_template(
+        "telegram_list.html",
+        agentes=agents,
+        usuario_actual=session.get("usuario"),
+        tiene_api_key=has_api_key(),
+    )
+
+
+@app.get("/admin/telegram/<nombre>", endpoint="admin_telegram_chat")
+@require_login
+def admin_telegram_chat_view(nombre):
+    """Chat con un bot específico dentro de /admin/telegram."""
+    get_agent_or_404(nombre)
+    agent_data = load_agent_data(nombre)
+    active_session = obtener_o_crear_sesion_activa(nombre)
+    messages = obtener_todos_mensajes_sesion(active_session["id"])
+    return render_template(
+        "telegram.html",
+        agente=agent_data,
+        sesion_activa=active_session,
+        mensajes=messages,
+        tiene_api_key=has_api_key(),
+        usuario_actual=session.get("usuario"),
+        volver_url="/admin/telegram",
+    )
+
 
 
 # ----------------------------------------------------------------------
@@ -787,13 +913,19 @@ def api_send_session_message(sesion_id):
     if not user_message:
         return jsonify({"error": "El mensaje no puede estar vacío."}), 400
 
+    custom_max_tokens = payload.get("max_tokens")
+    try:
+        max_tokens_val = int(custom_max_tokens) if custom_max_tokens else 400
+    except (ValueError, TypeError):
+        max_tokens_val = 400
+
     try:
         agent = AgentDB(agent_name)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
 
     try:
-        assistant_response = agent.preguntar(user_message, sesion_id=sesion_id)
+        assistant_response = agent.preguntar(user_message, sesion_id=sesion_id, max_tokens=max_tokens_val)
     except RuntimeError as error:
         return jsonify({"error": str(error)}), 500
 

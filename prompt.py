@@ -36,6 +36,15 @@ DOCUMENT_MARKER = "[información del documento]"
 NO_MEMORY_TOKEN = "NO_MEMORIA"
 
 
+# Directrices universales de brevedad y control de tokens
+REGLA_CONCISION_TOKENS = """DIRECTRICES OBLIGATORIAS DE RESPUESTA Y CONTROL DE TOKENS:
+- Responde de forma breve, clara y directa.
+- Utiliza únicamente la información necesaria para responder.
+- No repitas la pregunta.
+- Evita introducciones, conclusiones y explicaciones innecesarias.
+- Prioriza respuestas de 2 a 5 frases."""
+
+
 def process_identity(identity_prompt: str, person_name: str) -> str:
     """Procesa los marcadores en el prompt del rol.
 
@@ -54,7 +63,8 @@ def build_system_prompt(role_prompt: str, profile: str, knowledge: str, memory: 
     """Construye el System Prompt completo para DeepSeek.
 
     Ensambla el rol procesado junto con el perfil detallado, el contenido
-    de las bases de conocimiento y los hechos almacenados en la memoria activa.
+    de las bases de conocimiento, la memoria activa y las directrices
+    estrictas de concisión y ahorro de tokens.
     """
     knowledge_text = knowledge.strip() if knowledge.strip() else "(sin conocimientos previos)"
     memory_text = memory.strip() if memory.strip() else "(sin memorias almacenadas)"
@@ -68,7 +78,9 @@ BASE DE CONOCIMIENTO:
 {knowledge_text}
 
 MEMORIA:
-{memory_text}"""
+{memory_text}
+
+{REGLA_CONCISION_TOKENS}"""
 
 
 def build_memory_prompt(memory: str, conversation: str) -> str:

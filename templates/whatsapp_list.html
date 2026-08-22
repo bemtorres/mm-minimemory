@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WhatsApp · Contactos & Chats</title>
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" type="image/svg+xml">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            wa: {
+              teal: "#008069",
+              tealDark: "#075e54",
+              tealLight: "#128c7e",
+              green: "#25d366",
+              darkBg: "#111b21",
+              darkHeader: "#202c33",
+              darkCard: "#111b21",
+              darkCardHover: "#202c33",
+              lightBg: "#ffffff",
+              lightHeader: "#f0f2f5",
+              lightCardHover: "#f5f6f6",
+              checkBlue: "#53bdeb",
+            }
+          },
+          fontFamily: {
+            sans: ["'Segoe UI'", "Helvetica Neue", "Helvetica", "Lucida Grande", "Arial", "sans-serif"]
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* Scrollbar personalizada estilo WhatsApp */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .dark ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-fade { animation: fadeIn 0.18s ease-out; }
+  </style>
+</head>
+
+<body class="bg-slate-900 text-slate-100 flex items-center justify-center min-h-screen p-0 sm:p-4 overflow-x-hidden select-none font-sans">
+
+  <!-- Controles Superiores Flotantes (Desktop) -->
+  <div class="fixed top-3 right-3 z-50 flex items-center gap-2 bg-slate-950/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-slate-700/60 shadow-xl text-xs">
+    <!-- Switcher de Tema Claro/Oscuro -->
+    <button onclick="toggleTema()" title="Cambiar Tema WhatsApp" class="text-slate-300 hover:text-emerald-400 p-1 transition">
+      <i id="theme-icon" class="fa-solid fa-moon"></i>
+    </button>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Cambiar a Telegram Lista -->
+    <a href="/admin/telegram" title="Abrir lista en estilo Telegram" class="flex items-center gap-1 text-sky-400 hover:text-sky-300 font-semibold transition px-1">
+      <i class="fa-brands fa-telegram"></i> <span class="hidden sm:inline">Telegram</span>
+    </a>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Volver al Dashboard -->
+    <a href="/dashboard" title="Ir al Dashboard de Administración" class="text-slate-300 hover:text-white transition px-1 flex items-center gap-1">
+      <i class="fa-solid fa-gauge-high"></i> <span class="hidden sm:inline">Dashboard</span>
+    </a>
+    <div class="h-3 w-px bg-slate-700"></div>
+    <!-- Toggle Marco Móvil -->
+    <button onclick="toggleMarco()" title="Alternar Marco Móvil / Pantalla Completa" class="text-slate-300 hover:text-emerald-400 p-1 transition">
+      <i id="frame-icon" class="fa-solid fa-mobile-screen"></i>
+    </button>
+  </div>
+
+  <!-- Contenedor del Smartphone / Vista Móvil WhatsApp -->
+  <div id="phone-wrapper" class="w-full sm:w-[410px] h-[100dvh] sm:h-[840px] sm:max-h-[92vh] bg-white dark:bg-wa-darkBg text-slate-900 dark:text-slate-100 sm:rounded-[44px] sm:ring-[10px] sm:ring-slate-800 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] flex flex-col overflow-hidden relative transition-all duration-300">
+
+    <!-- Notch / Dynamic Island -->
+    <div id="phone-notch" class="hidden sm:flex items-center justify-between px-7 pt-3 pb-1 bg-wa-teal dark:bg-wa-darkHeader text-white text-[11px] font-semibold shrink-0 z-40 select-none">
+      <span id="live-clock">10:45</span>
+      <div class="w-20 h-4 bg-black/40 rounded-full flex items-center justify-center">
+        <div class="w-2 h-2 rounded-full bg-black/80 ring-1 ring-white/10 mr-2"></div>
+        <div class="w-1.5 h-1.5 rounded-full bg-emerald-400"></div>
+      </div>
+      <div class="flex items-center gap-1.5 text-[10px]">
+        <i class="fa-solid fa-signal"></i>
+        <span class="text-[10px] font-bold">5G</span>
+        <i class="fa-solid fa-battery-full"></i>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         HEADER PRINCIPAL WHATSAPP
+         ============================================================ -->
+    <header class="bg-wa-teal dark:bg-wa-darkHeader text-white px-4 py-3 shrink-0 z-30 shadow-md transition-colors">
+      <div class="flex items-center justify-between">
+        <h1 class="text-xl font-bold tracking-wide">WhatsApp</h1>
+        <div class="flex items-center gap-4 text-white/90">
+          <button onclick="document.getElementById('wa-search-input').focus()" title="Buscar contacto" class="hover:text-white transition">
+            <i class="fa-solid fa-magnifying-glass text-base"></i>
+          </button>
+          <button onclick="toggleMenuHeader()" title="Más opciones" class="hover:text-white transition relative">
+            <i class="fa-solid fa-ellipsis-vertical text-base"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Barra de Filtros Rápida -->
+      <div class="flex items-center gap-2 mt-3 overflow-x-auto pb-0.5 text-xs select-none">
+        <button onclick="filtrarCategoria('todos')" id="filter-todos" class="filter-chip bg-white/20 dark:bg-white/15 text-white font-semibold px-3 py-1 rounded-full text-[11px] transition">
+          Todos ({{ agentes|length }})
+        </button>
+        <button onclick="filtrarCategoria('ia')" id="filter-ia" class="filter-chip bg-black/10 dark:bg-white/5 text-white/80 hover:text-white px-3 py-1 rounded-full text-[11px] transition">
+          Agentes IA
+        </button>
+        <button onclick="filtrarCategoria('favoritos')" id="filter-favoritos" class="filter-chip bg-black/10 dark:bg-white/5 text-white/80 hover:text-white px-3 py-1 rounded-full text-[11px] transition">
+          Favoritos
+        </button>
+      </div>
+    </header>
+
+    <!-- Menú Desplegable 3 Puntos WhatsApp -->
+    <div id="wa-dropdown-menu" class="hidden absolute top-14 right-4 bg-white dark:bg-wa-darkHeader text-slate-800 dark:text-slate-100 rounded-2xl shadow-2xl py-2 w-52 border border-black/10 dark:border-white/10 z-50 text-xs anim-fade">
+      <a href="/admin/telegram" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 text-sky-500 font-semibold">
+        <i class="fa-brands fa-telegram w-4"></i> Ver en Telegram
+      </a>
+      <a href="/dashboard" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2 text-wa-teal dark:text-emerald-400 font-semibold">
+        <i class="fa-solid fa-gauge-high w-4"></i> Dashboard Admin
+      </a>
+      <div class="h-px bg-black/10 dark:bg-white/10 my-1"></div>
+      <button onclick="toggleTema(); toggleMenuHeader();" class="w-full text-left px-4 py-2 hover:bg-black/5 dark:hover:bg-white/5 flex items-center gap-2">
+        <i class="fa-regular fa-moon w-4"></i> Cambiar modo de color
+      </button>
+    </div>
+
+    <!-- Barra de Búsqueda Instantánea -->
+    <div class="p-2.5 bg-slate-50 dark:bg-wa-darkBg border-b border-black/5 dark:border-white/5 shrink-0">
+      <div class="relative flex items-center">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 text-slate-400 text-xs"></i>
+        <input id="wa-search-input" type="text" placeholder="Buscar un agente o contacto…"
+               oninput="buscarContactos(this.value)"
+               class="w-full bg-slate-200/80 dark:bg-wa-darkHeader text-slate-900 dark:text-slate-100 placeholder-slate-400 text-xs pl-9 pr-8 py-2 rounded-xl outline-none focus:ring-1 focus:ring-wa-teal transition">
+        <button id="wa-clear-search" onclick="limpiarBusqueda()" class="hidden absolute right-3 text-slate-400 hover:text-slate-200">
+          <i class="fa-solid fa-xmark text-xs"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Carrusel de Estados / Historias WhatsApp -->
+    <div class="px-3 py-2.5 border-b border-black/5 dark:border-white/5 bg-slate-50/50 dark:bg-wa-darkBg/50 shrink-0">
+      <div class="flex items-center gap-3 overflow-x-auto pb-1 select-none">
+        <!-- Mi Estado -->
+        <div class="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+          <div class="relative w-12 h-12 rounded-full ring-2 ring-emerald-500 p-0.5">
+            <div class="w-full h-full rounded-full bg-wa-teal text-white flex items-center justify-center font-bold text-xs">
+              {{ usuario_actual[:2].upper() if usuario_actual else 'TÚ' }}
+            </div>
+            <span class="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full text-white flex items-center justify-center text-[9px] font-bold border-2 border-white dark:border-wa-darkBg">+</span>
+          </div>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[50px]">Mi estado</span>
+        </div>
+
+        <!-- Estados de los Agentes -->
+        {% for ag in agentes %}
+        <a href="/admin/whatsaap/{{ ag.nombre }}" class="flex flex-col items-center gap-1 shrink-0 group">
+          <div class="w-12 h-12 rounded-full ring-2 ring-emerald-500 p-0.5 group-hover:scale-105 transition">
+            {% if ag.avatar_url %}
+            <img src="{{ ag.avatar_url }}" alt="{{ ag.persona }}" class="w-full h-full rounded-full object-cover">
+            {% else %}
+            <div class="w-full h-full rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center font-bold text-xs">
+              {{ ag.persona[:2].upper() }}
+            </div>
+            {% endif %}
+          </div>
+          <span class="text-[10px] text-slate-700 dark:text-slate-300 truncate max-w-[55px] font-medium">{{ ag.persona.split()[0] }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- ============================================================
+         LISTA DE CHATS / CONTACTOS DE AGENTES
+         ============================================================ -->
+    <main class="flex-1 overflow-y-auto divide-y divide-black/5 dark:divide-white/5" id="lista-contactos">
+      {% for ag in agentes %}
+      <a href="/admin/whatsaap/{{ ag.nombre }}"
+         data-nombre="{{ ag.nombre|lower }}"
+         data-persona="{{ ag.persona|lower }}"
+         data-perfil="{{ ag.perfil|lower }}"
+         class="contacto-item flex items-center gap-3 px-3.5 py-3 hover:bg-wa-lightCardHover dark:hover:bg-wa-darkCardHover transition active:bg-black/10 dark:active:bg-white/10">
+        
+        <!-- Avatar con Badge Online -->
+        <div class="relative shrink-0">
+          {% if ag.avatar_url %}
+          <img src="{{ ag.avatar_url }}" alt="{{ ag.persona }}" class="w-12 h-12 rounded-full object-cover shadow-sm">
+          {% else %}
+          <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 text-white font-bold text-base flex items-center justify-center shadow-sm">
+            {{ ag.persona[:2].upper() }}
+          </div>
+          {% endif %}
+          <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white dark:border-wa-darkBg rounded-full"></span>
+        </div>
+
+        <!-- Info Principal del Contacto / Agente -->
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold truncate text-slate-900 dark:text-white flex items-center gap-1.5">
+              {{ ag.persona }}
+              <i class="fa-solid fa-circle-check text-emerald-500 text-[10px]" title="Verificado"></i>
+            </h2>
+            <span class="text-[11px] text-slate-400 dark:text-emerald-400 font-medium shrink-0">{{ ag.ultima_hora }}</span>
+          </div>
+
+          <div class="flex items-center justify-between mt-0.5">
+            <p class="text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1 max-w-[82%]">
+              <i class="fa-solid fa-check-double text-wa-checkBlue text-[11px] shrink-0"></i>
+              <span>{{ ag.ultimo_mensaje }}</span>
+            </p>
+
+            <!-- Badge de Rol o Contador -->
+            <span class="bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0">
+              {{ ag.identidad.nombre }}
+            </span>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+
+      <!-- Mensaje cuando la búsqueda no coincide -->
+      <div id="no-results-msg" class="hidden p-8 text-center text-slate-400 text-xs">
+        <i class="fa-solid fa-user-slash text-2xl mb-2 text-slate-500"></i>
+        <p>No se encontraron agentes con ese nombre o perfil.</p>
+      </div>
+    </main>
+
+    <!-- Botón Flotante de Nuevo Chat (FAB) -->
+    <a href="/agente/albert_einstein/whatsaap" title="Iniciar nuevo chat"
+       class="absolute bottom-16 right-4 w-12 h-12 rounded-2xl bg-wa-teal dark:bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center shadow-2xl active:scale-95 transition z-30">
+      <i class="fa-solid fa-message text-base"></i>
+    </a>
+
+    <!-- ============================================================
+         BARRA DE NAVEGACIÓN INFERIOR (TABS WHATSAPP)
+         ============================================================ -->
+    <nav class="bg-slate-100 dark:bg-wa-darkHeader border-t border-black/5 dark:border-white/5 py-2 px-6 flex items-center justify-between text-slate-500 dark:text-slate-400 text-[10px] font-medium shrink-0 z-30">
+      <button class="flex flex-col items-center gap-0.5 text-wa-teal dark:text-emerald-400 font-bold">
+        <div class="relative">
+          <i class="fa-solid fa-message text-base"></i>
+          <span class="absolute -top-1 -right-2 bg-emerald-500 text-white text-[8px] font-extrabold px-1 rounded-full">{{ agentes|length }}</span>
+        </div>
+        <span>Chats</span>
+      </button>
+
+      <button onclick="alert('Sección Estados / Novedades activa con todos tus agentes.')" class="flex flex-col items-center gap-0.5 hover:text-slate-800 dark:hover:text-white transition">
+        <i class="fa-regular fa-circle-dot text-base"></i>
+        <span>Novedades</span>
+      </button>
+
+      <button onclick="alert('Comunidades inteligentes integradas con DeepSeek.')" class="flex flex-col items-center gap-0.5 hover:text-slate-800 dark:hover:text-white transition">
+        <i class="fa-solid fa-users text-base"></i>
+        <span>Comunidades</span>
+      </button>
+
+      <button onclick="alert('Registro de llamadas simuladas de voz y video.')" class="flex flex-col items-center gap-0.5 hover:text-slate-800 dark:hover:text-white transition">
+        <i class="fa-solid fa-phone text-base"></i>
+        <span>Llamadas</span>
+      </button>
+    </nav>
+
+    <!-- Home Bar Móvil -->
+    <div class="h-3 bg-slate-100 dark:bg-wa-darkHeader flex items-center justify-center shrink-0">
+      <div class="w-28 h-1 bg-slate-400/40 dark:bg-white/20 rounded-full"></div>
+    </div>
+
+  </div>
+
+  <!-- Scripts WhatsApp Contact List -->
+  <script>
+    function updateClock() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const clockEl = document.getElementById("live-clock");
+      if (clockEl) clockEl.textContent = `${hours}:${minutes}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function toggleTema() {
+      const isDark = document.documentElement.classList.toggle("dark");
+      document.getElementById("theme-icon").className = isDark ? "fa-solid fa-moon" : "fa-solid fa-sun";
+      localStorage.setItem("theythink_wa_theme", isDark ? "dark" : "light");
+    }
+
+    function toggleMarco() {
+      const wrapper = document.getElementById("phone-wrapper");
+      const notch = document.getElementById("phone-notch");
+      const frameIcon = document.getElementById("frame-icon");
+      if (wrapper.classList.contains("sm:w-[410px]")) {
+        wrapper.classList.remove("sm:w-[410px]", "sm:h-[840px]", "sm:rounded-[44px]", "sm:ring-[10px]");
+        wrapper.classList.add("sm:w-full", "sm:h-screen");
+        notch.classList.add("hidden");
+        frameIcon.className = "fa-solid fa-compress";
+      } else {
+        wrapper.classList.add("sm:w-[410px]", "sm:h-[840px]", "sm:rounded-[44px]", "sm:ring-[10px]");
+        wrapper.classList.remove("sm:w-full", "sm:h-screen");
+        notch.classList.remove("hidden");
+        frameIcon.className = "fa-solid fa-mobile-screen";
+      }
+    }
+
+    function toggleMenuHeader() {
+      document.getElementById("wa-dropdown-menu").classList.toggle("hidden");
+    }
+
+    function buscarContactos(query) {
+      const q = (query || "").toLowerCase().trim();
+      const clearBtn = document.getElementById("wa-clear-search");
+      if (q) {
+        clearBtn.classList.remove("hidden");
+      } else {
+        clearBtn.classList.add("hidden");
+      }
+
+      let visibleCount = 0;
+      document.querySelectorAll(".contacto-item").forEach(el => {
+        const nom = el.dataset.nombre || "";
+        const per = el.dataset.persona || "";
+        const desc = el.dataset.perfil || "";
+        const match = nom.includes(q) || per.includes(q) || desc.includes(q);
+        el.classList.toggle("hidden", !match);
+        if (match) visibleCount++;
+      });
+
+      const noRes = document.getElementById("no-results-msg");
+      if (noRes) noRes.classList.toggle("hidden", visibleCount > 0);
+    }
+
+    function limpiarBusqueda() {
+      const input = document.getElementById("wa-search-input");
+      input.value = "";
+      buscarContactos("");
+      input.focus();
+    }
+
+    function filtrarCategoria(cat) {
+      document.querySelectorAll(".filter-chip").forEach(btn => {
+        btn.className = "filter-chip bg-black/10 dark:bg-white/5 text-white/80 hover:text-white px-3 py-1 rounded-full text-[11px] transition";
+      });
+      const activeBtn = document.getElementById(`filter-${cat}`);
+      if (activeBtn) {
+        activeBtn.className = "filter-chip bg-white/20 dark:bg-white/15 text-white font-semibold px-3 py-1 rounded-full text-[11px] transition";
+      }
+    }
+  </script>
+
+  <!-- Modal Global de Términos y Condiciones -->
+  {% include "terminos_modal.html" %}
+</body>
+</html>
